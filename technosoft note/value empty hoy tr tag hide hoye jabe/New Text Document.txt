@@ -1,0 +1,10 @@
+   @if (!empty($purchaseorderReceipt[0]->vat))
+                            <tr>
+                                <td colspan="2"></td>
+                                <td colspan="2" class="text-md-right font-weight-bold">Vat</td>
+
+                                <td colspan="2" class="text-md-right font-weight-bold text-nowrap">
+                                    {{ $purchaseorderReceipt[0]->vat }}
+                                </td>
+                            </tr>
+                        @endif

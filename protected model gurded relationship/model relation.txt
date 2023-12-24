@@ -1,0 +1,19 @@
+
+
+ public function category(){
+        return $this->belongsTo(Category::class);
+    }
+    public function subCategory(){
+        return $this->belongsTo(SubCategory::class);
+    }
+
+
+or operta kaj na korle 2nd ta
+
+
+public function promotionCatagory(){
+        return $this->belongsTo(PromotionCatagory::class,'category_id' );
+    }
+    public function promotionBrand(){
+        return $this->belongsTo(PromotionBrand::class,'brand_id');
+    }

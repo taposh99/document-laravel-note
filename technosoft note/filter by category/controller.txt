@@ -1,0 +1,12 @@
+  public function showDataByCategory(Request $request, $id = null)
+    {
+
+        
+        // dd($query);
+      
+            $category = Promotion::where('category_id', $request->category_id)->where('status', 1)->get();
+
+      
+        // Fetch the category with the given ID
+        return view('promotion.catagory.search', compact('category',));
+    }

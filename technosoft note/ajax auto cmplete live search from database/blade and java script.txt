@@ -1,0 +1,42 @@
+ <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+
+    <input type="text" id="searchInput" placeholder="Search products...">
+     <ul id="searchResults"></ul>
+
+
+
+
+   <script>
+            $(document).ready(function() {
+                $('#searchInput').on('input', function() {
+                    var query = $(this).val();
+
+                    if (query.length >= 2) {
+                        $.ajax({
+                            url: '{{ route('search.autocomplete') }}',
+                            method: 'GET',
+                            data: {
+                                query: query
+                            },
+                            success: function(data) {
+                                var results = '';
+
+                                $.each(data, function(index, product) {
+                                    results += '<li><a href="/products/' + product.id +
+                                        '">' + product.name + '</a></li>';
+                                });
+
+                                $('#searchResults').html(results);
+                            }
+                        });
+                    } else {
+                        $('#searchResults').empty();
+                    }
+                });
+            });
+        </script>
+
+
+
+

@@ -1,0 +1,1 @@
+Route::get('/change-status/{id}',[BlogController::class,'changeStatus']);

@@ -1,0 +1,18 @@
+ <label for="id" class="form-label">ID</label>
+          <input type="text" name="p_id" id="random_id" class="form-control" readonly>
+
+
+
+then
+
+ <input type="hidden" id="hidden_id" value="{{ $randomId }}"/>
+
+
+<script>
+    var i = 100 + parseInt(document.getElementById('hidden_id').value);
+    // console.log(typeof i);
+    var date = new Date();
+    var defaultExpense =
+        `ABC${date.getUTCFullYear().toString().slice(0,0)}${++i}P`;
+    document.getElementById('random_id').value = defaultExpense;
+</script>

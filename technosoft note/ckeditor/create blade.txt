@@ -1,0 +1,28 @@
+                          <div class="form-group">
+                                <label for="exampleFormControlTextarea1">Desceription :</label>
+                                <textarea type="text" name="desceription" id="description" class="form-control" id="exampleFormControlTextarea1" rows="3" nullable></textarea>
+                            </div>
+
+
+
+<script>
+    ClassicEditor
+        .create(document.querySelector('#description'))
+        .catch(error => {
+            console.error(error);
+        });
+</script>
+
+@endsection
+
+
+
+
+
+
+
+
+
+
+
+

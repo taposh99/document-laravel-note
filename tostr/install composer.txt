@@ -1,0 +1,9 @@
+composer require yoeunes/toastr
+
+php artisan vendor:publish --provider="Yoeunes\Toastr\ToastrServiceProvider"
+
+
+
+
+then go to view file
+toastr()->success('Data has been saved successfully!');

@@ -1,0 +1,14 @@
+
+   
+ <div class="col d-flex">
+            <h2 class="text-dark">Offers</h2>
+            <div class="form-check form-switch" style="margin-left: 5px;">
+                <label class="form-check-label" for="flexSwitchCheckDefault"></label>
+                <input class="form-check-input" onclick="toggleSection()" type="checkbox" role="switch" id="flexSwitchCheckDefault" checked>
+            </div>
+        </div>
+
+    <div id="mySection">
+        <!-- Your section content goes here -->
+        <p>This is my section content.</p>
+    </div>

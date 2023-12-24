@@ -1,0 +1,119 @@
+composer create-project laravel/laravel (project_name)
+composer require laravel/ui
+php artisan ui bootstrap --auth
+npm install
+npm run dev
+
+php artisan migrate
+
+php artisan make:controller (FrontEndController)
+php artisan make:model (Student) -m
+php artisan make:Middleware (HomeMiddleware)
+php artisan make:middleware (name)
+
+
+
+ #model+controller+resource
+
+php artisan make:model Student -mcr
+
+
+
+
+
+
+Route::get('/',[TestController:: class,'index'])->name('/');
+
+href="{{asset('frontEndAsset')}}/css/
+
+{{route('/')}}
+ 
+@extends('frontEnd.master')
+
+@section('content')   
+@endsection
+
+@yield('content')
+
+ 
+@foreach($students as $student)    
+@endforeach
+
+{{$student->id}}
+
+{{$student->first_name.' '.$student->last_name}}
+
+onclick="return confirm('Are you sure delete!!')"
+
+ @php $i=1; @endphp
+
+enctype="multipart/form-data"
+
+action="{{ route('new.blog') }}"
+
+
+  public function index(){
+        return view('');
+        
+    }
+
+
+
+
+
+
+
+#jetstrem-auth
+composer create-project laravel/laravel (file name)
+composer require laravel/jetstream
+php artisan jetstream:install livewire  /  php artisan jetstream:install inertia
+npm install
+npm run build
+php artisan migrate
+
+
+git clone
+composer update
+env example change+database name
+php artisan key:generate
+php artisan migrate:fresh
+php artisan db:seed
+php artisan serve
+
+
+php artisan make:controller StudentController --resource
+
+php artisan db:seed
+php artisan migrate:rollback
+php artisan migrate
+
+php artisan config:cache
+php artisan optimize
+php artisan route:cache
+php artisan route:clear
+php artisan view:clear
+
+
+
+Composer install
+composer update –no-scripts
+php artisan key:generate
+php artisan migrate:fresh
+php artisan serve
+
+
+php artisan storage:link
+
+
+php artisan vendor:publish --tag=jetstream-views
+
+
+
+
+
+
+
+
+
+
+

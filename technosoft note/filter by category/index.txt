@@ -1,0 +1,27 @@
+ <form name="_token" action="{{ route('promotion.filter.category') }}" id="tour-dropdown" method="get">
+                {!! csrf_field() !!}
+
+                <select id="tour" style="width: 100px;" class="btn btn-primary" name="category_id">
+                    <option value="">Filter</option>
+                    @foreach ($promotionCatagory as $category)
+                    <option value="{!! $category->id !!}">{!! $category->catagory !!}</option>
+                    @endforeach
+                </select>
+            </form>
+
+
+
+
+<script>
+    function dataFilter(id) {
+        $(id).on('change', function(e) {
+
+            var variable = e.target.value;
+
+            $(id + '-dropdown').submit();
+
+        });
+    };
+
+    dataFilter('#tour');
+</script>

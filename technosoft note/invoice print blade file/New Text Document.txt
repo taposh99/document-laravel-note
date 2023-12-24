@@ -1,0 +1,249 @@
+@extends('layouts.app')
+@section('content')
+    <br><br>
+
+    <!DOCTYPE html>
+    <html>
+
+    <head>
+        <title>Invoice</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+            }
+
+            h1 {
+                text-align: center;
+                margin-top: 20px;
+            }
+
+            .header {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 20px;
+            }
+
+            .company-logo {
+                max-width: 150px;
+            }
+
+            .company-details .p {
+                flex-grow: 1;
+                text-align: left;
+            }
+
+            .barcode {
+                text-align: right;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-bottom: 20px;
+            }
+
+            th,
+            td {
+                border: 1px solid #ddd;
+                padding: 8px;
+            }
+
+            th {
+                background-color: #f2f2f2;
+                text-align: left;
+            }
+
+            tbody tr:nth-child(even) {
+                background-color: #f9f9f9;
+            }
+
+            p {
+                text-align: right;
+                font-weight: bold;
+            }
+
+            button {
+                display: block;
+                margin: 20px auto;
+                padding: 10px 20px;
+                background-color: #4caf50;
+                color: #fff;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+
+            button:hover {
+                background-color: #45a049;
+            }
+
+            .bord {
+                padding: 13px;
+                border: 1px solid black;
+            }
+
+            .card-body {
+                padding: 1rem 1rem;
+                width: max-content;
+                font-size: 11px;
+            }
+
+            @media print {
+                body * {
+                    visibility: hidden;
+                }
+
+                #content * {
+                    visibility: visible;
+                }
+
+            }
+        </style>
+    </head>
+
+    <body>
+        <div id="content">
+            <div class="bord">
+                <div class="header"style="border: 1px solid gray; padding: 17PX;">
+
+                    <div class="company-logo">
+                        <img src="{{ asset('/upload') }}/{{ $companysetup->image }}" alt="image"
+                            style="height: 70px;margin-top: 8px;">
+                    </div>
+                    <div class="company-details">
+                        <p style="text-align: left; font-size: 11px;"><b>{{ $companysetup->name }}</b><br>
+                            {{ $companysetup->address }} <br>
+                            <b style="text-align: left; font-size: 11px;">Mobile : </b>{{ $companysetup->mobile }}<br>
+                            <b style="text-align: left;font-size:11px;">Phone : </b>{{ $companysetup->phone }}<br>
+                            <b style="text-align: left;font-size:11px;">Email : </b>{{ $companysetup->email }} <br>
+                            <b style="text-align: left;font-size: 11px;">Web : </b> {{ $companysetup->web }}
+                        </p>
+                    </div>
+                    <div class="company-details">
+
+                        <img src=" {{ asset('image_barcode/barcode.png') }}" alt=""
+                            style="height:60px;width:140px;margin-top: 8px;">
+                        <p>Date : <td>{{ date_format($salesEstimateReceipt[0]->created_at, 'Y-M-d') }}</td>
+                        </p>
+
+                    </div>
+                </div>
+                <p style="text-align: left;font-size: 11px; margin-bottom: auto;"><b>Customer Name : </b>
+                    <td>{{ $salesEstimateReceipt[0]->customer->cc_name }}</td>
+                </p>
+                <p style="text-align: left;font-size: 11px; margin-bottom: auto;"><b>Customer Contact : </b>
+                    <td>{{ $salesEstimateReceipt[0]->customer->contact }}</td>
+                </p>
+                <p style="text-align: left;font-size: 11px;"><b>Address: </b>
+                    <td>{{ $salesEstimateReceipt[0]->customer->address }}</td>
+                </p>
+                <h5 style="text-align: center">Sales Invoice</h5>
+                <table class="table_invoice table_invoice-condensed table_invoice-bordered table_invoice-striped"
+                    style="margin-bottom: 5px;" cellpadding="0" cellspacing="0" border="0">
+                    <thead>
+                        <tr>
+                            <th style="width:5% !important;">N°</th>
+                            <th style="width:52.5% !important;">Product</th>
+                            <th style="width:12.5% !important;">Price</th>
+                            <th style="width:10% !important;">Qty</th>
+                            <th style="width:12.5% !important;">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($salesEstimateReceiptItems as $key => $salesEstimateReceiptItem)
+                            <tr>
+                                <td rowspan="2" class="text-md-center" style="vertical-align: top;">{{ $key + 1 }}
+                                </td>
+                                <td class="text-md-left" style="vertical-align: top;">
+                                    {{ $salesEstimateReceiptItem->product->name }}</td>
+                                <td rowspan="2" class="text-md-right" style="vertical-align: top;">
+                                    {{ $salesEstimateReceiptItem->price }}</td>
+                                <td rowspan="2" class="text-md-center" style="vertical-align: top;">
+                                    {{ $salesEstimateReceiptItem->quantity }} Piece</td>
+                                <td rowspan="2" class="text-md-right" style="vertical-align: top;">
+                                    {{ $salesEstimateReceiptItem->totalPrice() }}</td>
+                            </tr>
+                            <tr>
+                                <td class="text-md-left beak-line">
+                                    SL#
+                                    @foreach ($sale_serials as $sale_serial)
+                                        @if ($sale_serial->product_id == $salesEstimateReceiptItem->product_id)
+                                            {{ $sale_serial->sales_serial }},
+                                        @endif
+                                    @endforeach
+                                </td>
+                            </tr>
+                        @endforeach
+
+                        <tr>
+                            <td colspan="2"></td>
+                            <td colspan="2" class="text-md-right font-weight-bold">Sub Total</td>
+                            <td colspan="2" class="text-md-right font-weight-bold text-nowrap">
+                                {{ number_format($salesEstimateReceipt[0]->total_price, 2) }}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="2"></td>
+                            <td colspan="2" class="text-md-right font-weight-bold">Paid Amount</td>
+                            <td colspan="2" class="text-md-right font-weight-bold text-nowrap">
+                                {{ number_format($salesEstimateReceipt[0]->received, 2) }}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="2"></td>
+                            <td colspan="2" class="text-md-right font-weight-bold">Due</td>
+                            <td colspan="2" class="text-md-right font-weight-bold text-nowrap">
+                                {{ number_format($salesEstimateReceipt[0]->due, 2) }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="card-body">
+                                <h6 style="font-size: 13px;">Terms and Conditions</h6>
+                                <li>VAT & Taxes are not included in the above price.</li>
+                                <li>Read the Manual Book supplied with the vehicle with attention and follow the service
+                                    instruction properly.</li>
+                                <li>Delivery of Registration Document is subject to clearance of all dues (if any).</li>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12" style="display:flex;justify-content: space-between;margin-top: -59px;">
+                    <div class="row">
+                        <div class="col-md">
+                            <div class="card-body">
+                                <p>&nbsp;</p>
+                                <p>&nbsp;</p>
+                                <p style="border-bottom: 1px solid #666;">&nbsp;</p>
+                                <p class="text-md-center">Customer Singnature</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md">
+                            <div class="card-body">
+                                <p>&nbsp;</p>
+                                <p>&nbsp;</p>
+                                <p style="border-bottom: 1px solid #666;">&nbsp;</p>
+                                <p class="text-md-center">Authorized Singnature</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button onclick="printInvoice()">Print</button>
+
+        <script>
+            function printInvoice() {
+                window.print();
+            }
+        </script>
+
+
+    </body>
+
+    </html>
+@endsection

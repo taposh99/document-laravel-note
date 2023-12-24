@@ -1,0 +1,25 @@
+   public function edit($id)
+    {
+        return view('edit', [
+            'edit_value' => Home::find($id),
+
+            'categories' => Category::all(),
+            'subcategories' => SubCategory::all(),
+        ]);
+    }
+    public function update(Request $request)
+    {
+        // dd($request);
+        // dd($request->toArray());
+
+
+        $updateValue = Home::find($request->edit_id);
+        $updateValue->color_code = $request->color_code;
+        $updateValue->category_id = $request->category_id;
+        $updateValue->sub_category_id = $request->sub_category_id;
+        $updateValue->slug = $request->slug;
+
+        $updateValue->save();
+
+        return back()->with('message', 'Update Successfully');
+    }

@@ -1,0 +1,1 @@
+Route::get('/promotion/category', [PromotionController::class, 'showDataByCategory'])->name('promotion.filter.category');

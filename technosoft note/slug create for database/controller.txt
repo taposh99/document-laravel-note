@@ -1,0 +1,39 @@
+ public function store(Request $request)
+    {
+        //  dd($request);
+        $validatedData = $request->validate([
+            'category_id' => ['required', 'max:255'],
+            'brand_id' => ['required', 'max:255'],
+
+        ]);
+
+        $imageName = time() . '.' . $request->banner->extension();
+        $request->banner->move(public_path('images/banner'), $imageName);
+        $status = ($request->input('status') === 'active') ? true : false;
+
+
+        Promotion::create([
+
+            'title' => $request->title,
+            'banner' => $imageName,
+            'discount' => $request->discount,
+            'slug' => $this->makeSlug($request),
+            'desceription' => $request->desceription,
+            'category_id' => $request->category_id,
+            'brand_id' => $request->brand_id,
+            'status' =>  $status,
+
+        ]);
+       
+
+        // toastr()->success('Data has been saved successfully!');
+        return redirect()->route('promotion.index')->with('message', 'Create Successfully');
+    } 
+    private function makeSlug($request){
+        if($request->slug){
+            $str=$request->slug;
+            return preg_replace('/\s+/u','-',trim($str));
+        }
+        $str=$request->title;
+        return preg_replace('/\s+/u','-',trim($str));
+    }

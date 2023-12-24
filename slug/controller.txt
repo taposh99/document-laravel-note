@@ -1,0 +1,6 @@
+    public function promotionDetails($slug)
+    {
+        $promotionDetails = Promotion::where('slug', $slug)->firstOrFail();
+
+        return view('promotion.details.description', compact('promotionDetails'));
+    }

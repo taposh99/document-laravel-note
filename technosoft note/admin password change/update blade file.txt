@@ -1,0 +1,54 @@
+@extends('layouts.app')
+
+@section('content')
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">Update Profile</div>
+              
+
+                <div class="card-body">
+                    <!-- ... -->
+                    @if ($errors->has('current_password'))
+                    <div class="alert alert-danger" role="alert">
+                        {{ $errors->first('current_password') }}
+                    </div>
+                    @endif
+                    <!-- ... -->
+
+                    <form method="POST" action="{{ route('user.update') }}">
+                        @csrf
+                        @method('put')
+                        <div class="form-group">
+                            <label for="name">Name</label>
+                            <input type="text" name="name" value="{{ old('name', Auth::user()->name) }}" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" name="email" value="{{ old('email', Auth::user()->email) }}" class="form-control">
+                        </div>
+                   
+                        <div class="form-group">
+                            <label for="current_password">Current Password</label>
+                            <input type="password" name="current_password" class="form-control">
+                        </div>
+                     
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" name="password" class="form-control">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="password_confirmation">Confirm Password</label>
+                            <input type="password" name="password_confirmation" class="form-control">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Update Profile</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection

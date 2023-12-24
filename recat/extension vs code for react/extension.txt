@@ -1,0 +1,5 @@
+babel javascript
+es7
+bracket
+html to jsx
+Auto Import - ES6, TS, JSX, TSX

@@ -1,0 +1,1 @@
+<a href="{{ route('promotion.details', $image->slug) }}" class="btn btn-primary stretched-link">Details</a>

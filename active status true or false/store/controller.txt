@@ -1,0 +1,21 @@
+public function blog(Request $request)
+    {
+        // dd($request);
+
+
+
+        $status = ($request->input('status') === 'active') ? true : false;
+
+
+        Blog::create([
+            'status' => $status,
+      
+
+        ]);
+
+
+        toastr()->success('Data has been saved successfully!');
+        return back();
+
+        // return redirect('/all-blog')->with('message', 'Success');
+    }

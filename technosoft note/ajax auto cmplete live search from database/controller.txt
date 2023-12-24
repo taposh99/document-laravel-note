@@ -1,0 +1,10 @@
+   public function autocomplete(Request $request)
+    {
+        $query = $request->get('query');
+
+        $products = Product::where('name', 'like', '%' . $query . '%')
+            ->select('id', 'name')
+            ->get();
+
+        return response()->json($products);
+    }

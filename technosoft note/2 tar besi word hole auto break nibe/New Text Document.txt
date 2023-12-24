@@ -1,0 +1,9 @@
+        <td data-toggle="collapse" data-target="#pitem0" class="accordion-toggle" style="font-size: 10px;">
+                                                                @php
+                                                                    $words = explode(' ', $details['name']); 
+                                                                    $lines = array_chunk($words, 2); 
+                                                                    foreach ($lines as $line) {
+                                                                        echo implode(' ', $line) . '<br>'; 
+                                                                    }
+                                                                @endphp
+                                                            </td>

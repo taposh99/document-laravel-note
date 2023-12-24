@@ -1,0 +1,12 @@
+    public function index()
+    {
+       
+        $randomIdCount = Home::count();
+
+
+        return view("index",[
+            'randomId' =>  $randomIdCount,
+           
+        ]);
+       
+    }

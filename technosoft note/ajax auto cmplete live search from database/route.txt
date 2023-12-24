@@ -1,0 +1,1 @@
+        Route::get('/search', [PurchaseOrderController::class, 'autocomplete'])->name('search.autocomplete');

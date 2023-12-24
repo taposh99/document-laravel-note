@@ -1,0 +1,13 @@
+<script src="{{asset('backend')}}/lib/datatables/jquery.dataTables.js"></script>
+<script src="{{asset('backend')}}/lib/datatables-responsive/dataTables.responsive.js"></script>
+<script src="{{asset('backend')}}/lib/select2/js/select2.min.js"></script>
+<script>
+    $('#datatable1').DataTable({
+        responsive: true,
+        language: {
+            searchPlaceholder: 'Search...',
+            sSearch: '',
+            lengthMenu: '_MENU_ items/page',
+        }
+    });
+</script>

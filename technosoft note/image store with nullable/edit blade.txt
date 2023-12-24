@@ -1,0 +1,2 @@
+ <input type="file" name="image" class="form-control" placeholder="Image" value="{{ $editValue->image }}">
+                    <img width="105px" height="55px" id="showImage" src="{{asset('storage/images')}}/{{ $editValue->image }}" alt="Card image cap">

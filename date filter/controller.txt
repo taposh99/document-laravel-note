@@ -1,0 +1,13 @@
+   public function priceList(){
+        if (request()->start_date || request()->end_date) {
+            $start_date = Carbon::parse(request()->start_date)->toDateTimeString();
+            $end_date = Carbon::parse(request()->end_date)->toDateTimeString();
+            $data = PriceList::whereBetween('created_at',[$start_date,$end_date])->get();
+        } else {
+            $data = PriceList::latest()->get();
+        }
+        return view('Report_table.inventory.price-list',[
+            'pricelist' => $data,
+
+        ]);
+    }

@@ -1,0 +1,27 @@
+<script>
+  window.addEventListener('DOMContentLoaded', function() {
+    var section = document.getElementById("mySection");
+    var button = document.getElementById("flexSwitchCheckDefault");
+
+    if (button.checked) {
+      section.style.display = "block";
+      button.nextElementSibling.textContent = "Close Section";
+    } else {
+      section.style.display = "none";
+      button.nextElementSibling.textContent = "Open Section";
+    }
+  });
+
+  function toggleSection() {
+    var section = document.getElementById("mySection");
+    var button = document.getElementById("flexSwitchCheckDefault");
+
+    if (button.checked) {
+      section.style.display = "block";
+      button.nextElementSibling.textContent = "Close Section";
+    } else {
+      section.style.display = "none";
+      button.nextElementSibling.textContent = "Open Section";
+    }
+  }
+</script>

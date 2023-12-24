@@ -1,0 +1,11 @@
+
+ata diye update file firste ante hobe
+    //profile seeting
+    Route::get('profile/index', [UserProfileController::class, 'show'])->name('profile.index');
+
+
+Route::middleware(['auth'])->group(function () {
+    Route::put('/user/update', [UserProfileController::class, 'update'])->name('user.update');
+});
+
+

@@ -1,0 +1,65 @@
+    public function store(Request $request)
+{
+    // dd($request);
+
+    $request->validate([
+        'p_id' => 'required',
+        'tittle' => 'required',
+        'description' => 'required',
+        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048'
+    ]);
+
+    $store = new Home();
+    $store->p_id = $request->input('p_id');
+    $store->tittle = $request->input('tittle');
+    $store->description = $request->input('description');
+
+    // Check if an image is provided
+    if ($request->hasFile('image')) {
+        $fileName = time() . '.' . $request->image->getClientOriginalExtension();
+        $request->image->storeAs('public/images', $fileName);
+        $store->image = $fileName;
+    }
+
+    $store->save();
+    return back()->with('success', 'Data stored successfully!');
+}
+
+//update code
+
+public function update(Request $request)
+    {
+       
+
+        $ValueUpdate = Bed::find($request->bed_space_id);
+    
+        if ($request->hasFile('image')) {
+            // Remove the previous image if it exists
+           
+    
+            $image = $request->file('image');
+            $imageName = time() . '.' . $image->getClientOriginalExtension();
+            $image->storeAs('images', $imageName, 'public');
+    
+            $ValueUpdate->update([
+                'location' => $request->location,
+                'rent' => $request->rent,
+                'status' => $request->status,
+                'tax' => $request->tax,
+                'number' => $request->number,
+                'room_type' => $request->room_type,
+                'image' => $imageName,
+            ]);
+        } else {
+            $ValueUpdate->update([
+                'location' => $request->location,
+                'rent' => $request->rent,
+                'status' => $request->status,
+                'tax' => $request->tax,
+                'number' => $request->number,
+                'room_type' => $request->room_type,
+            ]);
+        }
+    
+        return back()->with('success', 'Update successfully');
+    }

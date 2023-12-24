@@ -1,0 +1,27 @@
+ public function dashboard5(){
+
+       if (request()->start_date || request()->end_date) {
+           $start_date = Carbon::parse(request()->start_date)->toDateTimeString();
+           $end_date = Carbon::parse(request()->end_date)->toDateTimeString();
+           $total_customer = Customer::all()->whereBetween('created_at',[$start_date,$end_date])->count();
+           $total_supplier = Supplier::all()->whereBetween('created_at',[$start_date,$end_date])->count();
+           $total_expenses = DB::table('invoices')->whereBetween('created_at',[$start_date,$end_date])->sum('totalamount');
+       } else {
+           $total_customer = Customer::all()->count();
+           $total_supplier = Supplier::all()->count();
+           $total_expenses = DB::table('invoices')->sum('totalamount');
+       }
+
+
+
+       return view('dashboard.index',[
+
+           'total_purchase' => DB::table("purchase_orders")->sum('total'),
+          'total_sales' => DB::table('sales_estimates')->sum('total'),
+
+
+           'total_customer'=>$total_customer,
+           'total_supplier'=>$total_supplier,
+           'total_expenses'=>$total_expenses,
+       ]);
+   }
