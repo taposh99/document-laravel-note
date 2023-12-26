@@ -1,3 +1,10 @@
 npx create-react-app my-app
 cd my-app
 npm start
+
+
+
+composer require barryvdh/laravel-cors
+
+react folder er vitore
+npm install axios
