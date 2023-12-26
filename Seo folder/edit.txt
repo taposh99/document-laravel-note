@@ -1,0 +1,36 @@
+   <br>
+                    <h6 style="text-decoration: underline;">Seo Tag</h6>
+                    <div class="row">
+
+                        <div class="col-6">
+
+                            <label class="form-label"> Meta Page Title</label>
+                            <input type="text" name="pageTitle" class="form-control" value="{{ $EditHomeValues->pageTitle }}" >
+
+                        </div>
+                        <div class="col-6">
+
+                            <label class="form-label"> Meta Description</label>
+                            <textarea class="form-control" name="metaDescription" cols="30" rows="4">{{$EditHomeValues->metaDescription}} </textarea>
+
+
+                        </div>
+                    </div>
+
+
+                    <div class="row">
+                        <div class="col-6">
+                            <label class="form-label">Meta Keywords</label>
+                            <input type="text" name="metaKeywords" class="form-control" value="{{ $EditHomeValues->metaKeywords }}" >
+
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Meta Author</label>
+                            <input type="text" name="metaAuthor" class="form-control" value="{{ $EditHomeValues->metaAuthor }}" >
+
+                        </div>
+
+
+                    </div>
+
+                </div>
