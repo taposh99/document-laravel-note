@@ -1,0 +1,45 @@
+ public function index()
+    {
+        $allData = HomeSection::get();
+
+
+      
+        return view("home.index", compact('allData'));
+    }
+
+    public function Store(Request $request)
+    {
+        $request->validate([
+
+            'title' => 'required',
+            'sub_title' => 'required',
+            'banner' => 'required',
+
+        ]);
+        // Check if an image is provided for 'banner'
+        if ($request->hasFile('banner')) {
+            $fileNamebanner = time() . '.' . $request->banner->getClientOriginalExtension();
+            $request->banner->storeAs('public/images', $fileNamebanner);
+        } else {
+            $fileNamebanner = null;
+        }
+
+        HomeSection::create([
+
+            'title' => $request->title,
+            'sub_title' => $request->sub_title,
+            'banner' => $fileNamebanner,
+
+            //for seo tag
+            'pageTitle' => $request->pageTitle,
+            'metaDescription' => $request->metaDescription,
+            'metaKeywords' => $request->metaKeywords,
+            'metaAuthor' => $request->metaAuthor,
+
+
+
+
+        ]);
+
+        return back()->with('success', 'Data created successfully');
+    }
