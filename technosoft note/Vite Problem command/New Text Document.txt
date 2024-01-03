@@ -1,0 +1,4 @@
+npm install --save-dev vite laravel-vite-plugin
+
+
+npm run build
