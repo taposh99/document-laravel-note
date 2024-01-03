@@ -1,0 +1,21 @@
+    public function index()
+    {
+        $allData = HomeSection::latest()->get();
+
+
+        $seoData = [
+            'title' => 'Your Service Page Title',
+            'description' => 'Description of your service page.',
+            'keywords' => 'service, air freight, icon, image, subtitle, short description, hover description, main title, banner',
+            'author' => 'Your Name',
+        ];
+
+        return view("home.index", compact('allData', 'seoData'));
+    }
+
+
+           //for seo
+            'pageTitle' => $request->pageTitle,
+            'metaDescription' => $request->metaDescription,
+            'metaKeywords' => $request->metaKeywords,
+            'metaAuthor' => $request->metaAuthor,

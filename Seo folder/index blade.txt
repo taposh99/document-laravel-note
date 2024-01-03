@@ -1,0 +1,61 @@
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+
+  <meta name="description" content="{{ $seoData['description'] }}">
+  <meta name="keywords" content="{{ $seoData['keywords'] }}">
+  <meta name="author" content="{{ $seoData['author'] }}">
+  <title>{{ $seoData['title'] }}</title>
+    
+  
+</head>
+
+
+
+##index blade file er vitore hobe
+                                       <br>
+                                        <h6 style="text-decoration: underline;">Seo Tag</h6>
+                                        <div class="row">
+
+                                            <div class="col-6">
+
+                                                <label class="form-label"> Meta Page Title</label>
+                                                <input type="text" name="pageTitle" class="form-control">
+
+                                            </div>
+                                            <div class="col-6">
+
+                                                <label class="form-label"> Meta Description</label>
+                                                <textarea class="form-control" name="metaDescription" cols="30" rows="4"></textarea>
+
+
+                                            </div>
+                                        </div>
+
+
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <label class="form-label">Meta Keywords</label>
+                                                <input type="text" name="metaKeywords" class="form-control">
+
+                                            </div>
+                                            <div class="col-6">
+                                                <label class="form-label">Meta Author</label>
+                                                <input type="text" name="metaAuthor" class="form-control">
+
+                                            </div>
+
+
+                                        </div>
+
+
+
+                            <th>Page Title</th>
+                            <th>Meta Description</th>
+                            <th>Meta Keywords</th>
+
+
+                                  <td>{{ $data->pageTitle }}</td>
+                                <td>{{ $data->metaDescription }}</td>
+                                <td>{{ $data->metaKeywords }}</td>

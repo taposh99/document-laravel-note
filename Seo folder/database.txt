@@ -1,0 +1,4 @@
+            $table->string('pageTitle')->nullable();
+            $table->string('metaDescription')->nullable();
+            $table->string('metaKeywords')->nullable();
+            $table->string('metaAuthor')->nullable();
