@@ -3,3 +3,18 @@ es7
 bracket
 html to jsx
 Auto Import - ES6, TS, JSX, TSX
+
+
+Auto Rename Tag
+Auto close tag
+ESLint
+npm Intellisense
+Path Intellisense
+postman
+Reactjs code snippets
+Snipped
+Stylelint
+Tailwind CSS IntelliSense
+Thunder Client
+
+
