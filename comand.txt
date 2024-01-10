@@ -107,6 +107,10 @@ php artisan storage:link
 
 php artisan vendor:publish --tag=jetstream-views
 
+packege remove korar por(composer remove packegename)
+composer dump-autoload 
+php artisan cache:clear 
+
 
 
 
