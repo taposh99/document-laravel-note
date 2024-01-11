@@ -16,5 +16,7 @@ Snipped
 Stylelint
 Tailwind CSS IntelliSense
 Thunder Client
+VSCode React Refactor
+vscode-icons
 
 
