@@ -1,0 +1,34 @@
+
+//     public function send(Request $request)
+// {
+//     $formData = $request->validate([
+//         'name' => 'required|string|max:255',
+//         'email' => 'required|email|max:255',
+//         'phone' => 'required|string|max:20',
+//         'dropdown' => 'required|string',
+//         'pdf_file' => 'required|mimes:pdf|max:2048',
+//         'message' => 'required|max:255',
+//     ]);
+
+//     // Check if the PDF file is valid
+//     if ($request->hasFile('pdf_file') && $request->file('pdf_file')->isValid()) {
+//         $pdfFile = $request->file('pdf_file');
+
+//         // Save the form data to the database using the ContactForm model
+//         $contactForm = ContactForm::create($formData + ['pdf_file_path' => $pdfFile->store('pdf_files')]);
+
+//         // Send email
+//         Mail::to('masumbillah.swe21@gmail.com')->send(new ContactUs($formData, $pdfFile));
+
+//         return response()->json([
+//             'success' => true,
+//             'message' => 'Email sent successfully!',
+//             'data' => $contactForm, // Optional: Return the stored data
+//         ]);
+//     } else {
+//         return response()->json([
+//             'success' => false,
+//             'message' => 'Please upload a valid PDF file!',
+//         ], 422);
+//     }
+// }
