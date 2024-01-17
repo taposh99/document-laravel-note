@@ -1,0 +1,8 @@
+MAIL_MAILER=smtp
+MAIL_HOST=cdzadmin.constructionaidltd.com
+MAIL_PORT=465
+MAIL_USERNAME=cdzlogistics@cdzadmin.constructionaidltd.com
+MAIL_PASSWORD=Rw,}oBkR5)RW
+MAIL_ENCRYPTION=ssl  # You may need to use 'ssl' or 'null' depending on your cPanel configuration.
+MAIL_FROM_ADDRESS=cdzlogistics@cdzadmin.constructionaidltd.com
+MAIL_FROM_NAME="${APP_NAME}"
