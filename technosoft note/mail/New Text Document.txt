@@ -1,0 +1,60 @@
+php artisan make:mail Contact --markdown=mail.Contact   ata hocce app er vitor mail  folder er vitor contact.php akta file create hpbe. r porerta hocce resource er vitor contact.blade name akta file create hobe.
+
+
+
+contact.php file ta hocce 
+
+<?php
+
+namespace App\Mail;
+use Illuminate\Bus\Queueable;
+use Illuminate\Mail\Mailable;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Http\UploadedFile;
+
+class ContactUs extends Mailable
+{
+    use Queueable, SerializesModels;
+
+    public $formData;
+    public $attachment;
+
+    public function __construct($formData, UploadedFile $attachment = null)
+    {
+        $this->formData = $formData;
+        $this->attachment = $attachment;
+    }
+
+    public function build()
+    {
+        $mail = $this->view('emails.contact')
+            ->subject('Contact Form Clients')
+            ->with([
+                'data' => $this->formData,
+            ]);
+
+        if ($this->attachment) {
+            $mail->attach(
+                $this->attachment->getRealPath(),
+                [
+                    'as' => $this->attachment->getClientOriginalName(),
+                    'mime' => $this->attachment->getClientMimeType(),
+                ]
+            );
+        }
+
+        return $mail;
+    }
+}
+
+
+.blade ta hocce
+
+<h3>Name : {{$data['name']}}</h3>
+<h3>Email : {{$data['email']}}</h3>
+<h3>Phone : {{$data['phone']}}</h3>
+<h3>Message : {{$data['message']}}</h3>
+<h3>Service : {{$data['dropdown']}}</h3>
+
+
