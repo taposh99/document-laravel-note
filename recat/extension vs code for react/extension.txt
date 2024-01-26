@@ -18,6 +18,7 @@ Tailwind CSS IntelliSense
 Thunder Client
 VSCode React Refactor
 vscode-icons
+Code Spell Checker
 
 emmet abriation setting theke emmet search diye edit.jsn 
 
