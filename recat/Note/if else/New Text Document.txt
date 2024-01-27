@@ -1,0 +1,4 @@
+{data.id ? data.id : data.item}
+
+
+jodi id thake tahole id asbe nahole item asbe

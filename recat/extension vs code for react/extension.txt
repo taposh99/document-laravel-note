@@ -19,6 +19,8 @@ Thunder Client
 VSCode React Refactor
 vscode-icons
 Code Spell Checker
+Simple React Snippets
+Simple React Snippets
 
 emmet abriation setting theke emmet search diye edit.jsn 
 
