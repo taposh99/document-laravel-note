@@ -113,6 +113,9 @@ packege remove korar por(composer remove packegename)
 composer dump-autoload 
 php artisan cache:clear 
 
+php artisan make:controller StudentController --api (crud sob auto chole asbe)
+
+
 
 
 
