@@ -94,6 +94,7 @@ php artisan route:clear
 php artisan view:clear
 php artisan cache:clear
 
+php artisan about (cache checked)
 
 
 Composer install
@@ -111,6 +112,9 @@ php artisan vendor:publish --tag=jetstream-views
 packege remove korar por(composer remove packegename)
 composer dump-autoload 
 php artisan cache:clear 
+
+php artisan make:controller StudentController --api (crud sob auto chole asbe)
+
 
 
 
