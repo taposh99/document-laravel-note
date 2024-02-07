@@ -21,6 +21,7 @@ vscode-icons
 Code Spell Checker
 Simple React Snippets
 Simple React Snippets
+ES7+ React/Redux/React-Native 
 
 emmet abriation setting theke emmet search diye edit.jsn 
 
