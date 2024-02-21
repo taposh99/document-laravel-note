@@ -1,0 +1,49 @@
+public function storeProduct(Request $request)
+{
+ 
+
+    try {
+        DB::beginTransaction();
+
+                  
+
+        if (isset($request->agendaInfo) && is_array($request->agendaInfo)) {
+            foreach ($request->agendaInfo as $agendaItem) {
+                         $product = Product::create([
+                    'name' => $agendaItem['name'] ?? null,
+                    'price' => $agendaItem['price'] ?? null,
+                 
+                ]);
+
+            }
+        }
+
+        DB::commit();
+    } catch (Exception $exception) {
+        DB::rollBack();
+        // Handle exception...
+    }
+
+    return response()->json(['data' => $product], 201);
+}
+public function updateProduct(Request $request, $id)
+{
+    try {
+        DB::beginTransaction();
+
+        $product = Product::findOrFail($id);
+
+        $product->update([
+            'name' => $request->name,
+            'price' => $request->price,
+        ]);
+
+        DB::commit();
+    } catch (Exception $exception) {
+        DB::rollBack();
+        // Handle exception...
+        return response()->json(['error' => 'Failed to update product'], 500);
+    }
+
+    return response()->json(['data' => $product], 200);
+}

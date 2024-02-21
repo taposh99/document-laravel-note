@@ -1,0 +1,4 @@
+
+Route::post('product', [AnnouncementController::class, 'storeProduct']);
+Route::put('product/{id}', [AnnouncementController::class, 'updateProduct']);
+
