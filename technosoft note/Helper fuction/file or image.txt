@@ -1,0 +1,33 @@
+class FileHelper
+{
+    public static function uploadFile($file, $folder)
+    {
+        // If no file is provided, return null
+        if (!$file instanceof UploadedFile || $file === null) {
+            return null;
+        }
+
+        // Determine the file extension
+        $extension = $file->getClientOriginalExtension();
+
+        // Determine if it's a PDF
+        $isPdf = $extension === 'pdf';
+
+        // Determine the storage path
+        $storagePath = public_path('uploads/' . ($isPdf ? 'pdf' : 'images'));
+
+        // Create the directory if it doesn't exist
+        if (!File::isDirectory($storagePath)) {
+            File::makeDirectory($storagePath, 0755, true);
+        }
+
+        // Generate a unique filename
+        $fileName = uniqid() . '_' . time() . '.' . $extension;
+
+        // Move the uploaded file to the storage path
+        $file->move($storagePath, $fileName);
+
+        // Return the file path
+        return 'uploads/' . ($isPdf ? 'pdf' : 'images') . '/' . $fileName;
+    }
+}
