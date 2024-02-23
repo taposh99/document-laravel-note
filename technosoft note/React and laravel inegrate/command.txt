@@ -1,0 +1,7 @@
+ composer require laravel/ui
+
+php artisan ui react
+
+npm run dev
+
+php artisan serve
