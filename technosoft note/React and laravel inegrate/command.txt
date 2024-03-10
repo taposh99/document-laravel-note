@@ -1,4 +1,4 @@
- composer require laravel/ui
+composer require laravel/ui
 
 php artisan ui react
 
