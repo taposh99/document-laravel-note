@@ -1,0 +1,280 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Models\AboutUsbanner;
+use App\Models\Activities;
+use App\Models\Authority;
+use App\Models\Chairman;
+use App\Models\Contact\Banner;
+use App\Models\Contact\ChattogramOffice;
+use App\Models\Contact\CorporateOffice;
+use App\Models\Goal;
+use App\Models\HomeSection;
+use App\Models\Mission;
+use App\Models\RequestQuote;
+use App\Models\Service;
+use App\Models\Statistics;
+use App\Models\Vision;
+use App\Models\Resource;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\ContactUs;
+use App\Models\ExcellenceCdz;
+use App\Models\Faqs;
+
+class ServiceController extends Controller
+{
+    public function show()
+    {
+        $serviceData = Service::with('parentServicemodel')->get();
+
+        return response()->json([
+            'success' => true,
+            'service' => $serviceData,
+        ]);
+    }
+
+
+    // https://cdzadmin.constructionaidltd.com/api/search?search=dolorum
+
+    public function search(Request $request)
+    {
+        $search = $request->input('search');
+
+        $serchData = Service::when($search, function ($query, $search) {
+            return $query->where('title', 'like', '%' . $search . '%')
+                ->orWhere('sub_title', 'like', '%' . $search . '%')
+                ->orWhere('short_description', 'like', '%' . $search . '%')
+                ->orWhere('hover_description', 'like', '%' . $search . '%')
+                ->orWhere('main_title', 'like', '%' . $search . '%');
+        })->get();
+
+        return response()->json([
+            'success' => true,
+            'serchData' => $serchData,
+        ]);
+    }
+
+    public function showServiceName($title)
+    {
+
+        $service = Service::with('parentServicemodel')->where('title', $title)->firstOrFail();
+        return response()->json([
+            'success' => true,
+
+            'servicetitle' => $service,
+        ]);
+    }
+
+    public function homeIndex()
+    {
+        $allData = HomeSection::orderBy('id', 'desc')->take(3)->get();
+        return response()->json([
+            'success' => true,
+            'allData' => $allData,
+        ]);
+    }
+
+    public function statisticsIndex()
+    {
+        $allStatistics = Statistics::latest()->first();
+        return response()->json([
+            'success' => true,
+            'allStatistics' => $allStatistics,
+        ]);
+    }
+
+    public function aboutUsbannerIndex()
+    {
+        $aboutUsBannerlData = AboutUsbanner::latest()->first();
+
+        return response()->json([
+            'success' => true,
+            'aboutUsBannerlData' => $aboutUsBannerlData,
+        ]);
+    }
+
+    //managing
+    public function authorityIndex()
+    {
+        $AuthorityData = Authority::latest()->first();
+
+        return response()->json([
+            'success' => true,
+            'AuthorityData' => $AuthorityData,
+        ]);
+    }
+
+    //chairman
+
+    public function chairmanIndex()
+    {
+        $ChairmanData = Chairman::latest()->first();
+
+        return response()->json([
+            'success' => true,
+            'ChairmanData' => $ChairmanData,
+        ]);
+    }
+
+    //cpmpany activities
+
+    public function activitiesIndex()
+    {
+        $ActivitieslData = Activities::latest()->first();
+
+        return response()->json([
+            'success' => true,
+            'ActivitieslData' => $ActivitieslData,
+        ]);
+    }
+
+    public function missionIndex()
+    {
+        $missionData = Mission::latest()->first();
+
+        return response()->json([
+            'success' => true,
+            'missionData' => $missionData,
+        ]);
+    }
+
+    public function visionIndex()
+    {
+        $visionData = Vision::latest()->first();
+
+        return response()->json([
+            'success' => true,
+            'visionData' => $visionData,
+        ]);
+    }
+
+    public function goalIndex()
+    {
+        $goalData = Goal::latest()->first();
+
+        return response()->json([
+            'success' => true,
+            'goalData' => $goalData,
+        ]);
+    }
+
+    //contact us banner
+    public function bannerIndex()
+    {
+        $bannerData = Banner::latest()->first();
+
+        return response()->json([
+            'success' => true,
+            'bannerData' => $bannerData,
+        ]);
+    }
+
+    //corporate address
+    public function corporateIndex()
+    {
+        $corporateOfficeData = CorporateOffice::latest()->first();
+
+        return response()->json([
+            'success' => true,
+            'corporateOfficeData' => $corporateOfficeData,
+        ]);
+    }
+
+    //chattogram address
+    public function chattogramIndex()
+    {
+
+
+        $chattagramData = ChattogramOffice::latest()->first();
+        return response()->json([
+            'success' => true,
+            'chattagramData' => $chattagramData,
+        ]);
+    }
+
+    //api for mail
+
+    public function send(Request $request)
+    {
+        try {
+            $formData = $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|email|max:255',
+                'phone' => 'required|string|max:20',
+                'dropdown' => 'required|string',
+                'pdf_file' => 'nullable|mimetypes:application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation|max:2048',
+                'message' => 'required|max:255',
+            ]);
+
+            if ($request->hasFile('pdf_file')) {
+                mail::to('taposh8499@gmail.com')
+                    ->send(new ContactUs($formData, $request->file('pdf_file')));
+            } else {
+                mail::to('taposh8499@gmail.com')
+                    ->send(new ContactUs($formData));
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Form submitted successfully!',
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to submit form. ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+
+
+
+
+    public function resourceIndex()
+    {
+
+        $resourceData = Resource::latest()->first();
+
+        return response()->json([
+            'success' => true,
+            'resourceData' => $resourceData,
+        ]);
+    }
+
+    public function requestquoteIndex()
+    {
+
+        $requestquoteData = RequestQuote::latest()->first();
+
+        return response()->json([
+            'success' => true,
+            'requestquoteData' => $requestquoteData,
+        ]);
+    }
+    public function faqsIndex()
+    {
+
+        $faqsData = Faqs::latest()->first();
+
+        return response()->json([
+            'success' => true,
+            'faqsData' => $faqsData,
+        ]);
+    }
+
+    public function excellenceIndex()
+    {
+
+        $excellenceData = ExcellenceCdz::latest()->first();
+
+        return response()->json([
+            'success' => true,
+            'excellenceData' => $excellenceData,
+        ]);
+    }
+
+
+}
