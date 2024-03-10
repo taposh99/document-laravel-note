@@ -116,6 +116,9 @@ php artisan cache:clear
 php artisan make:controller StudentController --api (crud sob auto chole asbe)
 
 
+php artisan o/c
+
+
 
 
 
