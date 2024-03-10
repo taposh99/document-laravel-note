@@ -277,4 +277,26 @@ class ServiceController extends Controller
     }
 
 
+//tender bazar
+
+use App\Models\TenderType;
+use Illuminate\Http\JsonResponse;
+use Exception;
+
+public function getTenderType(TenderType $tenderType): JsonResponse
+{
+    try {
+        // Eager load the related models
+        $tenderType = $tenderType->load('relatedModel1.relatedModel2');
+
+        // Assuming sendSuccessResponse is a custom helper function to standardize API responses
+        return sendSuccessResponse('Tender Type Found!!', '200', $tenderType);
+    } catch (Exception $exception) {
+        // Assuming sendErrorResponse is a custom helper function for error handling
+        return sendErrorResponse('Something went wrong: ' . $exception->getMessage());
+    }
+}
+
+
+
 }
