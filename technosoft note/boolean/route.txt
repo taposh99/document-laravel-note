@@ -1,0 +1,2 @@
+Route::post('/posts', [PostController::class, 'store']);
+Route::post('/posts/{postId}', [PostController::class, 'togglePublish']);
