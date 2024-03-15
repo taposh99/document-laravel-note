@@ -1,0 +1,21 @@
+   use Illuminate\Validation\Rule;
+
+
+ public function rules(): array
+    {
+        return [
+            'name' => [
+                'required',
+                Rule::unique('sub_categories')->where(function ($query) {
+                    return $query->where('name', $this->name);
+                }),
+            ],
+            'category_id' => 'required|exists:categories,id',
+        ];
+    }
+    public function messages()
+    {
+        return [
+            'name.unique' => 'The name ' . $this->name . ' has already been taken.',
+        ];
+    }
