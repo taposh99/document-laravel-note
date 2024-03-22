@@ -1,0 +1,5 @@
+git branch = new branch create
+
+git diff  branch1..branch2 =2 ta modde differents kki ki
+
+git branch -d branch1 (branch1 delete hye jabe)
