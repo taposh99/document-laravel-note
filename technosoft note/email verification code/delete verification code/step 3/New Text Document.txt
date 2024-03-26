@@ -1,0 +1,3 @@
+php artisan schedule:run
+
+composer dump-autoload

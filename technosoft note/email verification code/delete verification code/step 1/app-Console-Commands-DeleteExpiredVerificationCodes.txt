@@ -1,0 +1,30 @@
+<?php
+
+namespace App\Console\Commands;
+
+use Illuminate\Console\Command;
+use App\Models\User;
+use Carbon\Carbon;
+
+class DeleteExpiredVerificationCodes extends Command
+{
+    protected $signature = 'verification-codes:clean';
+
+    protected $description = 'Deletes expired verification codes from the users table';
+
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
+    public function handle()
+    {
+        $now = Carbon::now();
+        $affectedRows = User::where('verification_code_expires_at', '<', $now)->update([
+            'verification_code' => null,
+            'verification_code_expires_at' => null,
+        ]);
+
+        $this->info("Cleaned up $affectedRows expired verification codes.");
+    }
+}

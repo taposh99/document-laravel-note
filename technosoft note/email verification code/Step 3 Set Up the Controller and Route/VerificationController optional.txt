@@ -3,29 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\SendVerificationCodeEmail;
-use App\Models\User;
 use Illuminate\Http\Request;
-use Carbon\Carbon;
 
 class VerificationController extends Controller
 {
     public function sendCode(Request $request)
     {
         $request->validate([
-            'email' => 'required|email|exists:users,email',
+            'email' => 'required|email',
         ]);
 
-        $user = User::where('email', $request->email)->first();
-
         $code = rand(100000, 999999); // Generate a 6-digit random code
-        $expiration = Carbon::now()->addMinutes(10); // Code expires in 10 minutes
 
-        // Update the user with the verification code and expiration time
-        $user->verification_code = $code;
-        $user->verification_code_expires_at = $expiration;
-        $user->save();
-
-        // Dispatch the email job
         dispatch(new SendVerificationCodeEmail($request->email, $code));
 
         return response()->json(['message' => 'Verification code sent.']);
