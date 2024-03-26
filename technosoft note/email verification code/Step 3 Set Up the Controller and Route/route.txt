@@ -1,0 +1,1 @@
+Route::post('/send-verification-code', [VerificationController::class, 'sendCode']);

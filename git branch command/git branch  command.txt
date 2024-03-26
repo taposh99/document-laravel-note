@@ -1,5 +1,14 @@
-git branch = new branch create
+git branch = new branch create hone but new branch e move hobe na.
+
+git checkout -b newbranch (new branch e move hobe)
+
+git checkout branch3 (branch e move hove)
 
 git diff  branch1..branch2 =2 ta modde differents kki ki
 
 git branch -d branch1 (branch1 delete hye jabe)
+
+
+1st obosthay git push -u origin branchname  (tahole github e show korbe branch)
+
+git pull origin development

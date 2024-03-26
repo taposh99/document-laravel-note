@@ -1,0 +1,22 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Jobs\SendVerificationCodeEmail;
+use Illuminate\Http\Request;
+
+class VerificationController extends Controller
+{
+    public function sendCode(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+        ]);
+
+        $code = rand(100000, 999999); // Generate a 6-digit random code
+
+        dispatch(new SendVerificationCodeEmail($request->email, $code));
+
+        return response()->json(['message' => 'Verification code sent.']);
+    }
+}
