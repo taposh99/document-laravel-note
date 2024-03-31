@@ -1,0 +1,9 @@
+config/app.php
+
+'providers' => [
+
+	....
+
+	Spatie\Permission\PermissionServiceProvider::class,
+
+],

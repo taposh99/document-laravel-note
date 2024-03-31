@@ -1,0 +1,5 @@
+use Spatie\Permission\Traits\HasRoles;
+
+
+class{
+ use HasFactory, Notifiable, HasRoles;
