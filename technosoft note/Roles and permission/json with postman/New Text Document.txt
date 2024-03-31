@@ -1,0 +1,21 @@
+end point: api/user/assign-role
+
+email:user@gmail.com
+role: user
+
+
+
+
+
+end point: api/user/assign-permission
+
+email: user@gmail.com
+permission:create product
+
+
+or multiple
+raw: {
+    "email": "user@gmail.com",
+     "permission": ["create product", "edit product"]
+}
+
