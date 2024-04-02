@@ -1,0 +1,22 @@
+use App\Http\Controllers\Controller;
+use App\Models\Tender;
+use Illuminate\Http\JsonResponse;
+use Exception;
+
+class UserRelatedController extends Controller
+{
+    public function getPreferTender($user): JsonResponse
+    {
+        try {
+            // Fetch up to 10 published tenders for the given user
+            $preferredTenders = Tender::where('user_id', $user)
+                                      ->where('is_published', true)
+                                      ->limit(10)
+                                      ->get();
+            
+            return sendSuccessResponse('Preferred tenders found!', 200, $preferredTenders);
+        } catch (Exception $exception) {
+            return sendErrorResponse('Something went wrong: ' . $exception->getMessage(), 500);
+        }
+    }
+}
