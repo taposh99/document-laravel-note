@@ -1,0 +1,27 @@
+use Illuminate\Http\JsonResponse;
+use App\Models\Tender;
+use App\Models\Preference;
+use Exception;
+
+public function getPrefertender($userId): JsonResponse
+{
+    try {
+        // Fetch user preferences once and store category and sub-category IDs
+        $preferences = Preference::where('user_id', $userId)->get();
+        $categoryIds = $preferences->pluck('category_id');
+        $subCategoryIds = $preferences->pluck('sub_category_id');
+
+        // Use the collected IDs to filter tenders
+        $tenders = Tender::whereIn('category_id', $categoryIds)
+                         ->whereIn('sub_category_id', $subCategoryIds)
+                         ->get();
+
+        if ($tenders->isEmpty()) {
+            return response()->json(['message' => 'No tenders found matching the user preferences'], 404);
+        }
+
+        return response()->json(['message' => 'Preferred tenders found', 'data' => $tenders], 200);
+    } catch (Exception $exception) {
+        return response()->json(['error' => 'Something went wrong: ' . $exception->getMessage()], 500);
+    }
+}
