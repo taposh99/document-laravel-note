@@ -1,8 +1,6 @@
 example
 
 php artisan db:seed
-php artisan migrate:"fresh --seed
-php artisa seed and update
-
-php artisan model:adv -m
-php artisan make"request RequestAuth
+php artisan make:model admin
+php artisan make:controller admin
+php artisn make:request RequseyAdmon
