@@ -4,3 +4,5 @@ php artisan db:seed
 php artisan make:model admin
 php artisan make:controller admin
 php artisn make:request RequseyAdmon
+
+php artisan make:seeder adminseeder
