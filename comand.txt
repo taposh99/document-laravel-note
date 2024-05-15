@@ -123,6 +123,11 @@ php artisan make:migration create_products_table --create=products
 
 
 
+git reset last commit (git reset HEAD~1
+)add korar por jeita hoyecilo seita undo hye jabe
+
+
+
 
 
 
