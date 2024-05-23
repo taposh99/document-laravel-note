@@ -8,3 +8,5 @@ php artisn make:request RequseyAdmon
 php artisan make:seeder adminseeder
 
 php artisan make:seeder requstSeeder
+
+php artisan make:request RequestAdmin
