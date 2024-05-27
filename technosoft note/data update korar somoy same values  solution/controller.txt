@@ -1,0 +1,12 @@
+ public function update(RequestPropertyType $request)
+    {
+        $valueUpdate = PropertyType::find($request->property_id);
+
+        $updateData = [
+            'name' => $request->name,
+        ];
+
+        $valueUpdate->update($updateData);
+
+        return back()->with('success', 'Update successfully');
+    }

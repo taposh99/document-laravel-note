@@ -1,0 +1,9 @@
+ public function rules(): array
+    {
+        return [
+            'name' => [
+                'required',
+                Rule::unique('property_types')->ignore($this->property_id),
+            ],
+        ];
+    }
