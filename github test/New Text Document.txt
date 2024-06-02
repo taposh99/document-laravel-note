@@ -13,6 +13,9 @@ php artisan make:request RequestAdmin
 
 php atisan make:seeder db seeder and amiom a tamplete
 
+php artisan migate :fresh
+php artisqan quick
+
 
 php artisan makecontoller HomeController
  public function(){
