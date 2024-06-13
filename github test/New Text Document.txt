@@ -12,3 +12,9 @@ php artisan make:seeder requstSeeder
 php artisan make:request RequestAdmin
 
 php atisan make:seeder db seeder and amiom a tamplete
+
+
+
+
+
+hellom masum how are you.whiat should ido
