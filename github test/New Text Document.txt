@@ -11,10 +11,38 @@ php artisan make:seeder requstSeeder
 
 php artisan make:request RequestAdmin
 
-php atisan make:seeder db seeder and amiom a tamplete
-
-
-
-
 
 hellom masum how are you.whiat should ido
+
+php artisan migate :fresh
+php artisqan quick
+
+git branch
+ gur checkouy -b brabfdg
+
+git switch branch
+git branch
+git checko
+
+
+php artisan makecontoller HomeController
+ public function(){
+return view ('home');}
+
+git bta
+git nock
+git chrcj
+gut vancj
+vonposer uodaate
+git bt
+
+git check
+git branch
+git brush
+git branch
+
+
+i am vey sick an
+
+he is vey amon bysuness
+>>>>>>> ad7c255bfe5671efb07ce0c0b0171882ef0d1d25
