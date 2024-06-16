@@ -19,6 +19,10 @@ php artisqan quick
 git branch
  gur checkouy -b brabfdg
 
+git switch branch
+git branch
+git checko
+
 
 php artisan makecontoller HomeController
  public function(){
