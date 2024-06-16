@@ -16,6 +16,9 @@ php atisan make:seeder db seeder and amiom a tamplete
 php artisan migate :fresh
 php artisqan quick
 
+git branch
+ gur checkouy -b brabfdg
+
 
 php artisan makecontoller HomeController
  public function(){
