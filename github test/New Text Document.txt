@@ -27,3 +27,7 @@ git checko
 php artisan makecontoller HomeController
  public function(){
 return view ('home');}
+
+git bta
+git nock
+git bt
