@@ -34,3 +34,8 @@ git chrcj
 gut vancj
 vonposer uodaate
 git bt
+
+git check
+git branch
+git brush
+git branch
