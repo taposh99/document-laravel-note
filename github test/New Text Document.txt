@@ -39,3 +39,6 @@ git check
 git branch
 git brush
 git branch
+
+
+i am vey sick an =
