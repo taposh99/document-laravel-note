@@ -47,3 +47,10 @@ i am vey sick an
 he is vey amon bysuness
 
 project is very much busy and we arw also file
+
+
+
+
+
+
+npm i num run dev 
