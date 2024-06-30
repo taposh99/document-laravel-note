@@ -46,6 +46,12 @@ i am vey sick an
 
 he is vey amon bysuness
 
+<<<<<<< HEAD
+
+composer global require laravel/installer
+ 
+laravel new example-app
+=======
 project is very much busy and we arw also file
 
 
@@ -54,3 +60,4 @@ project is very much busy and we arw also file
 
 
 npm i num run dev 
+>>>>>>> 68b22ff4675cafd61ea84a972e1770bff46e6588
