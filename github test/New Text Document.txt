@@ -62,3 +62,14 @@ DB_PASSWORD=here database password(root)
 
             <a href="index.html">Home</a>
 
+
+const listItems = products.map(product =>
+  <li key={product.id}>
+    {product.title}
+  </li>
+);
+
+return (
+  <ul>{listItems}</ul>
+);
+
