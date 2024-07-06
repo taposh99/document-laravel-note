@@ -44,20 +44,46 @@ git branch
 
 i am vey sick an
 
-he is vey amon bysuness
 
+<<<<<<< HEAD
 
 
 composer global require laravel/installer
  
 
-project is very much busy and we arw also file
+
+
+composer global require laravel/installer
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=here your database name(blog)
+DB_USERNAME=here database username(root)
+DB_PASSWORD=here database password(root)
+>>>>>>> d73f7608e204655b1cce8ec4d2fb80d45bb2b9c0
 
 https://chatgpt.com/
 
 
 
+    "close_date_time": "2024-07-10T17:00:00",
+    "opening_date_time": "2024-07-11T10:00:00",
+    "prebid_date_time": "2024-07-05T15:00:00",
 
 
+            <a href="index.html">Home</a>
+
+
+
+
+const listItems = products.map(product =>
+  <li key={product.id}>
+    {product.title}
+  </li>
+);
+
+return (
+  <ul>{listItems}</ul>
+);
 
 
