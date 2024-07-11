@@ -46,6 +46,13 @@ i am vey sick an
 
 
 
+
+
+composer global require laravel/installer
+ 
+
+
+
 composer global require laravel/installer
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
@@ -53,6 +60,10 @@ DB_PORT=3306
 DB_DATABASE=here your database name(blog)
 DB_USERNAME=here database username(root)
 DB_PASSWORD=here database password(root)
+>>>>>>> d73f7608e204655b1cce8ec4d2fb80d45bb2b9c0
+
+https://chatgpt.com/
+
 
 
     "close_date_time": "2024-07-10T17:00:00",
@@ -61,6 +72,8 @@ DB_PASSWORD=here database password(root)
 
 
             <a href="index.html">Home</a>
+
+
 
 
 const listItems = products.map(product =>
@@ -74,6 +87,7 @@ return (
 );
 
 
+<<<<<<< HEAD
 <?php
 
 // Sample bid request JSON
