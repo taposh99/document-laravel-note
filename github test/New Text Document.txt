@@ -45,7 +45,7 @@ git branch
 i am vey sick an
 
 
-<<<<<<< HEAD
+
 
 
 composer global require laravel/installer
@@ -86,4 +86,4 @@ return (
   <ul>{listItems}</ul>
 );
 
-
+hello vai assalamuakium
