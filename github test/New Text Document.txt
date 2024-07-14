@@ -45,14 +45,10 @@ git branch
 i am vey sick an
 
 
-<<<<<<< HEAD
-=======
-
 
 
 composer global require laravel/installer
- 
->>>>>>> deefdcea9943b18d0c4daa33d35200a4051a6099
+
 
 
 
@@ -296,3 +292,5 @@ echo json_encode($response);
 
 
 ihate you
+
+Sure! Let's start with an introductory question:
