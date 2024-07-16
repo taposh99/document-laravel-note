@@ -296,3 +296,7 @@ echo json_encode($response);
 
 
 ihate you
+
+The var_dump() function returns the data type and the value:
+
+
