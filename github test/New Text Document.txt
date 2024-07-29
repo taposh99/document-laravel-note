@@ -57,5 +57,8 @@ tomorrow ypload
 
 multibrand info tech is a software company
 
+SELECT * FROM Employees
+WHERE Department = 'IT';
+
 
 
