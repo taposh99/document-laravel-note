@@ -45,8 +45,6 @@ aalar pit tie jivabu
 
 
 
-
-
 ha allah please save me
 
 passsword change
@@ -61,6 +59,8 @@ SELECT * FROM Employees
 WHERE Department = 'IT';
 
 Bukchon Hanok Village
+
+It Solution Stuff provide a collection of tutorials about PHP
 
 
 
