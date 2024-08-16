@@ -5,3 +5,4 @@ WhatsApp messages right from your computer.
 https://www.youtube.com/watch?v=p2fvt4J9fE0
 তা'মিরুল মিল্লাতের সাবেক স্টুডেন্ট
 মুখোমুখি মাশরাফি বিন মর্তুজা – নট আউট নোমান এক্সক্লুসিভ
+php artisan make:model Student -mcr
