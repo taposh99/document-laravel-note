@@ -1,10 +1,8 @@
-**************************************************************fhlw
+tmi akta pocha
 please take kota
 WhatsApp messages right from your computer.
  border: 1px solid blac
 https://www.youtube.com/watch?v=p2fvt4J9fE0
 তা'মিরুল মিল্লাতের সাবেক স্টুডেন্ট
-
-github test
-Leave bridge 1
-Bootstrap Front-end Framework
+মুখোমুখি মাশরাফি বিন মর্তুজা – নট আউট নোমান এক্সক্লুসিভ
+php artisan make:model Student -mcr
