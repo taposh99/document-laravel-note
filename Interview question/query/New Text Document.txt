@@ -3,3 +3,8 @@
 
 
 2. RecruitmentExam::where('recruitment_notice_id', $request->recruitment_notice_id)->delete();
+
+3.            ->addColumn('status', function($row) {
+                    return $row->status == 1 ? 'Active' : 'Inactive';
+                })
+                ->rawColumns(['status'])
