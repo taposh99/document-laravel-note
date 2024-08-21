@@ -7,5 +7,9 @@ https://www.youtube.com/watch?v=p2fvt4J9fE0
 মুখোমুখি মাশরাফি বিন মর্তুজা – নট আউট নোমান এক্সক্লুসিভ
 php artisan make:model Student -mcr
 php artisan make model category
+
     ->rawColumns(['action'])
                 ->make(true);
+
+ $table->date('birthdate')->nullable();
+
