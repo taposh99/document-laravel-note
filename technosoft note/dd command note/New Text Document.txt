@@ -1,1 +1,4 @@
 dd($event->subCategory()->pluck('agendaTitle')->toArray());
+
+   dd($request->input('gross_salary')),
+
