@@ -17,3 +17,7 @@ i am working as a software engineer
 hkBox	Date From	Date To	Week	Employee
 multibamdinfotect
 
+
+        $empEdu = DB::table('hrm_emp_education')->where('emp_id', $id)->get();
+
+
