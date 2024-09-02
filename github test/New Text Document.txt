@@ -24,6 +24,9 @@ WhatsApp messages right from your computer.
 
 
 which combines traditional military tactics with unconventional methods like cyber attacks,
+class="card-body"style="border-left: 1px solid #ADBC7A !important; border-bottom: 1px solid #ADBC7A !important;">
+                {!! Form::open(['url' => "roles/update/$role->id", 'method' => 'POST', 'id' => 'roleForm']) !!}
+                @csrf
 
 
 
