@@ -7,3 +7,4 @@ WhatsApp messages right from your computer.
 
 
 
+<meta name="csrf-token" content="{{ csrf_token() }}">
