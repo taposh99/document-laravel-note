@@ -8,6 +8,7 @@ WhatsApp messages right from your computer.
 
 
 
+Route::get('users', 'UserController@index'); 
 
 
 
