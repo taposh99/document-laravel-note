@@ -8,3 +8,6 @@
                     return $row->status == 1 ? 'Active' : 'Inactive';
                 })
                 ->rawColumns(['status'])
+
+
+  4.<input type="hidden" id="role_id" value="{{ $role->id }}">
