@@ -1,0 +1,493 @@
+@extends('layouts.master')
+@section('header_css')
+<link href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css" rel="stylesheet">
+<link href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css" rel="stylesheet">
+
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css">
+<script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.2.3/css/buttons.dataTables.min.css">
+
+@endsection
+
+@section('content')
+<style>
+    .page {
+        background: #9cc9d1;
+        background: -webkit-linear-gradient(to right, #eeeff0, #9cc9d1);
+        background: linear-gradient(to right, #eeeff0, #9cc9d1);
+    }
+</style>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card mt-3">
+                <div class="card-header text-white bg-info">
+                    <b>View All Company</b>
+                </div>
+                <div class="card-body" style="border-left: 1px solid #ADBC7A !important; border-bottom: 1px solid #ADBC7A !important;">
+                    <style>
+                        #table_div {
+                            height: 100%;
+                            overflow-y: auto;
+                        }
+
+                        tfoot {
+                            display: table-header-group !important;
+                        }
+                    </style>
+                    <div id="table_div">
+                        <table class="table table-bordered data-table">
+                            <thead>
+                                <tr>
+                                    <th>Sl No</th>
+                                    <th>Company Name</th>
+                                    <th>Address</th>
+                                    <th>Contact No</th>
+                                    <th>Contact Person</th>
+                                    <th>Contact Person Mobile</th>
+                                    <th>Email</th>
+                                    <th>Web</th>
+                                    <th>Status</th>
+                                    <th width="100px">Action</th>
+                                </tr>
+                            </thead>
+                            <tfoot>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th width="100px"></th>
+                                </tr>
+                            </tfoot>
+                            <tbody>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--- Start Create Modal--->
+<div class="modal fade" id="ajaxModel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="modelHeading"></h4>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger" style="display:none"></div>
+                <form id="dataForm" name="dataForm" class="form-horizontal">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <label for="name" class="col-sm-12 control-label"> Company Name <span style="color: red;">*</span> </label>
+                                <div class="col-sm-12">
+                                    <input type="text" class="form-control" id="title" name="title" placeholder="Enter Company Name" value="" maxlength="" required="">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="name" class="col-sm-12 control-label"> Contact Person </label>
+                                <div class="col-sm-12">
+                                    <input type="text" class="form-control" id="contact_person" name="contact_person" placeholder="Enter Person Name" value="" maxlength="" required="">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="name" class="col-sm-12 control-label"> Contact Person Mobile No </label>
+                                <div class="col-sm-12">
+                                    <input type="number" class="form-control" id="contact_person_mobile_no" name="contact_person_mobile_no" placeholder="Enter Mobile No" value="" maxlength="15" pattern="\+?[0-9]{1,15}" required="">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="name" class="col-sm-12 control-label"> Email </label>
+                                <div class="col-sm-12">
+                                    <input type="email" class="form-control" id="email" name="email" placeholder="Enter Company Mail" value="" maxlength="" required="">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="name" class="col-sm-12 control-label">Company Contact No</label>
+                                <div class="col-sm-12">
+                                    <input type="number" class="form-control" id="contact_no" name="contact_no" placeholder="Enter Company Contact No" value="" maxlength="15" pattern="\+?[0-9]{1,15}" required="">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="name" class="col-sm-12 control-label"> Web Address </label>
+                                <div class="col-sm-12">
+                                    <input type="url" class="form-control" id="web" name="web" placeholder="Enter Company Web" value="" maxlength="" required="">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="name" class="col-sm-12 control-label"> Address </label>
+                                <div class="col-sm-12">
+                                    <textarea class="form-control" name="address" id="address" rows="6"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="col-sm-offset-2 col-sm-10">
+                        <button type="submit" class="btn btn-primary" id="saveBtn" value="create"> Save </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!--- End Create Model--->
+
+<!--- Start Update Model--->
+<!--- Start Update Model--->
+<div class="modal fade" id="ajaxModelUpdate" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="modelHeadingUpdate"></h4>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger" id="updateError" style="display:none"></div>
+                <form id="dataFormUpdate" name="dataFormUpdate" class="form-horizontal">
+                    <input type="hidden" name="data_id" id="data_id">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <label for="name" class="col-sm-12 control-label"> Company Name <span style="color: red;">*</span> </label>
+                                <div class="col-sm-12">
+                                    <input type="text" class="form-control" id="title2" name="title" placeholder="Enter Company Name" value="" maxlength="" required="">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="name" class="col-sm-12 control-label"> Contact Person </label>
+                                <div class="col-sm-12">
+                                    <input type="text" class="form-control" id="contact_person2" name="contact_person" value="" maxlength="" required="">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="name" class="col-sm-12 control-label"> Contact Person Mobile No </label>
+                                <div class="col-sm-12">
+                                    <input type="text" class="form-control" id="contact_person_mobile_no2" name="contact_person_mobile_no" value="" maxlength="" required="">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="name" class="col-sm-12 control-label"> Email </label>
+                                <div class="col-sm-12">
+                                    <input type="email" class="form-control" id="email2" name="email" placeholder="Company Mail" value="" maxlength="" required="">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="name" class="col-sm-12 control-label">Company Contact No</label>
+                                <div class="col-sm-12">
+                                    <input type="text" class="form-control" id="contact_no2" name="contact_no" placeholder="Company Contact No" value="" maxlength="" required="">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="name" class="col-sm-12 control-label">Web Address</label>
+                                <div class="col-sm-12">
+                                    <input type="text" class="form-control" id="web2" name="web" placeholder="Company Web" value="" maxlength="" required="">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="name" class="col-sm-12 control-label">Address</label>
+                                <div class="col-sm-12">
+                                    <textarea class="form-control" name="address" id="address2" rows="6"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="name" class="col-sm-2 control-label">Status</label>
+                                <div class="col-sm-12">
+                                    <select name="status" class="form-control" id="status2">
+
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="col-sm-offset-2 col-sm-10">
+                        <button type="submit" class="btn btn-primary" id="updateBtn" value="create">Save
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!--- End Update Model--->
+<!--- End Update Model--->
+
+<style>
+    .toolbar {
+        float: right;
+        margin-left: 10px
+    }
+</style>
+@endsection
+
+
+
+@section('footer_js')
+<script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
+
+<script src="https://cdn.datatables.net/buttons/2.2.3/js/dataTables.buttons.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.html5.min.js"></script>
+<script>
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+
+    // Start View Data
+    $('.data-table').DataTable({
+        language: {
+            paginate: {
+                next: '&#8594;', // or '→'
+                previous: '&#8592;' // or '←'
+            }
+        },
+        processing: true,
+        serverSide: true,
+        iDisplayLength: 25,
+        aaSorting: [
+            ['0', 'desc']
+        ],
+        dom: '<"toolbar">Bfrtip', 
+        buttons: [
+        {
+            extend: 'excelHtml5',
+            text: 'Export All to Excel',
+            action: function (e, dt, node, config) {
+                $.ajax({
+                    url: '{{ url("export/excel") }}',
+                    method: 'GET',
+                    xhrFields: {
+                        responseType: 'blob'
+                    },
+                    success: function (data, status, xhr) {
+                        var blob = new Blob([data], { type: 'application/vnd.ms-excel' });
+                        var downloadUrl = URL.createObjectURL(blob);
+                        var a = document.createElement("a");
+                        a.href = downloadUrl;
+                        a.download = "data_export_" + new Date().toISOString() + ".xlsx";
+                        document.body.appendChild(a);
+                        a.click();
+                    },
+                    error: function (xhr, status, error) {
+                        console.log('Export error: ' + error);
+                    }
+                });
+            }
+        },
+        {
+            extend: 'csvHtml5',
+            text: 'Export All to CSV',
+            action: function (e, dt, node, config) {
+                window.location = '{{ url("export/csv") }}';
+            }
+        },
+        {
+        text: 'Export All to PDF',
+        action: function (e, dt, node, config) {
+            window.location = '{{ url("export/pdf") }}';
+        }
+    }
+    ],
+        ajax: "{{ url('companyInfo/admin') }}",
+        columns: [
+        { data: 'DT_RowIndex', name: 'DT_RowIndex' },
+        { data: 'title', name: 'title' },
+        { data: 'address', name: 'address' },
+        { data: 'contact_no', name: 'contact_no' },
+        { data: 'contact_person', name: 'contact_person' },
+        { data: 'contact_person_mobile_no', name: 'contact_person_mobile_no' },
+        { data: 'email', name: 'email' },
+        { data: 'web', name: 'web' },
+        { data: 'status', name: 'status' },
+        { data: 'action', name: 'action', orderable: false, searchable: false }
+    ],
+        initComplete: function() {
+            this.api().columns([1, 2, 3, 4, 5, 6, 7, ]).every(function() {
+                var column = this;
+                var input = document.createElement("input");
+                $(input).appendTo($(column.footer()).empty())
+                    .on('change', function() {
+                        var val = $.fn.dataTable.util.escapeRegex($(this).val());
+                        column.search(val ? val : '', true, false).draw();
+                    });
+            });
+
+            this.api().columns([8]).every(function() {
+                var column = this;
+                var select = $('<select><option value=""></option></select>')
+                    .appendTo($(column.footer()).empty())
+                    .on('change', function() {
+                        var val = $.fn.dataTable.util.escapeRegex(
+                            $(this).val()
+                        );
+                        column
+                            .search(val ? '^' + val + '$' : '', true, false)
+                            .draw();
+                    });
+                column.each(function() {
+                    select.append('<option value="Active">' + 'Active' + '</option>')
+                    select.append('<option value="Inactive">' + 'Inactive' + '</option>')
+                });
+            });
+
+            $("div.toolbar").html(
+                "<a class='btn btn-success btnAdd' href='javascript:void(0)' onclick='showForm()'> <i class='fas fa-plus'></i></a>"
+            );
+        }
+    });
+    // End View Data
+
+
+    // Start Create Data
+    function showForm() {
+        $('.alert-danger').hide();
+        $('#saveBtn').val("save-data");
+        $('#data_id').val('');
+        $('#dataForm').trigger("reset");
+        $('#modelHeading').html("Create Company");
+        $('#ajaxModel').modal('show');
+    }
+
+    $('#saveBtn').click(function(e) {
+        e.preventDefault();
+        $(this).html('Sending..');
+
+        $.ajax({
+            data: $('#dataForm').serialize(),
+            url: "{{ url('companyInfo/create') }}",
+            type: "POST",
+            dataType: 'json',
+            success: function(result) {
+                if (result.errors) {
+                    $('#saveBtn').html('Send')
+                    $('.alert-danger').html('');
+                    $.each(result.errors, function(key, value) {
+                        $('.alert-danger').show();
+                        $('.alert-danger').append('<li>' + value + '</li>');
+                    });
+                } else {
+                    if (result.success) {
+                        $('#dataForm').trigger("reset");
+                        $('#ajaxModel').modal('hide');
+                        $('.dataTable').DataTable().ajax.reload(null, false);
+                        $('#saveBtn').html('Save');
+                        toastr.success(result.message);
+                    } else {
+                        toastr.error(result.message);
+                    }
+
+                }
+            },
+            error: function(data) {
+                toastr.error(data.responseJSON.message);
+                $('#saveBtn').html('Save');
+            }
+        });
+    });
+    // End Create Data
+
+    // Start Edit Data
+    $('body').on('click', '.editData', function() {
+        var dataId = $(this).data('id');
+        $.get("{{ url('companyInfo/edit') }}" + '/' + dataId, function(data) {
+            $('#data_id').val(data.data.id);
+            $('#modelHeadingUpdate').html("Edit Company");
+            $('#updateBtn').val("edit-product-category");
+            $('#ajaxModelUpdate').modal('show');
+            $('#updateError').hide();
+            $('#title2').val(data.data.title);
+            $('#address2').val(data.data.address);
+            $('#contact_no2').val(data.data.contact_no);
+            $('#contact_person2').val(data.data.contact_person);
+            $('#contact_person_mobile_no2').val(data.data.contact_person_mobile_no);
+            $('#email2').val(data.data.email);
+            $('#web2').val(data.data.web);
+            $('#status2').html(data.str);
+        })
+    });
+
+    $('#updateBtn').click(function(e) {
+        e.preventDefault();
+        $(this).html('Updating..');
+        $.ajax({
+            data: $('#dataFormUpdate').serialize(),
+            url: "{{ url('companyInfo/update') }}",
+            type: "POST",
+            dataType: 'json',
+            success: function(result) {
+                if (result.errors) {
+                    $('#saveBtn').html('Update')
+                    $('#updateError').html('');
+                    $.each(result.errors, function(key, value) {
+                        $('#updateError').show();
+                        $('#updateError').append('<li>' + value + '</li>');
+                    });
+                    $('#updateBtn').html('Update');
+                } else {
+                    if (result.success) {
+                        $('#dataFormUpdate').trigger("reset");
+                        $('#ajaxModelUpdate').modal('hide');
+                        $('.dataTable').DataTable().ajax.reload(null, false);
+                        $('#updateBtn').html('Update');
+                        toastr.success(result.message);
+                    } else {
+                        toastr.error(result.message);
+                    }
+
+                }
+            },
+            error: function(data) {
+                toastr.error(data.responseJSON.message);
+                $('#saveBtn').html('Save');
+              
+            }
+        });
+    });
+
+    // End Edit Data
+
+    // Start Delete Data
+    $('body').on('click', '.deleteData', function() {
+
+        var data_id = $(this).data("id");
+        if (confirm("Are You sure want to delete !")) {
+            $.ajax({
+                type: "POST",
+                url: "{{ url('companyInfo/delete') }}" ,
+                data:{
+                    'id':data_id
+                },
+                success: function(data) {
+
+                    if (data.success) {
+                        $('.dataTable').DataTable().ajax.reload(null, false);
+                        toastr.success(data.message);
+                    } else {
+                        toastr.error(data.message);
+                    }
+                },
+                error: function(data) {
+                    toastr.error(data.responseJSON.message);
+                }
+            });
+        }
+
+
+    });
+    // End Delete Data
+</script>
+
+@endsection

@@ -1,0 +1,41 @@
+<?php
+
+namespace App\Exports;
+
+
+use App\Models\Hrm\CompanyInfo;
+use Maatwebsite\Excel\Concerns\FromQuery;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\Exportable;
+
+class CompanyExport implements FromQuery, WithHeadings
+{
+    use Exportable;
+
+    /**
+     * Define the query to retrieve the data.
+     * Customize this method based on the columns you need to export.
+     */
+    public function query()
+    {
+        return CompanyInfo::select('id', 'title', 'address', 'contact_no', 'contact_person', 'contact_person_mobile_no', 'email', 'web', 'status');
+    }
+
+    /**
+     * Set headings for the exported file.
+     */
+    public function headings(): array
+    {
+        return [
+            'ID',
+            'Title',
+            'Address',
+            'Contact No',
+            'Contact Person',
+            'Contact Person Mobile No',
+            'Email',
+            'Web',
+            'Status'
+        ];
+    }
+}

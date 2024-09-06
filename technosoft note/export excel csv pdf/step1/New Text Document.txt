@@ -1,0 +1,41 @@
+composer require yajra/laravel-datatables-oracle  
+composer require yajra/laravel-datatables-buttons  
+
+
+'providers' => [  
+    ....  
+    Yajra\DataTables\DataTablesServiceProvider::class,  
+    Yajra\DataTables\ButtonsServiceProvider::class,  
+]  
+'aliases' => [  
+    ....  
+    'DataTables' => Yajra\DataTables\Facades\DataTables::class,  
+]  
+..... 
+
+php artisan vendor:publish --tag=datatables-buttons  
+
+
+
+composer require maatwebsite/excel
+'providers' => [
+    ...
+    Maatwebsite\Excel\ExcelServiceProvider::class,
+],
+'aliases' => [
+    ...
+    'Excel' => Maatwebsite\Excel\Facades\Excel::class,
+],
+php artisan vendor:publish --provider="Maatwebsite\Excel\ExcelServiceProvider"
+
+
+composer require barryvdh/laravel-dompdf
+'providers' => [
+    ...
+    Barryvdh\DomPDF\ServiceProvider::class,
+],
+
+'aliases' => [
+    ...
+    'PDF' => Barryvdh\DomPDF\Facade::class,
+],

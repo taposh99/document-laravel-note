@@ -1,0 +1,26 @@
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\CompanyExport;
+use Barryvdh\DomPDF\Facade\Pdf as FacadePdf;
+
+
+
+ public function exportExcel()
+    {
+        return Excel::download(new CompanyExport, 'company-list.xlsx');
+    }
+
+    // Method for exporting data to CSV
+    public function exportCSV()
+    {
+        return Excel::download(new CompanyExport, 'company-list.csv');
+    }
+
+
+
+public function exportPDF()
+{
+    $data = CompanyInfo::all(); // Customize this as per your data fetching logic
+
+    $pdf = FacadePdf::loadView('hrm.exports.pdf', compact('data'));
+    return $pdf->download('company-data.pdf');
+} 
