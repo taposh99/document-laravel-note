@@ -10,6 +10,7 @@ Route::get('users', 'UserController@index');
 
 <meta name="csrf-token" content="{{ csrf_token() }}">
    { data: 'DT_RowIndex', name: 'DT_RowIndex' },
+  'emp.full_name as full_name',
 
 
 
