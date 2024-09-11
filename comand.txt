@@ -136,5 +136,10 @@ git reset last commit (git reset HEAD~1
 
   $data= $success['token'] = $user->createToken('appToken')->plainTextToken;
 
+rm -rf vendor
+rm composer.lock
+composer install
+
+
 
 
