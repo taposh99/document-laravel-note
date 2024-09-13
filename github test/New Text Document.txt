@@ -14,6 +14,7 @@ Route::get('users', 'UserController@index');
 
 
 এই সংশোধিত সেটিংসগুলো আপনার অডিওর প্রাকৃতিকতা বজায় রাখতে এবং বেঁধে যাওয়ার সমস্যা কমাতে সাহায্য করবে। আশা করি এগুলো আপনার জন্য কার্যকর হবে।
+https://replit.com/@saniatulmit05/GlumBossyAddons
 
 
 
