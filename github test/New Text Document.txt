@@ -18,6 +18,8 @@ https://replit.com/@saniatulmit05/GlumBossyAddons
     echo "$number x $i = " . $number * $i . "\n";
 
 tmr sob kisu e fake
+    Route::post('/wages/approved/{id}', [WagesController::class, 'approved']);
+
 
 
 
