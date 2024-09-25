@@ -1,0 +1,7 @@
+     $caInfo = ChartOfAc::model()->findByPk($ca_id);
+
+                            if($caInfo->short_code != ""){
+                                $headTitle = $caInfo->short_code;
+                            }else{
+                                $headTitle = $caInfo->title;
+                            } 
