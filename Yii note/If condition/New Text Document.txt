@@ -9,4 +9,17 @@
 
 2.      if (!empty($voucherType)) {
            $model->voucher_type = $voucherType;
-                               }
+            }
+
+
+3.       <td>
+                    <?php
+                    if ($entry_no != null) {
+                        echo CHtml::button('Cancel', array(
+                            'class' => 'cancel-btn',
+                            'style' => 'background-color: #ffcccc; color: white;',
+                            'onclick' => 'js:window.location.href="' . Yii::app()->createUrl('accounting/journalEntry/admin') . '";'
+                        ));
+                    }
+                    ?>
+                </td>
