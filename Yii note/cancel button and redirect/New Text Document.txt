@@ -1,0 +1,9 @@
+  <td>
+                                        <?php
+                                        echo CHtml::button('Cancel', array(
+                                            'class' => 'cancel-btn',
+                                            'style' => 'background-color: #ffcccc; color: white;',
+                                            'onclick' => 'js:window.location.href="' . Yii::app()->createUrl('accounting/journalEntry/admin') . '";'
+                                        ));
+                                        ?>
+                                    </td>

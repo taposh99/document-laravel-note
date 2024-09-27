@@ -1,0 +1,8 @@
+     <tr>
+                <td><?php echo $form->labelEx($model, 'status'); ?></td>
+                <td>
+                    <?php $activeStatus = array(1 => 'Active', 2 => 'Inactive'); ?>
+                    <?php echo $form->dropDownList($model, 'status', $activeStatus) ?>
+                    <?php echo $form->error($model, 'status'); ?>
+                </td>
+            </tr>
