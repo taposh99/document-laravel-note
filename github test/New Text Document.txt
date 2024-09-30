@@ -3,5 +3,4 @@ new
 
 
 new admion approved
-		$criteria->compare('created_by',$this->created_by);
-http://127.0.0.1:8000/users/manage-users
+hello bai8
