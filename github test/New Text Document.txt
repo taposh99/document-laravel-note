@@ -13,3 +13,10 @@ hello bai8
 
 hello brother how are you
 
+
+
+
+
+
+        $user = UserHasRole::find($id);
+
