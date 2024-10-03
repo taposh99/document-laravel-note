@@ -19,3 +19,7 @@ hello bai8
 
 hello brother how are you
 
+
+
+
+    Route::post('/adjustment/create', [AdjustmentController::class, 'create']);
