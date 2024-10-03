@@ -22,4 +22,10 @@ hello brother how are you
 
 
 
+
     Route::post('/adjustment/create', [AdjustmentController::class, 'create']);
+
+
+
+        $user = UserHasRole::find($id);
+
