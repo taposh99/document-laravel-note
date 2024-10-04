@@ -1,0 +1,38 @@
+   public function actionCancel($id)
+    {
+        // Find the model using the ID
+        $model = LhAmountProllNormal::model()->findByPk($id);
+    
+        if ($model !== null) {
+            // Perform the cancel logic, e.g., update a status column in the database
+            $model->status = '2';  // Assuming you have a status column for canceled status
+            if ($model->save()) {
+                // Check if the request is an AJAX request
+                if (Yii::app()->request->isAjaxRequest) {
+                    // Return success response
+                    echo CJSON::encode(array(
+                        'status' => 'success',
+                        'message' => 'Item successfully canceled.',
+                    ));
+                    Yii::app()->end();
+                } else {
+                    // Redirect to the admin page if it's not an AJAX request
+                    $this->redirect(array('admin'));
+                }
+            } else {
+                // Handle save failure
+                if (Yii::app()->request->isAjaxRequest) {
+                    echo CJSON::encode(array(
+                        'status' => 'error',
+                        'message' => 'Error occurred while canceling.',
+                    ));
+                    Yii::app()->end();
+                } else {
+                    // Redirect or show an error message
+                    $this->redirect(array('admin'));
+                }
+            }
+        } else {
+            throw new CHttpException(404, 'The requested page does not exist.');
+        }
+    }
