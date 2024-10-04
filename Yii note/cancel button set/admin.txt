@@ -1,8 +1,12 @@
-       array(
+          array(
                 'name' => 'status',
                 'value' => function($data) {
                     return $data->status == 1 ? 'Active' : ($data->status == 2 ? 'Cancel' : 'Unknown');
                 },
+                'filter' => array( 
+                    1 => 'Active',
+                    2 => 'Cancel',
+                ),
             ),
 
 ///////////////////////////////////////////////////
