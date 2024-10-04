@@ -1,3 +1,15 @@
+       array(
+                'name' => 'status',
+                'value' => function($data) {
+                    return $data->status == 1 ? 'Active' : ($data->status == 2 ? 'Cancel' : 'Unknown');
+                },
+            ),
+
+///////////////////////////////////////////////////
+
+
+
+
  array(
                 'header' => 'Options',
                 'template' => '{update}{cancel}{delete}', // Add cancel to the template
