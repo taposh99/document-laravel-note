@@ -6,3 +6,20 @@ dd($item, $amount);
   dd($request->present_house_no),
 
 
+
+//////////////
+
+ $user = UserHasRole::find($id);
+        $userData = $user->user_id;
+        $employee = DB::table('users')->select('username','email','employee_id')->where('id', $userData)->first();
+        $userDataInfo = $employee->employee_id;
+        $employeeData = DB::table('hrm_emp_basic_official')->select('full_name' ?? '')->where('id', $userDataInfo)->first();
+
+        $data = UserHasRole::where('id', $id)->first();
+
+////////////////////////
+
+
+                $('#emp_id_text2').val(data.employeeData?.full_name || '');
+
+
