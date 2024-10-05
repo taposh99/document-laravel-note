@@ -1,0 +1,1 @@
+            array('lh_proll_normal_id, create_by, update_by, is_active,status, employee_id', 'numerical', 'integerOnly' => true),

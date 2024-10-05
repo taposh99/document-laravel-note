@@ -1,0 +1,67 @@
+          array(
+                'name' => 'status',
+                'value' => function($data) {
+                    return $data->status == 1 ? 'Active' : ($data->status == 2 ? 'Cancel' : 'Unknown');
+                },
+                'filter' => array( 
+                    1 => 'Active',
+                    2 => 'Cancel',
+                ),
+            ),
+
+///////////////////////////////////////////////////
+
+
+
+
+ array(
+                'header' => 'Options',
+                'template' => '{update}{cancel}{delete}', // Add cancel to the template
+                'afterDelete' => 'function(link,success,data){ if(success) $("#statusMsg").html(data); }',
+                'class' => 'CButtonColumn',
+                'buttons' => array(
+                    'update' => array(
+                        'click' => "function(e) {
+                            e.preventDefault();
+                            $('#update-dialog').children(':eq(0)').empty(); // Stop auto POST
+                            updateDialog($(this).attr('href'));
+                            $('#update-dialog')
+                                .dialog({ title: 'Update Info' })
+                                .dialog('open');
+                        }",
+                    ),
+                    'cancel' => array( // Add the Cancel button here
+                        'label' => 'Cancel', // Text label for the button
+                        'icon' => 'path/to/cancel-icon.png', // Specify the path to your cancel icon
+                        'url' => 'Yii::app()->controller->createUrl("cancel",array("id"=>$data->id))',                        'click' => "function(e) {
+                            e.preventDefault(); // Prevent default link behavior
+                            // You can add any additional JS code if needed
+                            if (confirm('Are you sure you want to cancel this item?')) { // Confirmation dialog
+                                $.ajax({
+                                    url: $(this).attr('href'),
+                                    type: 'POST',
+                                    success: function(data) {
+                                        // Handle the success response
+                                        var response = JSON.parse(data);
+                                        if (response.status === 'success') {
+                                            // Update status message or grid view
+                                            $('#statusMsg').html(response.message);
+                                            $.fn.yiiGridView.update('lh-amount-proll-normal-grid'); // Replace with your grid ID
+                                        } else {
+                                            // Handle error case
+                                            $('#statusMsg').html(response.message);
+                                        }
+                                    },
+                                    error: function() {
+                                        // Handle error response
+                                        $('#statusMsg').html('An error occurred while canceling the item.');
+                                    }
+                                });
+                            }
+                        }",
+                    ),
+                    'delete' => array(
+                        // Existing delete button configuration
+                    ),
+                ),
+            ),
