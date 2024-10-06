@@ -1,0 +1,48 @@
+<?php
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+use Faker\Factory as Faker;
+use Carbon\Carbon;
+
+class CompanyInfoSeeder extends Seeder
+{
+    /**
+     * Run the database seeds.
+     */
+    public function run()
+    {
+        $faker = Faker::create();
+        $data = [];
+
+        // Generate 50,000 records
+        for ($i = 0; $i < 500000; $i++) {
+            $data[] = [
+                'title' => $faker->company,
+                'address' => $faker->address,
+                'contact_no' => $faker->phoneNumber,
+                'contact_person_mobile_no' => $faker->phoneNumber,
+                'contact_person' => $faker->name,
+                'email' => $faker->email,
+                'web' => $faker->domainName,
+                'status' => 1,
+                'created_by' => 1, // Or you can use `auth()->user()->id` in real scenarios
+                'created_at' => Carbon::now(),
+            ];
+
+            // Insert in batches of 1000 to avoid memory overflow
+            if (count($data) == 1000) {
+                DB::table('hrm_company')->insert($data);
+                $data = []; // Reset array after insert
+            }
+        }
+
+        // Insert remaining data if any
+        if (!empty($data)) {
+            DB::table('hrm_company')->insert($data);
+        }
+    }
+}

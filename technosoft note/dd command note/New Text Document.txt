@@ -20,6 +20,16 @@ dd($item, $amount);
 ////////////////////////
 
 
-                $('#emp_id_text2').val(data.employeeData?.full_name || '');
+       $('#emp_id_text2').val(data.employeeData?.full_name || '');
 
 
+
+
+///////////////////////////
+
+  $data = EmpLoan::Leftjoin('hrm_emp_basic_official', 'hrm_emp_loan.emp_id', '=', 'hrm_emp_basic_official.id')->where('hrm_emp_loan.id', $id)->first(['hrm_emp_loan.*', 'hrm_emp_basic_official.full_name']);
+  
+
+                  $('#emp_id_text2').val(data.data.full_name);
+
+//////////////////////////////
