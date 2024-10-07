@@ -1,0 +1,5 @@
+  $('#details2').val(data.data.details);
+                $('#emp_id2').val(data.data.emp_id);
+                // console.log($('#emp_id2').val());
+                $('#status2').html(data.status);
+                $('#employee_list2').html('Employee ID: ' + $('#emp_id2').val());
