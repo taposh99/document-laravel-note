@@ -1,0 +1,90 @@
+ $(document).ready(function () {
+    $(#dataForm).validate({
+        rules {
+            title {
+                required true,
+                maxlength 30
+            },
+            contact_person {
+                required true,
+                maxlength 30
+            },
+            contact_person_mobile_no {
+                required true,
+                digits true,
+                minlength 10,
+                maxlength 15
+            },
+            email {
+                required true,
+                email true
+            },
+            contact_no {
+                required true,
+                digits true,
+                minlength 10,
+                maxlength 15
+            },
+       
+        },
+        messages {
+            title {
+                required Company Name is required,
+                maxlength Company Name cannot exceed 30 characters
+            },
+            contact_person {
+                required Contact Person is required,
+                maxlength Contact Person cannot exceed 30 characters
+            },
+            contact_person_mobile_no {
+                required Mobile Number is required,
+                digits Please enter a valid number,
+                minlength Mobile Number must be at least 10 digits,
+                maxlength Mobile Number cannot exceed 15 digits
+            },
+            email {
+                required Email is required,
+                email Please enter a valid email address
+            },
+            contact_no {
+                required Company Contact Number is required,
+                digits Please enter a valid number,
+                minlength Contact Number must be at least 11 digits,
+                maxlength Contact Number cannot exceed 15 digits
+            },
+         
+        },
+        submitHandler function (form) {
+            $('#saveBtn').html('Sending..');
+            $.ajax({
+                data $('#dataForm').serialize(),
+                url {{ url('companyInfocreate') }},
+                type POST,
+                dataType 'json',
+                success function(result) {
+                    $('#saveBtn').html('Save');
+                    if (result.errors) {
+                        $('.alert-danger').html('');
+                        $.each(result.errors, function(key, value) {
+                            $('.alert-danger').show();
+                            $('.alert-danger').append('li' + value + 'li');
+                        });
+                    } else {
+                        if (result.success) {
+                            $('#dataForm').trigger(reset);
+                            $('#ajaxModel').modal('hide');
+                            $('.dataTable').DataTable().ajax.reload(null, false);
+                            toastr.success(result.message);
+                        } else {
+                            toastr.error(result.message);
+                        }
+                    }
+                },
+                error function(data) {
+                    toastr.error(data.responseJSON.message);
+                    $('#saveBtn').html('Save');
+                }
+            });
+        }
+    });
+});
