@@ -1,0 +1,14 @@
+          <tr>
+            <td><?php echo $form->labelEx($model, 'product_id'); ?></td>
+                <td>
+                    <?php
+                    echo $form->dropDownList(
+                            $model, 'product_id', CHtml::listData(Departments::model()->findAll(array('order'=>'product ASC')), 'id', 'product'), array(
+                        'prompt' => 'Select',
+                    ));
+                    ?>
+           
+
+ 
+                </td> 
+            </tr>
