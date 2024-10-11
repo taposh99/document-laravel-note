@@ -1,0 +1,1 @@
+            array('status', 'in', 'range' => array(1, 2), 'message' => 'Status must be either "Active" or "Inactive".'),

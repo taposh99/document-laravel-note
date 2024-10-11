@@ -1,0 +1,14 @@
+            <!-- Adding the status column -->
+<tr>
+    <td><?php echo $form->labelEx($model, 'status'); ?></td>
+    <td>
+        <?php echo $form->dropDownList($model, 'status', array(
+            '1' => 'Active',
+            '2' => 'Inactive',
+        )); ?>
+    </td>            
+</tr>
+<tr>
+    <td></td>
+    <td><?php echo $form->error($model, 'status'); ?></td>
+</tr>
