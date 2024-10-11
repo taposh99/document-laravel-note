@@ -65,3 +65,9 @@
                     ),
                 ),
             ),
+
+
+/////////////////////
+
+         'visible' => '$data->approved == 0',
+dile button hide hye jabe.oi array er niche dite hobe
