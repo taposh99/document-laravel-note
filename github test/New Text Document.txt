@@ -37,3 +37,11 @@ Redirecting you to http://192.168.1.25/mbw_hrm/public/bonusPolicy/admin
 you are writht99999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999j9jj9jjj9999999999999999nhhhh
 
         'cssFile' => Yii::app()->theme->baseUrl . '/css/gridview/styles.css',
+
+
+
+
+
+
+Explanation: This will calculate and store the monthly quantities for each product and add them to the subtotals for the current category ($sub_month_totals) and the overall grand totals ($month_totals).
+
