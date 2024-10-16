@@ -1,0 +1,10 @@
+        'db' => array(
+            'class' => 'system.db.CDbConnection',
+            'connectionString' => "mysql:host=localhost;dbname=sharif_metal",
+            'emulatePrepare' => true,
+            'username' => 'root',
+            'password' => '',
+            'charset' => 'utf8',
+            'tablePrefix' => '',
+            'schemaCachingDuration' => 0,
+        ),
