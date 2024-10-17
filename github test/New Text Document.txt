@@ -41,6 +41,12 @@ you are writht999999999999999999999999999999999999999999999999999999999999999999
 
 
 
+
+
+
+Explanation: This will calculate and store the monthly quantities for each product and add them to the subtotals for the current category ($sub_month_totals) and the overall grand totals ($month_totals).
+
+
 phpMyAdmin
 Home Empty session data phpMyAdmin documentation MariaDB Documentation Navigation panel settings Reload navigation panel
 Collapse all Unlink from main panel
@@ -55,8 +61,12 @@ Expand/CollapseDatabase operationsphpmyadmin
 Expand/CollapseDatabase operationstest
  Server: 127.0.0.1:3305
  Database: mbw_erp
+<<<<<<< HEAD
 
 
         $('body').on('click', '.addToGrid', function() {
 
  Table: user_config
+
+ Table: user_config
+
