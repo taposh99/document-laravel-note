@@ -62,4 +62,4 @@ Expand/CollapseDatabase operationstest
  Server: 127.0.0.1:3305
  Database: mbw_erp
  Table: user_config
->>>>>>> f7afd0a72572ad81f85084510dd87085cadb2eff
+https://www.youtube.com/watch?v=3hXzk7HNuts
