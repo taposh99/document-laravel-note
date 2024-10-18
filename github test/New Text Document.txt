@@ -61,5 +61,16 @@ Expand/CollapseDatabase operationsphpmyadmin
 Expand/CollapseDatabase operationstest
  Server: 127.0.0.1:3305
  Database: mbw_erp
+<<<<<<< HEAD
+
+
+        $('body').on('click', '.addToGrid', function() {
+
  Table: user_config
+
 https://www.youtube.com/watch?v=3hXzk7HNuts
+
+
+ Table: user_config
+
+
