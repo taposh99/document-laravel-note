@@ -8,6 +8,8 @@ hello bai8
 
 
 Manage User
+$remainingBalance = $totalLeave - $leaveEnjoyed;
+
 
 
 		$criteria->compare('created_by',$this->created_by);
