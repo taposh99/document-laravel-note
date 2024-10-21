@@ -1,0 +1,21 @@
+   public function addEmployee($id)
+   {
+   
+    DB::beginTransaction();
+
+    try {
+       
+        $empoyteelist = DB::table('hrm_recruit_temp_employee')->where('id', $id)->first();
+        $employee = null;
+        $empAddress = null;
+        $empNominee = null;
+        $entry_type = 3;
+        $recruit_temp_employee_id = $id;
+
+        return view('hrm.employee.create2', compact('empoyteelist', 'employee', 'entry_type', 'empAddress', 'empNominee', 'recruit_temp_employee_id'));
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return redirect()->back()->withErrors(['error' => 'An error occurred: ' . $e->getMessage()]);
+    }
+}

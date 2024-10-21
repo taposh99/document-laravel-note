@@ -1,0 +1,1 @@
+                    <input type="hidden" name="recruit_temp_employee_id" value="{{ isset($recruit_temp_employee_id) ? $recruit_temp_employee_id : ''}}" />
