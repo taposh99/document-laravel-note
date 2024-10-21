@@ -8,6 +8,8 @@ hello bai8
 
 
 Manage User
+$remainingBalance = $totalLeave - $leaveEnjoyed;
+
 
 
 		$criteria->compare('created_by',$this->created_by);
@@ -68,5 +70,9 @@ Expand/CollapseDatabase operationstest
 
  Table: user_config
 
+https://www.youtube.com/watch?v=3hXzk7HNuts
+
+
  Table: user_config
+
 
