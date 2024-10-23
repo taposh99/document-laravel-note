@@ -1,0 +1,6 @@
+         if($validatedData['entry_type'] == 3){
+                $recruit_temp_employee_id = $_POST['recruit_temp_employee_id'];
+                RecruitmentTempEmployee::where('id', $recruit_temp_employee_id)->update([
+                    'is_emp' => 1
+                ]);
+            }
