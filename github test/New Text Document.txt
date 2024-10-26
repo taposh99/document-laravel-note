@@ -75,4 +75,7 @@ https://www.youtube.com/watch?v=3hXzk7HNuts
 
  Table: user_config
 
+
+
+ <td><?php echo $sl++; ?></td>
 hlw this is text exam
