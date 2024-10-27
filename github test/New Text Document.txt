@@ -79,3 +79,6 @@ https://www.youtube.com/watch?v=3hXzk7HNuts
 
  <td><?php echo $sl++; ?></td>
 hlw this is text exam
+
+                    $message .= " <br> Sub Department: " . DepartmentsSub::model()->nameOfThis($subDepartmentId);
+
