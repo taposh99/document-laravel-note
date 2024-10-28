@@ -81,4 +81,4 @@ https://www.youtube.com/watch?v=3hXzk7HNuts
 hlw this is text exam
 
                     $message .= " <br> Sub Department: " . DepartmentsSub::model()->nameOfThis($subDepartmentId);
-
+This article will provide some of the most important example angular 18 click event
