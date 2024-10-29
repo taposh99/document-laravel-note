@@ -1,3 +1,4 @@
+xampp theke bin e jete hobe
 mysql -u root -p
 
 
