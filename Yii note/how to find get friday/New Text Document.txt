@@ -1,0 +1,21 @@
+<?php
+
+function countFridaysInRange($startDate, $endDate) {
+    $start = new DateTime($startDate);
+    $end = new DateTime($endDate);
+    $end->modify('+1 day');
+    $fridayCount = 0;
+    while ($start < $end) {
+        if ($start->format('N') == 5) {
+            $fridayCount++; 
+        }
+        $start->modify('+1 day');
+    }
+    return $fridayCount;
+}
+$startDate = '2024-08-01';
+$endDate = '2024-08-31';
+$numberOfFridays = countFridaysInRange($startDate, $endDate);
+echo $numberOfFridays;
+
+?>
