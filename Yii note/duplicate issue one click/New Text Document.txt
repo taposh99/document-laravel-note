@@ -1,0 +1,76 @@
+    <fieldset class="tblFooters" style="width: 98%;">
+        <div id="ajaxLoader" style="display: none; float: left;"><img src="<?php echo Yii::app()->theme->baseUrl; ?>/images/ajax-loader.gif" /></div>
+
+        <?php
+        echo CHtml::ajaxSubmitButton('Save', CHtml::normalizeUrl(array('finishedGoods/create', 'render' => true)), array(
+            'dataType' => 'json',
+            'type' => 'post',
+            'success' => 'function(data) {
+                    $("input[name=yt0]").css({ "pointer-events": "unset" });
+                    $("input[name=yt0]").attr("disabled", false);
+                    $("#ajaxLoader").hide();
+                    if(data.status=="success"){
+                        $("#tbl tr.cartList").remove();
+                        sl=0;
+                        $("#formResultError").hide();
+                        $("#formResult").fadeIn();
+                        $("#formResult").html("Data saved successfully.");
+                        $("#finished-goods-form")[0].reset();
+                        $("#formResult").animate({opacity:1.0},1000).fadeOut("slow");
+                        $("#ajaxLoaderReport").show();
+                        $("#stock_type").prop("disabled", false);
+                        $("#entry_type").prop("disabled", false);
+                        $("#FinishedGoods_sales_center_id").prop("disabled", false);
+                        if(data.entrytype==21){
+                            // preview show
+                            $("#poReportDialogBox").dialog("open");
+                            $("#AjFlashReportPo").html(data.poReportInfo).show();
+                        }
+                        $("#ajaxLoaderReport").hide();
+                    }else if(data.status=="errorBalance"){
+                        $("#formResultError").show();
+                        $("#formResultError").html("You Must Add Items First!");
+                    }else{
+                        $("#formResult").show();
+                        $("#formResultError").html("Data not saved. Please solve the above errors!");
+                        $.each(data, function(key, val) {
+                            $("#finished-goods-form #"+key+"_em_").html(""+val+"");
+                            $("#finished-goods-form #"+key+"_em_").show();
+                        });
+                    }
+                }',
+            'beforeSend' => 'function(){
+                var stockDate  =  $("#FinishedGoods_date").val();
+                if(stockDate !=""){
+                    if(isValidDateFormat(stockDate) == false){
+                        alertify.alert("Invalid Date Format!");
+                        return false;
+                    }
+                }
+                if(this.data!="") {
+                    $("input[name=yt0]").css({ "pointer-events": "none" });
+                    $("input[name=yt0]").attr("disabled", true);
+                }
+                if (vals.length<1) {
+                    alertify.alert("Please add product in list!");
+                    return false;
+                }
+                $("#ajaxLoader").show();
+
+             }'
+        ), array('style' => 'padding: 8px 20px; float:left'));
+        ?>
+    </fieldset>
+
+      ai four line bosate hobe
+   
+                  $("input[name=yt0]").css({ "pointer-events": "unset" });
+                  $("input[name=yt0]").attr("disabled", false);
+
+
+
+
+                  if(this.data!="") {
+                    $("input[name=yt0]").css({ "pointer-events": "none" });
+                    $("input[name=yt0]").attr("disabled", true);
+                   }
