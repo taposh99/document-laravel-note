@@ -1,4 +1,5 @@
 xampp theke bin e jete hobe
+server ->mysql_>bin
 mysql -u root -p
 
 
