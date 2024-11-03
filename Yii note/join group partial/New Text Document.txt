@@ -1,0 +1,588 @@
+<?php
+
+class PaymentReceipt extends CActiveRecord
+{
+
+    /**
+     * Returns the static model of the specified AR class.
+     * @return PaymentReceipt the static model class
+     */
+    public static function model($className = __CLASS__)
+    {
+        return parent::model($className);
+    }
+
+    /**
+     * @return string the associated database table name
+     */
+    public function tableName()
+    {
+        return 'payment_receipt';
+    }
+
+    public $dateFrom;
+    public $dateTo;
+    public $totalAmount;
+    public $totalDiscount;
+    public $balance;
+    public $supplierBillNo;
+    public $po_date;
+    public $maxSINo;
+    public $sumOfPaidAmount;
+    public $sumOfDiscount;
+    public $lot;
+    public $book_no;
+    public $advance;
+
+    const CASH = 1;
+    const CHECK = 2;
+    const ONLINE = 3;
+
+    const APPROVED = 1;
+    const DENY = 2;
+    const PENDING = 0;
+
+    /**
+     * @return array validation rules for model attributes.
+     */
+    public function rules()
+    {
+        // NOTE: you should only define rules for those attributes that
+        // will receive user inputs.
+        return array(
+            array('supplier_id, date, order_no, payment_type', 'required'),
+            array('year, supplier_id, create_by, update_by, bank_id,pr_by,full_paid,is_approved', 'numerical', 'integerOnly' => true),
+            array('amount, cheque_amount, discount, receivable_amount,vat_receivable, tds_receivable,advance', 'numerical'),
+            array('date, cheque_date, bank_id, supplier_mr_no, create_time,  received_by', 'safe'),
+            array('month', 'length', 'max' => 2),
+            array('order_no, remarks, cheque_no, cheque_no,sl_no', 'length', 'max' => 255),
+            array('id, sl_no, supplierBillNo, is_approved,vat_receivable, tds_receivable,advance,supplier_mr_no, bank_id,pr_by,full_paid, received_by,bank_id, cheque_approved_date, supplier_id, cheque_no, cheque_amount, receivable_amount, amount, date, month, year, order_no, payment_type, cheque_no, cheque_date, bank_id, discount, supplier_mr_no,create_by,create_time,approved_by,approved_datetime,remarks', 'safe', 'on' => 'search'),
+        );
+    }
+
+    /**
+     * @return array relational rules.
+     */
+    public function relations()
+    {
+        // NOTE: you may need to adjust the relation name and the related
+        // class name for the relations automatically generated below.
+        return array(
+            'supplier' => array(self::BELONGS_TO, 'Suppliers', 'supplier_id'),
+        );
+    }
+
+    /**
+     * @return array customized attribute labels (name=>label)
+     */
+    public function attributeLabels()
+    {
+        return array(
+            'id' => 'ID',
+            'sl_no' => 'Payment Receipt No',
+            'supplier_id' => 'Supplier Name',
+            'amount' => 'Payment Amount',
+            'cheque_amount' => 'Cheque Amount',
+            'date' => 'Payment Date',
+            //'amount_type' => 'Payment Type',
+            'branch_id' => 'Branch',
+            'account_id' => 'Account No',
+            'check_no' => 'Check No',
+            'order_no' => 'PO No',
+            'payment_type' => 'Payment Type',
+            'cheque_no' => 'Cheque No.',
+            'cheque_date' => 'Cheque Date',
+            'bank_id' => 'Bank Name',
+            'discount' => 'Discount',
+            'balance' => 'Balance',
+            'supplier_mr_no' => 'Supplier Mr. No',
+            'remarks' => 'Remarks',
+            'create_by' => 'Created By',
+            'create_time' => 'Created Time',
+            'update_by' => 'Updated By',
+            'supplierBillNo' => 'Supplier Bill No.',
+            'po_date' => 'Purchase Date',
+            'vat_receivable' => 'VAT Receivable Amount',
+            'tds_receivable' => 'TDS Receivable Amount',
+            'is_approved' => 'Is Approved',
+            'receivable_amount' => 'Receivable Amount',
+            'advance' => 'Advance',
+            'pr_by' =>'PR By',
+            'full_paid' =>'Full Paid',
+            'received_by' =>'Received By',
+
+        );
+    }
+
+    public function paymentType($value)
+    {
+        if ($value == self::ONLINE)
+            return "ONLINE";
+        else if ($value == self::CHECK)
+            return "CHEQUE";
+        else if ($value == self::CASH)
+            return "CASH";
+        else
+            return "";
+    }
+
+
+    public function statusColor($cheque_clear)
+    {
+        if ($cheque_clear == self::PENDING)
+            echo "<font style='color: orange; font-weight: bold;'>PENDING</font>";
+        else if ($cheque_clear == self::APPROVED)
+            echo "<font style='color: green; font-weight: bold;'>APPROVED</font>";
+        else if ($cheque_clear == self::DENY)
+            echo "<font style='color: red; font-weight: bold;'>CHEQUE BOUNCED</font>";
+        else
+            echo "";
+    }
+
+    public function totalPaymentBeforeThisId($id)
+    {
+        $paymentReceipt = PaymentReceipt::model()->findByPk($id);
+        $dramount = 0;
+        $criteria = new CDbCriteria();
+        $criteria->select = "sum(amount) as totalAmount, sum(discount) as totalDiscount";
+        $criteria->condition = "supplier_id= $paymentReceipt->supplier_id AND id < $id AND order_no='ob'";
+        $data2 = self::model()->findAll($criteria);
+        if ($data2) {
+            $dramount = end($data2)->totalAmount + end($data2)->totalDiscount;
+        }
+
+        return $dramount;
+    }
+
+    public function paymentReceiptInfoOfThisDateSupplier($date, $supplierId)
+    {
+        $criteria = new CDbCriteria();
+        $criteria->condition = "date='" . $date . "' AND supplier_id=" . $supplierId;
+        $criteria->group = 'sl_no';
+        $data = self::model()->findAll($criteria);
+        if ($data) {
+            return $data;
+        }
+    }
+
+    public function paymentReceiptInfoOfThisDateSupplierOpening($startDate, $supplierId)
+    {
+        $dramount = 0;
+        $criteria = new CDbCriteria();
+        $criteria->select = "sum(amount) as totalAmount, sum(discount) as totalDiscount";
+        $criteria->condition = "supplier_id=" . $supplierId . " AND date < '" . $startDate . "'";
+        $data2 = self::model()->findAll($criteria);
+        if ($data2) {
+            $dramount = end($data2)->totalAmount + end($data2)->totalDiscount;
+        }
+
+        return $dramount;
+    }
+
+    public function totalOpeningPaymentOfThisSupplier($supplier_id)
+    {
+        $dramount = 0;
+        $criteria = new CDbCriteria();
+        $criteria->select = "sum(amount) as totalAmount";
+        $criteria->condition = "order_no='ob' and supplier_id = $supplier_id";
+        $data2 = self::model()->findAll($criteria);
+        if ($data2) {
+            $dramount = end($data2)->totalAmount;
+        }
+        return $dramount;
+    }
+
+    public function totalPaymentReceiptOfThisSupplier($supplierId)
+    {
+        $condition = "supplier_id=" . $supplierId;
+        $data = self::model()->findAll(array('condition' => $condition,), 'id');
+        $totalPaidAmount = 0;
+        $totalDisAmount = 0;
+        $totalAmount = 0;
+        if ($data) {
+            foreach ($data as $d):
+                $totalPaidAmount = $d->amount + $totalPaidAmount;
+                $totalDisAmount = $d->discount + $totalDisAmount;
+                $totalAmount = $totalPaidAmount + $totalDisAmount;
+            endforeach;
+        }
+        return number_format(floatval($totalAmount), 2);
+    }
+
+    public function totalPaymentReceiptOfThisSupplierWithoutOB($supplierId, $to)
+    {
+        $totalAmount = 0;
+        $sql = "SELECT count(id) as id, sum(amount) as amounts, sum(discount) as discounts FROM payment_receipt where supplier_id =$supplierId and order_no !='ob' AND date <= '$to'";
+        $connection = Yii::app()->db;
+        $command = $connection->createCommand($sql);
+        $data = $command->queryROW();
+        if ($data) {
+            $totalAmount = $data['amounts'] + $data['discounts'];
+        }
+        return $totalAmount;
+    }
+
+    public function totalPaymentReceiptOfThisSupplierWithOB($supplierId, $to)
+    {
+        $totalAmount = 0;
+        $sql = "SELECT sum(amount) as amounts, sum(discount) as discounts FROM payment_receipt where supplier_id =$supplierId and order_no ='ob' AND date <= '$to'";
+        $connection = Yii::app()->db;
+        $command = $connection->createCommand($sql);
+        $data = $command->queryROW();
+        if ($data) {
+            $totalAmount = $data['amounts'] + $data['discounts'];
+        }
+        return $totalAmount;
+    }
+
+    public function totalPaymentReceiptOfThisSupplierNoFormat($supplierId)
+    {
+        $condition = "supplier_id=" . $supplierId;
+        $data = self::model()->findAll(array('condition' => $condition,), 'id');
+        $totalPaidAmount = 0;
+        $totalDisAmount = 0;
+        $totalAmount = 0;
+        if ($data) {
+            foreach ($data as $d):
+                $totalPaidAmount = $d->amount;
+                $totalDisAmount = $d->discount;
+                $totalAmount += $totalPaidAmount + $totalDisAmount;
+            endforeach;
+        }
+        return $totalAmount;
+    }
+
+    public function totalPaymentReceiptOfThisOrderNo($orderNo)
+    {
+        $dramount = 0;
+        $criteria = new CDbCriteria();
+        $criteria->select = "sum(amount) as totalAmount";
+        $criteria->condition = "order_no='" . $orderNo . "'";
+        $data2 = self::model()->findAll($criteria);
+        if ($data2) {
+            $dramount = end($data2)->totalAmount;
+        }
+
+        return $dramount;
+    }
+
+
+    public function totalDiscountOfThisOrderNo($orderNo)
+    {
+        $dramount = 0;
+        $criteria = new CDbCriteria();
+        $criteria->select = "sum(discount) as totalDiscount";
+        $criteria->condition = "order_no='" . $orderNo . "'";
+        $data2 = self::model()->findAll($criteria);
+        if ($data2) {
+            $dramount = end($data2)->totalDiscount;
+        }
+
+        return $dramount;
+    }
+
+    public function totalPROfThisOrderNo($orderNo)
+    {
+        $dramount = 0;
+        $criteria = new CDbCriteria();
+        $criteria->select = "sum(amount) as totalAmount, sum(discount) as totalDiscount";
+        $criteria->condition = "order_no='" . $orderNo . "'";
+        $data2 = self::model()->findAll($criteria);
+        if ($data2) {
+            $dramount = end($data2)->totalAmount + end($data2)->totalDiscount;
+        }
+
+        return $dramount;
+    }
+
+    public function totalPaymentReceiptOfThisTimeRange($startDate, $endDate)
+    {
+        $dramount = 0;
+        $criteria = new CDbCriteria();
+        $criteria->select = "sum(amount) as totalAmount";
+        $criteria->addBetweenCondition('date', $startDate, $endDate, 'AND');
+        $data2 = self::model()->findAll($criteria);
+        if ($data2) {
+            $dramount = end($data2)->totalAmount;
+        }
+
+        return $dramount;
+    }
+
+    public function totalPaymentReceiptOfThisTimeRangeTotal()
+    {
+        $dramount = 0;
+        $criteria = new CDbCriteria();
+        $criteria->select = "sum(amount) as totalAmount";
+        $data2 = self::model()->findAll($criteria);
+        if ($data2) {
+            $dramount = end($data2)->totalAmount;
+        }
+
+        return $dramount;
+    }
+
+    public function beforeSave()
+    {
+        $this->month = substr($this->date, 5, 2);
+        $this->year = substr($this->date, 0, 4);
+
+        if ($this->isNewRecord) {
+            $this->create_time = new CDbExpression('NOW()');
+            $this->create_by = Yii::app()->user->getId();
+        } else {
+            //$this->update_time = new CDbExpression('NOW()');
+            $this->update_by = Yii::app()->user->getId();
+        }
+        return parent::beforeSave();
+    }
+
+    public function totalPrAmountOfThisPr($max_sl_no)
+    {
+        $totalAmount = 0;
+        $criteria = new CDbCriteria();
+        $criteria->select = "sum(amount) as sumOfPaidAmount";
+        $criteria->addColumnCondition(array("max_sl_no" => $max_sl_no), "AND", "AND");
+        $data = self::model()->findAll($criteria);
+        if ($data) {
+            $totalAmount = end($data)->sumOfPaidAmount;
+        }
+
+        return $totalAmount;
+    }
+
+    public function totalDiscountPrAmountOfThisPr($max_sl_no)
+    {
+        $totalAmount = 0;
+        $criteria = new CDbCriteria();
+        $criteria->select = "sum(discount) as sumOfPaidAmount";
+        $criteria->addColumnCondition(array("max_sl_no" => $max_sl_no), "AND", "AND");
+        $data = self::model()->findAll($criteria);
+        if ($data) {
+            $totalAmount = end($data)->sumOfPaidAmount;
+        }
+
+        return $totalAmount;
+    }
+
+    public function showSupplierBillNobySlNo($max_sl_no)
+    {
+        $returnstr = "";
+        $criteria = new CDbCriteria();
+        $criteria->select = "supplier_bill_no";
+        $criteria->condition = "max_sl_no=" . $max_sl_no;
+        $data = self::model()->findAll($criteria);
+        if ($data) {
+            $i = 1;
+            foreach ($data as $onerow) {
+                if ($i > 1) {
+                    $returnstr .= ', ';
+                }
+                $SupplierBillNo = $onerow->supplier_bill_no;
+
+                $returnstr .= $SupplierBillNo;
+                $i++;
+            }
+        }
+
+        return $returnstr;
+    }
+
+    public function showPoNobySlNo($max_sl_no)
+    {
+        $returnstr = "";
+        $criteria = new CDbCriteria();
+        $criteria->select = "order_no";
+        $criteria->condition = "max_sl_no=" . $max_sl_no;
+        $data = self::model()->findAll($criteria);
+        if ($data) {
+            $i = 1;
+            foreach ($data as $onerow) {
+                if ($i > 1) {
+                    $returnstr .= ', ';
+                }
+                $PoNo = $onerow->order_no;
+
+                $returnstr .= $PoNo;
+                $i++;
+            }
+        }
+
+        return $returnstr;
+    }
+
+    public function totalPaymentReceiptOfThisSupplier2($supplier_id)
+    {
+        $dramount = 0;
+        $criteria = new CDbCriteria();
+        $criteria->select = "sum(amount) as totalAmount";
+        $criteria->condition = "supplier_id='" . $supplier_id . "'";
+        $data2 = self::model()->findAll($criteria);
+        if ($data2) {
+            $dramount = end($data2)->totalAmount;
+        }
+
+        return $dramount;
+    }
+
+    public function totalDiscountOfThisSupplier($supplier_id)
+    {
+        $dramount = 0;
+        $criteria = new CDbCriteria();
+        $criteria->select = "sum(discount) as totalDiscount";
+        $criteria->condition = "supplier_id='" . $supplier_id . "'";
+        $data2 = self::model()->findAll($criteria);
+        if ($data2) {
+            $dramount = end($data2)->totalDiscount;
+        }
+
+        return $dramount;
+    }
+
+    /**
+     * Retrieves a list of models based on the current search/filter conditions.
+     * @return CActiveDataProvider the data provider that can return the models based on the search/filter conditions.
+     */
+    public function search()
+    {
+        $criteria = new CDbCriteria;
+
+        if (trim($this->supplier_id) != "") {
+            $criteria->join .= " INNER JOIN suppliers ON t.supplier_id = suppliers.id and suppliers.company_name like '%" . CHtml::encode(trim($this->supplier_id)) . "%'";
+        }
+
+        if (trim($this->supplierBillNo) != "") {
+            $criteria->join .= " INNER JOIN received_purchase ON t.order_no = received_purchase.po_no and received_purchase.supplier_bill_no like '%" . trim($this->supplierBillNo) . "%'";
+        }
+        if (trim($this->create_by) != "") {
+            $criteria->join .= " INNER JOIN users u ON u.id = t.create_by and u.username like '%" . trim($this->create_by) . "%'";
+        }
+        if (trim($this->approved_by) != "") {
+            $criteria->join .= " INNER JOIN users u2 ON u2.id = t.approved_by and u2.username like '%" . trim($this->approved_by) . "%'";
+        }
+        $criteria->compare('amount', $this->amount, true);
+        $criteria->compare('payment_type', $this->payment_type);
+        $criteria->compare('cheque_amount ', $this->cheque_amount);
+        $criteria->compare('bank_id', $this->bank_id);
+        $criteria->compare('date', $this->date, true);
+        $criteria->compare('month', $this->month, true);
+        $criteria->compare('cheque_no', $this->cheque_no, true);
+        $criteria->compare('year', $this->year);
+        $criteria->compare('create_time', trim($this->create_time), true);
+        $criteria->compare('approved_datetime', trim($this->approved_datetime), true);
+        $criteria->compare('cheque_approved_status', $this->cheque_approved_status);
+        $criteria->compare('order_no', $this->order_no, true);
+        $criteria->compare('sl_no', $this->sl_no, true);
+        $criteria->compare('supplier_mr_no', $this->supplier_mr_no, true);
+        $criteria->compare('cheque_date', $this->cheque_date, true);
+        $criteria->compare('cheque_approved_by', $this->cheque_approved_by, true);
+        $criteria->compare('cheque_approved_date', $this->cheque_approved_date, true);
+        $criteria->compare('receivable_amount', $this->receivable_amount, true);
+
+        $criteria->group = "t.max_sl_no";
+
+        return new CActiveDataProvider($this, array(
+            'criteria' => $criteria,
+            'pagination' => array(
+                'pageSize' => 50,
+            ),
+            'sort' => array(
+                'defaultOrder' => 't.id DESC',
+            ),
+        ));
+    }
+
+    public function searchCheque()
+    {
+        $criteria = new CDbCriteria;
+
+        if (trim($this->supplier_id) != "") {
+            $criteria->join .= " INNER JOIN suppliers ON t.supplier_id = suppliers.id and suppliers.company_name like '%" . trim($this->supplier_id) . "%'";
+        }
+
+        if (trim($this->supplierBillNo) != "") {
+            $criteria->join .= " INNER JOIN received_purchase ON t.order_no = received_purchase.po_no and received_purchase.supplier_bill_no like '%" . trim($this->supplierBillNo) . "%'";
+        }
+        $criteria->condition = "cheque_approved_status >=0 ";
+        $criteria->compare('id', $this->id);
+        $criteria->compare('payment_type', $this->payment_type);
+        $criteria->compare('amount', $this->amount, true);
+        $criteria->compare('cheque_amount ', $this->cheque_amount);
+        $criteria->compare('bank_id', $this->bank_id);
+        $criteria->compare('date', $this->date, true);
+        $criteria->compare('month', $this->month, true);
+        $criteria->compare('cheque_no', $this->cheque_no, true);
+        $criteria->compare('year', $this->year);
+        $criteria->compare('cheque_approved_status', $this->cheque_approved_status);
+        $criteria->compare('order_no', $this->order_no, true);
+        $criteria->compare('sl_no', $this->sl_no, true);
+        $criteria->compare('supplier_mr_no', $this->supplier_mr_no, true);
+        $criteria->compare('cheque_date', $this->cheque_date, true);
+        $criteria->compare('cheque_approved_by', $this->cheque_approved_by, true);
+        $criteria->compare('cheque_approved_date', $this->cheque_approved_date, true);
+        $criteria->compare('receivable_amount', $this->receivable_amount, true);
+        $criteria->compare('create_by', $this->create_by);
+        $criteria->compare('create_time', trim($this->create_time), true);
+        $criteria->compare('approved_by', $this->approved_by);
+        $criteria->compare('approved_datetime', trim($this->approved_datetime), true);
+
+        return new CActiveDataProvider($this, array(
+            'criteria' => $criteria,
+            'pagination' => array(
+                'pageSize' => 50,
+            ),
+            'sort' => array(
+                'defaultOrder' => 'id DESC',
+            ),
+        ));
+    }
+
+    public function totalPaymentReceiptBySupplierDateRange($startDate, $endDate, $supplierId)
+    {
+        $dramount = 0;
+        $criteria = new CDbCriteria();
+        $criteria->select = "sum(amount) as totalAmount";
+        $criteria->addBetweenCondition('date', $startDate, $endDate, 'AND');
+        $criteria->condition .= " and supplier_id = $supplierId ";
+        $data2 = self::model()->findAll($criteria);
+        if ($data2) {
+            $dramount = end($data2)->totalAmount;
+        }
+
+        return $dramount;
+    }
+    public function approveDeleteButton($pr_no)
+    {
+        $data = PaymentReceipt::model()->findByAttributes(array('max_sl_no' => $pr_no, 'is_approved' => 1));
+        $is_approved = 0;
+        if($data){
+            $is_approved = 1;
+        }
+
+        $string = "";
+        if($is_approved != 1){
+            $string .= CHtml::link("<i style='color: green; margin-right: 2px;' class='fa fa-check-circle fa-3x' aria-hidden='true'></i>", Yii::app()->controller->createUrl("/accounting/paymentReceipt/approvePaymentReceipt/pr_no/" . $pr_no), ["onclick" => "return confirm('Do you want to approve?');", 'title' => 'Approve', 'style' => '']);
+            $string .= CHtml::link("<i style='color: red;' class='fa fa-trash fa-3x' aria-hidden='true'></i>", Yii::app()->controller->createUrl("/accounting/paymentReceipt/deletePaymentReceipt/pr_no/" . $pr_no), ["onclick" => "return confirm('Do you want to delete?');", 'title' => 'Delete', 'style' => '']);
+            return $string;
+        }else{
+            $string .= '<i style="color: green;" class="fa fa-calendar-check-o  fa-3x" aria-hidden="true">';
+        }
+        return $string;
+
+    }
+	
+	public function prAmtByPrNo($pr_no)
+    {
+        $criteria = new CDbCriteria();
+        $criteria->condition = "sl_no='" . $pr_no."'";
+        $data = self::model()->findAll($criteria);
+        $ttlAmt = 0;
+        if ($data) {
+            foreach ($data as $d) {
+                $ttlAmt += $d->amount+$d->vat_receivable+$d->tds_receivable+$d->discount;
+            }
+        }
+        return $ttlAmt;
+    }
+
+}
