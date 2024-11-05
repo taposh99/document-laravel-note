@@ -7,3 +7,6 @@ hlw vaiya how are you
 
 
  Lutt Putt Gaya
+
+
+manageVehicle/index.blade.php
