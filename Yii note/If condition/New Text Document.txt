@@ -12,7 +12,7 @@
             }
 
 
-3.       <td>
+3.               <td>
                     <?php
                     if ($entry_no != null) {
                         echo CHtml::button('Cancel', array(
