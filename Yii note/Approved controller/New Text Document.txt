@@ -1,0 +1,6 @@
+    public function actionApprovePaymentReceipt($pr_no)
+    {   
+        PaymentReceipt::model()->updateAll(array('is_approved' => 1,'approved_by' =>Yii::app()->user->id,'approved_datetime' => date("Y-m-d H:i:s")), "max_sl_no='$pr_no'");
+        Yii::app()->user->setFlash('success', "Approved Successfully!");
+        $this->redirect(array('admin'));
+    }
