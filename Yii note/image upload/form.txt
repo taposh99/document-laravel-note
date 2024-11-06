@@ -1,0 +1,118 @@
+<?php
+$form = $this->beginWidget('CActiveForm', array(
+    'id' => 'training-manual-form',
+    'enableAjaxValidation' => false,
+    'enableClientValidation' => true,
+    'clientOptions' => array('validateOnSubmit' => true),
+    'htmlOptions' => array('enctype' => 'multipart/form-data'),
+        ));
+  ?>
+
+<div id="formResult" class="ajaxTargetDiv">
+
+</div>
+<div id="formResultError" class="ajaxTargetDivErr">
+
+</div>
+
+<div class="formDiv">
+    <fieldset>
+        <legend><?php echo ($model->isNewRecord ? 'Traning Manaul' : 'Update Traning Manaul'); ?></legend>
+        <table width="20%">
+            <tr>
+                <td><?php echo $form->labelEx($model, 'name'); ?></td>
+                <td>
+                    <?php echo $form->textField($model, 'name', array('maxlength'=>255)); ?>
+                    <?php echo $form->error($model, 'name'); ?>
+                </td>            
+            </tr>
+           
+            <tr>
+            <td><?php echo $form->labelEx($model, 'file'); ?></td>
+            <td>
+                <input type="hidden" name="TrainingManual[file]" id="TrainingManual_file">
+                <input type="file" id="fileAttachment">
+            </td>
+           </tr>
+
+
+ 
+        
+        </table>
+       <div id="ajaxLoader" style="display: none;"><img src="<?php echo Yii::app()->theme->baseUrl; ?>/images/ajax-loader.gif" /></div>
+    </fieldset>
+
+    <fieldset class="tblFooters">
+        <?php
+        echo CHtml::ajaxSubmitButton('Save', CHtml::normalizeUrl(array('trainingManual/create', 'render' => true)), array(
+            'dataType' => 'json',
+            'type' => 'post',
+            'success' => 'function(data) {
+                $("#ajaxLoader").hide();  
+                    if(data.status=="success"){
+                        $("#formResult").fadeIn();
+                        $("#formResult").html("Data saved successfully.");
+                        $("#training-manual-form")[0].reset();
+                        $("#formResult").animate({opacity:1.0},1000).fadeOut("slow");
+                        $.fn.yiiGridView.update("bank-grid", {
+		    data: $(this).serialize()
+            });
+                    }else{
+                        //$("#formResultError").html("Data not saved. Pleae solve the following errors.");
+                        $.each(data, function(key, val) {
+                            $("#training-manual-form #"+key+"_em_").html(""+val+"");                                                    
+                            $("#training-manual-form #"+key+"_em_").show();
+                        });
+                    }       
+                }',
+                'beforeSend' => 'function() {
+                }'
+            ));
+        ?>
+    </fieldset>
+</div>
+
+<?php $this->endWidget(); ?>
+
+<style>
+    select {
+        width: 73%;
+    }
+</style>
+
+<script>
+
+    $("#fileAttachment").change(function(){
+            var file_data = $('#fileAttachment').prop('files')[0];
+
+            var fileName = "";
+            var fileActualName = "";
+            if(document.getElementById("fileAttachment").files.length != 0 ){
+                var fileActualName = $('#fileAttachment').prop('files')[0].name;
+                var filesize = $('#fileAttachment').prop('files')[0].size;
+                // 2 MB file size limit
+                if(filesize > 5 * 1024 * 1024){
+                    alertify.alert("File size can't be greater than 5MB.");
+                    $("#fileAttachment").val("");
+                    return false;
+                }
+
+                var form_data = new FormData();
+                form_data.append('file', file_data);
+                $.ajax({
+                    url: '<?php echo Yii::app()->createAbsoluteUrl('trainingManual/uploadAjaxFile')?>',
+                    dataType: 'text',
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    data: form_data,
+                    type: 'post',
+                    async: false,
+                    success: function (data) {
+                        fileName = data;
+                        $("#TrainingManual_file").val(fileName);
+                    }
+                });
+            }
+        });
+</script>
