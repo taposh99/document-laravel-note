@@ -1,0 +1,77 @@
+<input type="hidden" name="AtReq[attachment]" id="AtReq_attachment">
+<input type="file" id="fileAttachment">
+
+
+
+
+
+$("#fileAttachment").change(function(){
+            var file_data = $('#fileAttachment').prop('files')[0];
+
+            var fileName = "";
+            var fileActualName = "";
+            if(document.getElementById("fileAttachment").files.length != 0 ){
+                var fileActualName = $('#fileAttachment').prop('files')[0].name;
+                var filesize = $('#fileAttachment').prop('files')[0].size;
+                // 2 MB file size limit
+                if(filesize > 2 * 1024 * 1024){
+                    alertify.alert("File size can't be greater than 2MB.");
+                    $("#fileAttachment").val("");
+                    return false;
+                }
+
+                var form_data = new FormData();
+                form_data.append('file', file_data);
+                $.ajax({
+                    url: '<?php echo Yii::app()->createAbsoluteUrl('atReq/uploadAjaxFile')?>',
+                    dataType: 'text',
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    data: form_data,
+                    type: 'post',
+                    async: false,
+                    success: function (data) {
+                        fileName = data;
+                        $("#AtReq_attachment").val(fileName);
+                    }
+                });
+            }
+        })
+
+
+
+public function actionUploadAjaxFile(){
+        if ( 0 < $_FILES['file']['error'] ) {
+            echo 'Error: ' . $_FILES['file']['error'] . '<br>';
+        }
+        else {
+            $path = $_FILES['file']['name'];
+            $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+//            $extArray = array('jpg', 'jpeg', 'pdf','doc','docx');
+//            if(in_array($ext, $extArray)){
+                $fileName = trim(uniqid("AtReq_".date('Y-m-d').'-', true) . "." . $ext);
+                move_uploaded_file($_FILES['file']['tmp_name'], "uploads/atReq/" . $fileName);
+                echo $fileName;exit;
+//            }
+        }
+
+    }
+
+
+<td class="file"><?php echo !empty($dt->attachment) ? CHtml::link('Download file',array('expense/downloadTadaFile/path/'.$dt->attachment), array('style'=>'text-decoration:underline; color: blue;')) : ""; ?></td>
+
+
+
+public function actionDownloadTadaFile($path){
+        $path = Yii::getPathOfAlias('webroot')."/uploads/expense/tada/".$path;
+        if(!empty($path)){
+            header("Content-type:application/pdf");
+            header('Content-Disposition: attachment; filename="'.basename($path).'"');
+            header('Content-Length: ' . filesize($path));
+            readfile($path);
+            Yii::app()->end();
+        }
+    }
+
+
