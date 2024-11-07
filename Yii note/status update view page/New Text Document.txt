@@ -1,4 +1,4 @@
-     <tr>
+           <tr>
                 <td><?php echo $form->labelEx($model, 'status'); ?></td>
                 <td>
                     <?php $activeStatus = array(1 => 'Active', 2 => 'Inactive'); ?>

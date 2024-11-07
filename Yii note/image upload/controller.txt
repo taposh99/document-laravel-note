@@ -1,0 +1,203 @@
+<?php
+
+class TrainingManualController extends Controller {
+
+    /**
+     * @var string the default layout for the views. Defaults to '//layouts/column2', meaning
+     * using two-column layout. See 'protected/views/layouts/column2.php'.
+     */
+    public $layout = '//layouts/column1';
+
+    /**
+     * @return array action filters
+     */
+    public function filters() {
+        return array(
+            'rights-uploadAjaxFile-downloadFile', // perform access control for CRUD operations
+        );
+    }
+
+    public function allowedActions() {
+        return '';
+    }
+
+    /**
+     * Displays a particular model.
+     * @param integer $id the ID of the model to be displayed
+     */
+
+    /**
+     * Creates a new model.
+     * If creation is successful, the browser will be redirected to the 'view' page.
+     */
+
+
+    /**
+     * Creates a new model.
+     * If creation is successful, the browser will be redirected to the 'view' page.
+     */
+       public function actionCreate() {
+        $model = new TrainingManual;
+    
+        // Uncomment the following line if AJAX validation is needed
+        $this->performAjaxValidation($model);
+    
+        if (isset($_POST['TrainingManual'])) {
+            $model->attributes = $_POST['TrainingManual'];
+            $valid = $model->validate();
+            if ($valid) {
+                if ($model->save()) {
+                    echo CJSON::encode(array(
+                        'status' => 'success',
+                    ));
+                    Yii::app()->end();
+                }
+            } else {
+                // If validation fails, return the validation errors
+                $error = CActiveForm::validate($model);
+                if ($error != '[]') {
+                    echo $error;
+                }
+                Yii::app()->end();
+            }
+        } else {
+            $this->render('admin', array(
+                'model' => $model,
+            ));
+        }
+    }
+    
+
+    /**
+     * Updates a particular model.
+     * If update is successful, the browser will be redirected to the 'view' page.
+     * @param integer $id the ID of the model to be updated
+     */
+
+
+   public function actionUpdate($id)
+   {
+        // Load the model based on the ID
+        $model = TrainingManual::model()->findByPk($id);
+        if ($model === null) {
+            throw new CHttpException(404, 'The requested Training Manual does not exist.');
+        }
+        
+        if (isset($_POST['TrainingManual'])) {
+            $model->attributes = $_POST['TrainingManual'];
+            $model->save();
+            echo CJSON::encode(array(
+                'status' => 'success',
+                'content' => '<div class="flash-notice">successfully updated.</div>',
+            ));
+            exit;
+
+        }
+        if (Yii::app()->request->isAjaxRequest) {
+            // Stop jQuery from re-initialization
+            Yii::app()->clientScript->scriptMap['jquery.js'] = false;
+
+            echo CJSON::encode(array(
+                'status' => 'failure',
+                'content' => $this->renderPartial('_form2', array(
+                    'model' => $model), true, true),
+            ));
+            exit;
+        } else
+            $this->render('update', array('model' => $model));
+    }
+
+
+    /**
+     * Deletes a particular model.
+     * If deletion is successful, the browser will be redirected to the 'admin' page.
+     * @param integer $id the ID of the model to be deleted
+     */
+    public function actionDelete($id) {
+        if (Yii::app()->request->isPostRequest) {
+            // we only allow deletion via POST request
+            $this->loadModel($id)->delete();
+
+            // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
+            if (!isset($_GET['ajax']))
+                $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
+        }
+        else
+            throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
+    }
+
+    /**
+     * Lists all models.
+     */
+
+
+    /**
+     * Manages all models.
+     */
+    public function actionAdmin() {
+
+        $model = new TrainingManual('search');
+        $model->unsetAttributes();  // clear any default values
+        if (isset($_GET['traningManual']))
+            $model->attributes = $_GET['traningManual'];
+
+        $this->render('admin', array(
+            $this->pageTitle = 'Training Manual Setup',
+            'model' => $model,
+        ));
+    }
+
+    /**
+     * Returns the data model based on the primary key given in the GET variable.
+     * If the data model is not found, an HTTP exception will be raised.
+     * @param integer the ID of the model to be loaded
+     */
+
+    /**
+     * Performs the AJAX validation.
+     * @param CModel the model to be validated
+     */
+
+     protected function performAjaxValidation($model)
+    {
+        if (isset($_POST['ajax']) && $_POST['ajax'] === 'taining-manual-form') {
+            echo CActiveForm::validate($model);
+            Yii::app()->end();
+        }
+        
+    }
+
+    public function loadModel($id)
+    {
+        $model = TrainingManual::model()->findByPk($id);
+        if ($model === null)
+            throw new CHttpException(404, 'The requested page does not exist.');
+        return $model;
+    }
+
+    public function actionUploadAjaxFile(){
+        if ( 0 < $_FILES['file']['error'] ) {
+            echo 'Error: ' . $_FILES['file']['error'] . '<br>';
+        }
+        else {
+            $path = $_FILES['file']['name'];
+            $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+                $fileName = trim(uniqid("TrainingManual_".date('Y-m-d').'-', true) . "." . $ext);
+                move_uploaded_file($_FILES['file']['tmp_name'], "upload/trainingManual/" . $fileName);
+                echo $fileName;exit;
+        }
+    }
+
+    public function actionDownloadFile($path){
+        $path = Yii::getPathOfAlias('webroot')."/upload/trainingManual/".$path;
+        if(!empty($path)){
+            header("Content-type:application/pdf");
+            header('Content-Disposition: attachment; filename="'.basename($path).'"');
+            header('Content-Length: ' . filesize($path));
+            readfile($path);
+            Yii::app()->end();
+        }
+    }
+
+
+}
