@@ -1,0 +1,44 @@
+    public function assessments()
+    {
+        return $this->hasMany(Assessment::class, 'cnf_agent_id');
+    }
+
+
+
+   public function cnfAgent()
+    {
+        return $this->belongsTo(Cnf::class, 'cnf_agent_id');
+    }
+
+
+   public function index(Request $request, LookupService $lookupService)
+    {
+         $cnfData = Cnf::where('status', 1)->get(['id', 'title']);
+        if ($request->ajax()) {
+            $dataGrid = Assessment::with('cnfAgent')->get();
+                return Datatables::of($dataGrid)
+                ->addIndexColumn()
+                ->addColumn('title', function ($row) {
+                    return $row->cnfAgent ? $row->cnfAgent->title : 'N/A'; // Display Cnf title or 'N/A'
+                })
+                ->addColumn('action', function ($row) {
+                    $btn = null;
+                    if (auth()->user()->can('000028')) {
+                        $btn = '<a href="javascript:void(0)" data-toggle="tooltip"  data-id="' . $row->id . '" title="Edit" class="edit btn btn-primary btn-sm editData"><i class="ri-edit-box-line"></i></a>';
+                    }
+                
+                    return $btn;
+                })
+              
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+        return view('assessment.index', compact('cnfData'));
+
+    }
+
+show index page 
+                {
+                    data: 'title',
+                    name: 'title',
+                },
