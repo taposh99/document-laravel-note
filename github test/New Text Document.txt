@@ -15,3 +15,4 @@ manageVehicle/index.blade.php.
 
 hlw vai how are you
 yodat has come new member
+PS D:\server 4\htdocs\2025\mbw_hrm> git pull origin development
