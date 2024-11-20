@@ -19,3 +19,20 @@ manageVehicle/index.blade.php
 
 
 change some issue
+
+manageVehicle/index.blade.php.
+
+
+
+hlw vai how are you
+yodat has come new member
+PS D:\server 4\htdocs\2025\mbw_hrm> git pull origin development
+
+        'gender' => $genderLookup->id,
+
+
+salam vai kmn asen
+
+
+ami valo asi toi kmn asos
+
