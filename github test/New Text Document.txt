@@ -40,5 +40,17 @@ hala toi nije akta bolod
  have tutorials
 
 
-i hav e a sone problem
+i hav e a sone problem.
+
+
+
+
+
+
+
+
+
+The changes were mainly focused on ensuring that the filters for company, branch_id, department_id, and sub_department_id are correctly applied using CDbCriteria. Here's a breakdown of the changes I made to your original code, specifically focusing on where the changes are applied:
+
+
 
