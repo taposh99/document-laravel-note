@@ -14,3 +14,4 @@ resolve the bug
 
 Piya O Re Piya - Atif Aslam mashup | Magical night 2.0 🇧🇩 | Army stadium Dhaka
 PHP Laravel Generate Apple Wallet Pass Example
+.of tutorials about PHP, Laravel Framework, Codeigniter Framework, Mysql Database, Bootstrap Front-end Framework, Jquery, 
