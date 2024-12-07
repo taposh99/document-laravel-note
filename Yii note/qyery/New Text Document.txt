@@ -1,4 +1,6 @@
   1.     $journalEntry = JournalEntry::model()->findByAttributes(['cheque_no' => $d->cheque_no]);
          $cheque_date = $journalEntry ? $journalEntry->cheque_date : 'N/A';
 
-  2.
+  2.     $declaredHolidays = CalendarDays::model()->findAll("date like '$month%'");
+
+          $declaredHolidayCount = count($declaredHolidays);
