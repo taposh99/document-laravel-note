@@ -4,3 +4,4 @@ https://www.youtube.com/
 
 ss
 git pull origin development
+ php artisan make model Assessment/LandingCharge -m
