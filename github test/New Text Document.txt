@@ -6,3 +6,5 @@ ss
 git pull origin development
  php artisan make model Assessment/LandingCharge -m
 php artisan migrate
+
+this is mnew and beryu beaytifuk
