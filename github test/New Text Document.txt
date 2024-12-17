@@ -10,3 +10,4 @@ php artisan migrate
 this is mnew and beryu beaytifuk
                 'value' => 'Lookup::item("entry_source_type_id",$data->entry_source_type)',
 this is new
+hem plember installl 
