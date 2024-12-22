@@ -61,5 +61,6 @@ https://app.clickup.com/t/86er0z8p1
                     ?>
                 </td>
 
->>>>>>> 66587ecff3a652509af5580d40ccbb38b874ff04
+
+                            'onclick' => "{addContactPersonType(); $('#dialogAddContactPersonType').dialog('open');}"
 
