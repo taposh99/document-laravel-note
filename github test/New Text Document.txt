@@ -1,6 +1,11 @@
 
-new
+hl it si new
 
+
+new
+ * branch            development -> FETCH_HEAD
+Already up to date.
+PS D:\server 5.6\htdoc
 ss
 this is mnew and beryu beaytifuk
                 'value' => 'Lookup::item("entry_source_type_id",$data->entry_source_type)',
@@ -72,5 +77,6 @@ test in local 192.168.1.184
 Username: user
 Password: user
 port: 81
+
 
 
