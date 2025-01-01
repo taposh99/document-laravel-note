@@ -17,6 +17,8 @@ dddd
 
  font-size: 14px !important;
 
+plumberRegPhotoPublic
+
 https://app.clickup.com/t/86er0z8p1
 
  <td><label>Sales Person</label></td>
