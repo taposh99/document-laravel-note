@@ -27,3 +27,18 @@ masum is fucj boy
 
 
 
+
+
+$ git add reset_lifecycle_file 
+
+ 
+$ git status 
+
+ 
+On branch main Changes to be committed: 
+
+ 
+(use "git reset HEAD ..." to unstage) 
+
+ 
+modified: reset_lifecycle_file
