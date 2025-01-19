@@ -2,6 +2,12 @@ hh
 
 
 
+fffffffffff
+
+
+hlw vaiya assalamialikum
+
+
 
 $ git add reset_lifecycle_file 
 
@@ -16,6 +22,7 @@ On branch main Changes to be committed:
 
  
 It Solution Stuff provide a collection of tutorials about PHP, Laravel Framework, Codeigniter Framework, Mysql Database, Bootstrap Front-end Framework, Jquery, Node JS, Ajax Example, APIs, CURL Example, Composer Packages Example, AngularJS etc. You will find the best example an article about PHP Language. So you can also search tutorial from bellow search box.
+
 <tr>
     <td style="position: relative; padding-right: 10px;">
         <label style="display: block; margin-bottom: 5px;">Photo</label>
@@ -138,3 +145,6 @@ It Solution Stuff provide a collection of tutorials about PHP, Laravel Framework
         <?php echo $form->error($model, 'nid_photo_back'); ?>
     </td>
 </tr>
+
+
+>>>>>>> fe999cca9dc82e6aaa7639ce1e9d248903e01a5c
