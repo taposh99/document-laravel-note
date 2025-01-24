@@ -1,25 +1,12 @@
-hh
+    echo json_encode([
+            'status' => 'success',
+            'message' => 'Mismatched records have been updated.',
+            'updated_mr_no_list' => $updatedRecords,
+        ]);
 
-
-
-fffffffffff
-
-
-hlw vaiya assalamialikum
-
-
-
-$ git add reset_lifecycle_file 
-
- 
-$ git status 
-
- 
-On branch main Changes to be committed: 
-
- 
-(use "git reset HEAD ..." to unstage) 
-
- 
-It Solution Stuff provide a collection of tutorials about PHP, Laravel Framework, Codeigniter Framework, Mysql Database, Bootstrap Front-end Framework, Jquery, Node JS, Ajax Example, APIs, CURL Example, Composer Packages Example, AngularJS etc. You will find the best example an article about PHP Language. So you can also search tutorial from bellow search box.
-
+<? php 
+$a = 10;
+if (!empty ($a)){
+echo "ok"
+}
+?>
