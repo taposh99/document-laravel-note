@@ -10,3 +10,5 @@ if (!empty ($a)){
 echo "ok"
 }
 ?>
+
+hlw today ius ssaturday
