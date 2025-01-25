@@ -1,0 +1,62 @@
+
+    <fieldset class="tblFooters">
+        <?php
+        echo CHtml::ajaxSubmitButton('Save', CHtml::normalizeUrl(array('pointCurrencySetup/create', 'render' => true)), array(
+            'dataType' => 'json',
+            'type' => 'post',
+            'success' => 'function(data) {
+                $("#ajaxLoader").hide();  
+                 $("#saveButton").prop("disabled", false);
+                    if(data.status=="success"){
+                        $("#formResult").fadeIn();
+                        $("#formResult").html("Data saved successfully.");
+                        $("#currency-form")[0].reset();
+                        $("#formResult").animate({opacity:1.0},1000).fadeOut("slow");
+                        $.fn.yiiGridView.update("units-grid", {
+		data: $(this).serialize()
+	});
+                    }else{
+                        //$("#formResultError").html("Data not saved. Pleae solve the following errors.");
+                        $.each(data, function(key, val) {
+                            $("#currency-form #"+key+"_em_").html(""+val+"");                                                    
+                            $("#currency-form #"+key+"_em_").show();
+                        });
+                    }       
+                }',
+            'beforeSend' => 'function(){                        
+                $("#ajaxLoader").show();
+                 $("#saveButton").prop("disabled", true);
+             }',
+             'complete' => 'function() {
+                $("#saveButton").prop("disabled", false); // Re-enable the button after the AJAX request completes
+            }',
+        ),
+        array('id' => 'saveButton')
+    );
+        ?>
+    </fieldset>
+
+
+
+
+
+
+array('id' => 'saveButton')
+
+
+
+'beforeSend' => 'function() {                        
+    $("#ajaxLoader").show();
+    $("#saveButton").prop("disabled", true); // Disable the button to prevent multiple clicks.............
+}',
+
+
+
+'success' => 'function(data) {
+    $("#ajaxLoader").hide();  
+    $("#saveButton").prop("disabled", false); .............
+
+
+'complete' => 'function() {
+    $("#saveButton").prop("disabled", false); // Re-enable the button after the AJAX request completes
+}',
