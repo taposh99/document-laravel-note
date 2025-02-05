@@ -1,0 +1,105 @@
+  public function actionLedgerSummaryReportView()
+    {
+        if (!isset($_POST['startDate']) || empty($_POST['startDate']) || !isset($_POST['endDate']) || empty($_POST['endDate'])) {
+        }
+        $startDate = $_POST['Plumber']['startDate'];
+        $endDate = $_POST['Plumber']['endDate'];
+        $plumber_id = $_POST['Plumber']['plumber_id'] ?? null;
+        $reportType = $_POST['Plumber']['report_type'] ?? null; 
+    
+        $params = [];
+        $whereCondition = "1=1";
+
+        if (!empty($plumber_id)) {
+            $whereCondition = "id = :plumber_id";
+            $params[':plumber_id'] = $plumber_id;
+        }
+
+        $plumbers = Yii::app()->db->createCommand()
+        ->select("id, CONCAT(name, ' (', id, ')') AS name")
+            ->from("plumber")
+            ->where($whereCondition, $params)
+            ->queryAll();
+
+
+        $summaryData = [];
+        $totalDr = $totalCr = $totalOpeningBalance = $totalClosingBalance = 0;
+
+        foreach ($plumbers as $plumber) {
+            $plumberId = $plumber['id'];
+
+            // Calculate Opening Balance
+            $openingDr = Yii::app()->db->createCommand()
+                ->select("COALESCE(SUM(point), 0) as total")
+                ->from("plumber_points")
+                ->where("plumber_id=:plumber_id AND created_at < :startDate", [
+                    ':plumber_id' => $plumberId,
+                    ':startDate' => $startDate,
+                ])
+                ->queryScalar();
+
+            $openingCr = Yii::app()->db->createCommand()
+                ->select("COALESCE(SUM(payable_point), 0) as total")
+                ->from("plumber_payment_details")
+                ->where("plumber_id=:plumber_id AND date < :startDate", [
+                    ':plumber_id' => $plumberId,
+                    ':startDate' => $startDate,
+                ])
+                ->queryScalar();
+
+            $openingBalance = $openingDr - $openingCr;
+
+            // Earned (Dr Points)
+            $drPoints = Yii::app()->db->createCommand()
+                ->select("COALESCE(SUM(point), 0) as total")
+                ->from("plumber_points")
+                ->where("plumber_id=:plumber_id AND created_at BETWEEN :startDate AND :endDate", [
+                    ':plumber_id' => $plumberId,
+                    ':startDate' => $startDate,
+                    ':endDate' => $endDate,
+                ])
+                ->queryScalar();
+
+            // Redeemed (Cr Points)
+            $crPoints = Yii::app()->db->createCommand()
+                ->select("COALESCE(SUM(payable_point), 0) as total")
+                ->from("plumber_payment_details")
+                ->where("plumber_id=:plumber_id AND date BETWEEN :startDate AND :endDate", [
+                    ':plumber_id' => $plumberId,
+                    ':startDate' => $startDate,
+                    ':endDate' => $endDate,
+                ])
+                ->queryScalar();
+
+            $closingBalance = $openingBalance + $drPoints - $crPoints;
+
+            $summaryData[] = [
+                'plumber_name' => $plumber['name'],
+                'opening_balance' => $openingBalance,
+                'dr_points' => $drPoints,
+                'cr_points' => $crPoints,
+                'closing_balance' => $closingBalance,
+            ];
+
+            $totalDr += $drPoints;
+            $totalCr += $crPoints;
+            $totalOpeningBalance += $openingBalance;
+            $totalClosingBalance += $closingBalance;
+        }
+
+        echo CJSON::encode([
+            'content' => $this->renderPartial('ledgerSummaryReportView', [
+                'summaryData' => $summaryData,
+                'totalDr' => $totalDr,
+                'totalCr' => $totalCr,
+                'totalOpeningBalance' => $totalOpeningBalance,
+                'totalClosingBalance' => $totalClosingBalance,
+                'startDate' => $startDate,
+                'endDate' => $endDate,
+                'selectedPlumber' => $plumber_id,
+                'reportType' => $reportType, 
+            ], true),
+        ]);
+
+        Yii::app()->end();
+    }
