@@ -1,0 +1,8 @@
+   if(count($data) > 0){
+            foreach ($data as $item) {
+                $results[] = array(
+                    'id' => $item->id,
+                    'text' => "{$item->name} || {$item->id}", // Merges name and ID
+                );
+            }
+        }
