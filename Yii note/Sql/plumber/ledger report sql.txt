@@ -1,0 +1,85 @@
+  public function actionLedgerReportView()
+    {
+        if (
+            isset($_POST['Plumber']['plumber_id']) && !empty($_POST['Plumber']['plumber_id']) &&
+            isset($_POST['Plumber']['startDate']) && !empty($_POST['Plumber']['startDate']) &&
+            isset($_POST['Plumber']['endDate']) && !empty($_POST['Plumber']['endDate'])
+        ) {
+
+            $plumber_id = $_POST['Plumber']['plumber_id'];
+            $startDate = $_POST['Plumber']['startDate'];
+            $endDate = $_POST['Plumber']['endDate'];
+
+            $plumber = Yii::app()->db->createCommand()
+                ->select("name, contact_no")
+                ->from("plumber")
+                ->where("id=:plumber_id", [':plumber_id' => $plumber_id])
+                ->queryRow();
+
+            $plumberName = $plumber['name'] ?? 'N/A';
+            $plumberContact = $plumber['contact_no'] ?? 'N/A';
+
+            // Opening Balance Calculation (Dr)
+            $openingDr = Yii::app()->db->createCommand()
+                ->select("SUM(point) as total")
+                ->from("plumber_points")
+                ->where("plumber_id=:plumber_id AND created_at < :startDate", [
+                    ':plumber_id' => $plumber_id,
+                    ':startDate' => $startDate,
+                ])
+                ->queryScalar();
+
+            // Opening Balance Calculation (Cr)
+            $openingCr = Yii::app()->db->createCommand()
+                ->select("SUM(payable_point) as total")
+                ->from("plumber_payment_details")
+                ->where("plumber_id=:plumber_id AND date < :startDate", [
+                    ':plumber_id' => $plumber_id,
+                    ':startDate' => $startDate,
+                ])
+                ->queryScalar();
+
+            $openingBalance = ($openingDr ?: 0) - ($openingCr ?: 0);
+
+            // Debit (Earned Points) from `plumber_points`
+            $drPoints = Yii::app()->db->createCommand()
+                ->select("created_at as date, point as dr,CONCAT('Barcode Submit (', qrcode_number, ')') as reference")
+                ->from('plumber_points')
+                ->where('plumber_id=:plumber_id AND created_at BETWEEN :startDate AND :endDate', [
+                    ':plumber_id' => $plumber_id,
+                    ':startDate' => $startDate,
+                    ':endDate' => $endDate
+                ])
+                ->queryAll();
+
+            // Credit (Redeemed Points) from `plumber_payment_details`
+            $crPoints = Yii::app()->db->createCommand()
+                ->select("date, payable_point as cr,CONCAT('Payment for Points (', payment_no, ')') as reference")
+                ->from('plumber_payment_details')
+                ->where('plumber_id=:plumber_id AND date BETWEEN :startDate AND :endDate', [
+                    ':plumber_id' => $plumber_id,
+                    ':startDate' => $startDate,
+                    ':endDate' => $endDate
+                ])
+                ->queryAll();
+
+            // Merge and Sort Transactions by Date
+            $ledgerData = array_merge($drPoints, $crPoints);
+            usort($ledgerData, function ($a, $b) {
+                return strtotime($a['date']) - strtotime($b['date']);
+            });
+
+            echo CJSON::encode(array(
+                'content' => $this->renderPartial('ledgerReportView', [
+                    'ledgerData' => $ledgerData,
+                    'openingBalance' => $openingBalance,
+                    'plumberName' => $plumberName,
+                    'plumberContact' => $plumberContact,
+                    'startDate' => $startDate,
+                    'endDate' => $endDate,
+
+                ], true),
+            ));
+            exit;
+        }
+    }
