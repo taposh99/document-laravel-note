@@ -80,3 +80,6 @@ Laravel, Laravel posts collection, most popular and useful tutorials of Laravel,
             ));
         }
     }
+
+
+this is my bnew laptop
