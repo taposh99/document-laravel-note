@@ -1,0 +1,56 @@
+DROP TABLE table_name;
+
+
+
+
+CREATE TABLE user_activity_logs (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    user_id INT NOT NULL,
+    session_id VARCHAR(255) NOT NULL,
+    country VARCHAR(100) NULL,
+    region VARCHAR(100) NULL,
+    city VARCHAR(100) NULL,
+    time_zone VARCHAR(100) NULL,
+    browser_name VARCHAR(100) NULL,
+    browser_version VARCHAR(50) NULL,
+    ip_address VARCHAR(50) NULL,
+    mac_address VARCHAR(50) NULL,
+    device_type VARCHAR(100) NULL,
+    os VARCHAR(100) NULL,
+    date_time DATETIME NOT NULL,
+    created_at DATETIME DEFAULT GETDATE(),
+    updated_at DATETIME NULL
+);
+
+
+
+
+
+
+
+
+ALTER TABLE roles 
+ADD created_by INT NULL, 
+    updated_by INT NULL;
+
+
+
+
+
+
+CREATE TABLE permission_menu (
+  id INT IDENTITY(1,1) PRIMARY KEY,
+  module_id INT NOT NULL,
+  name VARCHAR(255) NOT NULL,
+  
+);
+
+
+
+
+CREATE TABLE permission_sub_menu (
+  id INT IDENTITY(1,1) PRIMARY KEY,
+  module_id INT NOT NULL,
+  menu_id INT NOT NULL,
+  name varchar(255) NOT NULL
+)
