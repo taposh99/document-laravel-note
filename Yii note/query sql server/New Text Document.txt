@@ -54,3 +54,30 @@ CREATE TABLE permission_sub_menu (
   menu_id INT NOT NULL,
   name varchar(255) NOT NULL
 )
+
+
+
+SET FOREIGN_KEY_CHECKS = 0;
+DELETE FROM table_name;
+SET FOREIGN_KEY_CHECKS = 1;
+
+
+
+truncate table roles;
+
+set identity_insert roles on;
+INSERT INTO roles (id, name, guard_name, created_by, created_at, updated_by, updated_at) VALUES
+(1, 'Super Admin', 'web', 1, '2024-08-18 05:09:51', 1, '2024-08-18 05:09:51'),
+(2, 'admin role', 'web', 1, '2024-09-25 00:41:02', 1, '2024-09-25 01:03:32'),
+(4, 'test-risad', 'web', NULL, '2024-11-28 06:36:36', NULL, '2024-11-28 06:36:36'),
+(5, 'tester-shadhin', 'web', NULL, '2024-12-03 06:13:04', NULL, '2024-12-03 06:13:04'),
+(7, 'Qa sharmin', 'web', NULL, '2024-12-28 05:42:59', NULL, '2025-01-04 03:53:01'),
+(8, 'TEST1', 'web', NULL, '2025-01-04 04:07:36', NULL, '2025-01-04 04:07:45'),
+(9, 'Test-sani', 'web', NULL, '2025-01-26 10:07:34', NULL, '2025-01-26 10:07:47');
+set identity_insert roles off;
+
+
+
+ALTER TABLE roles NOCHECK CONSTRAINT ALL;
+DELETE FROM roles;
+ALTER TABLE roles CHECK CONSTRAINT ALL;
