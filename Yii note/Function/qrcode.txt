@@ -1,0 +1,27 @@
+
+    public function actionUpdateAllQrStrings()
+        {
+            $distributors = Distributor::model()->findAll();
+
+            if (!empty($distributors)) {
+                foreach ($distributors as $distributor) {
+                    if (!empty($distributor->id)) {
+                        $encodedId = base64_encode($distributor->id);
+                        $qrString = 'http://192.168.1.184:81/sharif_metal/plumber/plumber/registration?id=' . $encodedId;
+                        $distributor->qrstring = $qrString;
+                        $distributor->save(false, ['qrstring']); 
+                    }
+                }
+                echo CJSON::encode([
+                    'status' => 'success',
+                    'message' => 'All QR codes updated successfully!',
+                ]);
+            } else {
+                echo CJSON::encode([
+                    'status' => 'error',
+                    'message' => 'No distributors found!',
+                ]);
+            }
+            
+            Yii::app()->end();
+        }
