@@ -6,12 +6,382 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 
-CREATE PROCEDURE [dbo].[sp_insert_fixed_acc_pay_to_setup]
+CREATE PROCEDURE [dbo].[spInsertAccProvisionForTaxes]
+    @percentage DECIMAL(10,2),
+    @status INT,
+    @created_by INT
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    INSERT INTO acc_pay_to_setups (title, status, created_by, created_at)
-    VALUES ('Vendor Payment', 1, 101, GETDATE());
+    INSERT INTO acc_provision_for_taxes (percentage, status, created_by, created_at)
+    VALUES (@percentage, @status, @created_by, GETDATE());
 END
 GO
+
+
+EXEC spInsertAccProvisionForTaxes 
+    @percentage = 5.00, 
+    @status = 1, 
+    @created_by = 101;
+
+
+
+	USE [mit_acc]
+GO
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE PROCEDURE [dbo].[spSelectAllAccProvisionForTaxes]
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT * FROM acc_provision_for_taxes;
+END
+GO
+
+
+EXEC spSelectAllAccProvisionForTaxes;
+
+
+
+
+
+USE [mit_acc]
+GO
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE PROCEDURE [dbo].[spUpdateAccProvisionForTaxes]
+    @id INT,
+    @percentage DECIMAL(10,2),
+    @status INT,
+    @updated_by INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    UPDATE acc_provision_for_taxes
+    SET 
+        percentage = @percentage,
+        status = @status,
+        updated_by = @updated_by,
+        updated_at = GETDATE()
+    WHERE id = @id;
+END
+GO
+
+
+
+EXEC spUpdateAccProvisionForTaxes 
+    @id = 1, 
+    @percentage = 99.50, 
+    @status = 1, 
+    @updated_by = 102;
+
+
+
+
+
+
+	USE [mit_acc]
+GO
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE PROCEDURE [dbo].[spInsertAccCurrencies]
+    @currency_id INT,
+    @date DATE,
+    @amount_in_bdt DECIMAL(18,2),
+    @status INT,
+    @created_by INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    INSERT INTO acc_currencies (currency_id, date, amount_in_bdt, status, created_by, created_at)
+    VALUES (@currency_id, @date, @amount_in_bdt, @status, @created_by, GETDATE());
+END
+GO
+
+
+
+EXEC spInsertAccCurrencies 
+    @currency_id = 1, 
+    @date = '2025-02-24', 
+    @amount_in_bdt = 100.50, 
+    @status = 1, 
+    @created_by = 1;
+
+
+
+
+
+	USE [mit_acc]
+GO
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE PROCEDURE [dbo].[spUpdateAccCurrencies]
+    @id INT,
+    @currency_id INT,
+    @date DATE,
+    @amount_in_bdt DECIMAL(18,2),
+    @status INT,
+    @updated_by INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    UPDATE acc_currencies
+    SET 
+        currency_id = @currency_id,
+        date = @date,
+        amount_in_bdt = @amount_in_bdt,
+        status = @status,
+        updated_by = @updated_by,
+        updated_at = GETDATE()
+    WHERE id = @id;
+END
+GO
+
+
+
+
+EXEC spUpdateAccCurrencies 
+    @id = 1, 
+    @currency_id = 2, 
+    @date = '2025-02-25', 
+    @amount_in_bdt = 200.75, 
+    @status = 1, 
+    @updated_by = 1;
+
+
+
+
+	USE [mit_acc]
+GO
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE PROCEDURE [dbo].[spSelectAllAccCurrencies]
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT * FROM acc_currencies;
+END
+GO
+
+
+
+
+EXEC spSelectAllAccCurrencies;
+
+
+
+
+
+USE [mit_acc]
+GO
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE PROCEDURE [dbo].[spInsertAccCostCenters]
+    @cost_category_id INT,
+    @title NVARCHAR(255),
+    @code NVARCHAR(50),
+    @status INT,
+    @created_by INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    INSERT INTO acc_cost_centers (cost_category_id, title, code, status, created_by, created_at)
+    VALUES (@cost_category_id, @title, @code, @status, @created_by, GETDATE());
+END
+GO
+
+
+
+EXEC spInsertAccCostCenters 
+    @cost_category_id = 1, 
+    @title = 'Marketing Cost Center', 
+    @code = 'MKT-001', 
+    @status = 1, 
+    @created_by = 1;
+
+
+
+
+	USE [mit_acc]
+GO
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE PROCEDURE [dbo].[spUpdateAccCostCenters]
+    @id INT,
+    @cost_category_id INT,
+    @title NVARCHAR(255),
+    @code NVARCHAR(50),
+    @status INT,
+    @updated_by INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    UPDATE acc_cost_centers
+    SET 
+        cost_category_id = @cost_category_id,
+        title = @title,
+        code = @code,
+        status = @status,
+        updated_by = @updated_by,
+        updated_at = GETDATE()
+    WHERE id = @id;
+END
+GO
+
+
+
+
+EXEC spUpdateAccCostCenters 
+    @id = 1, 
+    @cost_category_id = 2, 
+    @title = 'Finance Cost Center', 
+    @code = 'FIN-002', 
+    @status = 1, 
+    @updated_by = 1;
+
+
+
+
+	USE [mit_acc]
+GO
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE PROCEDURE [dbo].[spSelectAllAccCostCenters]
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT * FROM acc_cost_centers;
+END
+GO
+
+
+EXEC spSelectAllAccCostCenters;
+
+
+
+USE [mit_acc]
+GO
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE PROCEDURE [dbo].[spInsertAccCostCategories]
+    @title NVARCHAR(255),
+    @status INT,
+    @created_by INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    INSERT INTO acc_cost_categories (title, status, created_by, created_at)
+    VALUES (@title, @status, @created_by, GETDATE());
+END
+GO
+
+
+
+EXEC spInsertAccCostCategories 
+    @title = 'Operational Costs', 
+    @status = 1, 
+    @created_by = 1;
+
+
+
+
+	USE [mit_acc]
+GO
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE PROCEDURE [dbo].[spUpdateAccCostCategories]
+    @id INT,
+    @title NVARCHAR(255),
+    @status INT,
+    @updated_by INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    UPDATE acc_cost_categories
+    SET 
+        title = @title,
+        status = @status,
+        updated_by = @updated_by,
+        updated_at = GETDATE()
+    WHERE id = @id;
+END
+GO
+
+
+
+EXEC spUpdateAccCostCategories 
+    @id = 8, 
+    @title = 'Operation Costs Update', 
+    @status = 1, 
+    @updated_by = 1;
+
+	USE [mit_acc]
+GO
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE PROCEDURE [dbo].[spSelectAllAccCostCategories]
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT * FROM acc_cost_categories;
+END
+GO
+
+
+EXEC spSelectAllAccCostCategories;
