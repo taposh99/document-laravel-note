@@ -1,0 +1,17 @@
+USE [mit_acc]
+GO
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE PROCEDURE [dbo].[sp_insert_fixed_acc_pay_to_setup]
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    INSERT INTO acc_pay_to_setups (title, status, created_by, created_at)
+    VALUES ('Vendor Payment', 1, 101, GETDATE());
+END
+GO
