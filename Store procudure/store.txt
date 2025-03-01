@@ -1,0 +1,195 @@
+USE [mit_acc]
+GO
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE PROCEDURE [dbo].[spInsertAccProvisionForTaxes]
+    @percentage DECIMAL(10,2),
+    @status INT,
+    @created_by INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    INSERT INTO acc_provision_for_taxes (percentage, status, created_by, created_at)
+    VALUES (@percentage, @status, @created_by, GETDATE());
+END
+GO
+
+
+EXEC spInsertAccProvisionForTaxes 
+    @percentage = 5.00, 
+    @status = 1, 
+    @created_by = 101;
+
+
+
+	USE [mit_acc]
+GO
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE PROCEDURE [dbo].[spSelectAllAccProvisionForTaxes]
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT * FROM acc_provision_for_taxes;
+END
+GO
+
+
+EXEC spSelectAllAccProvisionForTaxes;
+
+
+
+
+
+USE [mit_acc]
+GO
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE PROCEDURE [dbo].[spUpdateAccProvisionForTaxes]
+    @id INT,
+    @percentage DECIMAL(10,2),
+    @status INT,
+    @updated_by INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    UPDATE acc_provision_for_taxes
+    SET 
+        percentage = @percentage,
+        status = @status,
+        updated_by = @updated_by,
+        updated_at = GETDATE()
+    WHERE id = @id;
+END
+GO
+
+
+
+EXEC spUpdateAccProvisionForTaxes 
+    @id = 1, 
+    @percentage = 99.50, 
+    @status = 1, 
+    @updated_by = 102;
+
+
+
+
+
+
+	USE [mit_acc]
+GO
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE PROCEDURE [dbo].[spInsertAccCurrencies]
+    @currency_id INT,
+    @date DATE,
+    @amount_in_bdt DECIMAL(18,2),
+    @status INT,
+    @created_by INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    INSERT INTO acc_currencies (currency_id, date, amount_in_bdt, status, created_by, created_at)
+    VALUES (@currency_id, @date, @amount_in_bdt, @status, @created_by, GETDATE());
+END
+GO
+
+
+
+EXEC spInsertAccCurrencies 
+    @currency_id = 1, 
+    @date = '2025-02-24', 
+    @amount_in_bdt = 100.50, 
+    @status = 1, 
+    @created_by = 1;
+
+
+
+
+
+	USE [mit_acc]
+GO
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE PROCEDURE [dbo].[spUpdateAccCurrencies]
+    @id INT,
+    @currency_id INT,
+    @date DATE,
+    @amount_in_bdt DECIMAL(18,2),
+    @status INT,
+    @updated_by INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    UPDATE acc_currencies
+    SET 
+        currency_id = @currency_id,
+        date = @date,
+        amount_in_bdt = @amount_in_bdt,
+        status = @status,
+        updated_by = @updated_by,
+        updated_at = GETDATE()
+    WHERE id = @id;
+END
+GO
+
+
+
+
+EXEC spUpdateAccCurrencies 
+    @id = 1, 
+    @currency_id = 2, 
+    @date = '2025-02-25', 
+    @amount_in_bdt = 200.75, 
+    @status = 1, 
+    @updated_by = 1;
+
+
+
+
+	USE [mit_acc]
+GO
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE PROCEDURE [dbo].[spSelectAllAccCurrencies]
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT * FROM acc_currencies;
+END
+GO
+
+
+
+
+EXEC spSelectAllAccCurrencies;
