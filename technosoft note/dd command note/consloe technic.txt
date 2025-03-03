@@ -1,4 +1,4 @@
-  $('#details2').val(data.data.details);
+                $('#details2').val(data.data.details);
                 $('#emp_id2').val(data.data.emp_id);
                 // console.log($('#emp_id2').val());
                 $('#status2').html(data.status);

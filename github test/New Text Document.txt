@@ -1,1 +1,150 @@
-have tutorials for Laravel, here you can study articles of Laravel, Laravel posts collection, most popular and useful tutorials of Laravel, here you can find list of all relevant posts and example about Laravel, we have lists of tutorials and examples about Laravel.very simple and quick example collection of Latest Laravel category.
+style="font-size: 30px;"
+
+
+sell_items
+
+
+sell_items_temp
+
+
+
+sell_items_temp
+
+
+
+Product Manage Filter Issue
+Code Optimize Late calculation report
+Day Book checkbox added in manage page
+
+
+
+
+1.
+$bank_id = isset($_POST['ChequeBook']['bank_id']) ? $_POST['ChequeBook']['bank_id'] : NULL ;
+$bankNames = "";
+if (!empty($bank_id)) {
+$criteria = new CDbCriteria();
+$criteria->select = "title";
+$criteria->addInCondition('id', $bank_id);
+$bankData = ChartOfAc::model()->findAll($criteria);
+if(count($bankData) > 0){
+foreach($bankData as $bank){
+$bankNames .= $bank->title."<br>";
+}
+}
+}
+
+
+2
+$journalEntry = JournalEntry::model()->findByAttributes(['cheque_no' => $d->cheque_no]);
+    $cheque_date = $journalEntry ? $journalEntry->cheque_date : 'N/A';
+
+
+Pay To & Receive From Auto complete search
+
+Pay To & Receive From a Add Button Dynamic
+
+
+API link: Panel URL:https://corpsms.banglalink.net/CMS_BLK
+
+ID: SHML 01
+
+Password: Sm1975@#52
+
+
+public function actionValidateAmountSums()
+{
+// Get all records grouped by mr_no
+$data = Yii::app()->db->createCommand()
+->select('mr_no, SUM(single_amount) as total_single_amount, SUM(discount) as total_discount, MAX(amount) as group_amount')
+->from('money_receipt')
+->group('mr_no')
+->queryAll();
+
+$mismatchedRecords = [];
+
+// Iterate through each group and validate the sums
+foreach ($data as $row) {
+$expectedAmount = $row['total_single_amount'] + $row['total_discount'];
+if ($expectedAmount != $row['group_amount']) {
+$mismatchedRecords[] = $row['mr_no'];
+}
+}
+
+// Echo mismatched records or success message
+if (!empty($mismatchedRecords)) {
+echo json_encode([
+'status' => 'error',
+'message' => 'Mismatch found in the following MR numbers:',
+'mr_no_list' => $mismatchedRecords,
+]);
+} else {
+echo json_encode([
+'status' => 'success',
+'message' => 'All MR numbers are correctly balanced.',
+]);
+}
+}
+
+
+public function actionFixMismatchedAmounts()
+{
+// Get all records grouped by mr_no
+$data = Yii::app()->db->createCommand()
+->select('mr_no, SUM(single_amount) as total_single_amount, SUM(discount) as total_discount, MAX(amount) as group_amount')
+->from('money_receipt')
+->group('mr_no')
+->queryAll();
+
+$updatedRecords = [];
+$transaction = Yii::app()->db->beginTransaction();
+
+try {
+foreach ($data as $row) {
+$expectedAmount = $row['total_single_amount'] + $row['total_discount'];
+
+// Check for mismatch
+if ($expectedAmount != $row['group_amount']) {
+// Update all records with the same mr_no
+Yii::app()->db->createCommand()
+->update(
+'money_receipt', // Table name
+['amount' => $expectedAmount], // Data to update
+'mr_no = :mr_no', // Condition
+[':mr_no' => $row['mr_no']] // Parameters
+);
+
+$updatedRecords[] = $row['mr_no'];
+}
+}
+
+// Commit the transaction
+$transaction->commit();
+
+echo json_encode([
+'status' => 'success',
+'message' => 'Mismatched records have been updated.',
+'updated_mr_no_list' => $updatedRecords,
+]);
+} catch (Exception $e) {
+// Rollback the transaction in case of error
+$transaction->rollback();
+
+echo json_encode([
+'status' => 'error',
+'message' => 'An error occurred while updating records: ' . $e->getMessage(),
+]);
+}
+}
+
+plumber database Note :
+
+plumber
+plumber_payment_details
+plumber_payment_entry
+plumber_points
+qrcode_generate
+point_currency_setup
+slab_setup
+otp_code
+
