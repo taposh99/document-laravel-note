@@ -152,3 +152,9 @@ point_currency_setup
 slab_setup
 otp_code
 
+
+Str::is('*', $multilineString); // false
+Str::is('first*', $multilineString); // false
+Str::is("first\n*", $multilineString); // false
+Str::is("first\nsecond\n*", $multilineString); // true
+
