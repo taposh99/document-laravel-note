@@ -158,3 +158,5 @@ Str::is('first*', $multilineString); // false
 Str::is("first\n*", $multilineString); // false
 Str::is("first\nsecond\n*", $multilineString); // true
 
+so this is new change
+
