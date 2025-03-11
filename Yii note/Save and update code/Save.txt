@@ -1,0 +1,154 @@
+ 1.
+public function actionCreate()
+    {
+        $model = new ContactPerson;
+
+        // Uncomment the following line if AJAX validation is needed
+        $this->performAjaxValidation($model);
+
+        if (isset($_POST['ContactPerson'])) {
+            $model->attributes = $_POST['ContactPerson'];
+            $valid = $model->validate();
+            if ($valid) {
+                $model->save();
+                //do anything here
+                $model->source_code = $model->id;
+                $model->update(['source_code']);
+
+                echo CJSON::encode(array(
+                    'status' => 'success',
+                ));
+                Yii::app()->end();
+            } else {
+                $error = CActiveForm::validate($model);
+                if ($error != '[]')
+                    echo $error;
+                Yii::app()->end();
+            }
+        } else {
+            $this->render('admin', array(
+                'model' => $model,
+            ));
+        }
+    }
+
+
+2.
+public function actionCreate()
+    {
+        $model = new BonusConfig;
+
+        $this->performAjaxValidation($model);
+        if (isset($_POST['BonusConfig'])) {
+            $model->attributes = $_POST['BonusConfig'];
+            $model->status = 2;
+            $model->created_by = Yii::app()->user->getId();
+            $model->created_at = date("Y-m-d");
+            $model->is_approved = 2;
+            $model->is_denied = 2;
+
+            $valid = $model->validate();
+            if ($valid) {
+                $model->save();
+                echo CJSON::encode(
+                    array(
+                        'status' => 'success',
+                    )
+                );
+                Yii::app()->end();
+            } else {
+                $error = CActiveForm::validate($model);
+                if ($error != '[]')
+                    echo $error;
+                Yii::app()->end();
+            }
+        } else {
+            $this->render(
+                'admin',
+                array(
+                    'model' => $model,
+                )
+            );
+        }
+    }
+
+3.
+  public function actionCreate()
+    {
+        $model = new Departments;
+
+        // Uncomment the following line if AJAX validation is needed
+        $this->performAjaxValidation($model);
+
+        if (isset($_POST['Departments'])) {
+            $model->attributes = $_POST['Departments'];
+            $model->code = $_POST['Departments']['code'];
+            $model->bn_name = $_POST['Departments']['bn_name'];
+            $valid = $model->validate();
+            if ($valid) {
+                $model->save();
+                //do anything here
+
+                echo CJSON::encode(
+                    array(
+                        'status' => 'success',
+                    )
+                );
+                Yii::app()->end();
+            } else {
+                $error = CActiveForm::validate($model);
+                if ($error != '[]')
+                    echo $error;
+                Yii::app()->end();
+            }
+        } else {
+            $this->render(
+                'admin',
+                array(
+                    'model' => $model,
+                )
+            );
+        }
+    }
+
+4.
+ public function actionCreate()
+    {
+        $model = new ShowroomCustomers;
+
+        // Uncomment the following line if AJAX validation is needed
+        $this->performAjaxValidation($model);
+
+        if (isset($_POST['ShowroomCustomers'])) {
+            $model->attributes = $_POST['ShowroomCustomers'];
+            $model->available_balance = $model->due_limits;
+
+            $model->customer_nid = $_POST['ShowroomCustomers']['customer_nid'];
+            $model->proprietor_name = $_POST['ShowroomCustomers']['proprietor_name'];
+            $model->proprietor_contact_no = $_POST['ShowroomCustomers']['proprietor_contact_no'];
+            $model->status = $_POST['ShowroomCustomers']['status'];
+            $model->status = $_POST['ShowroomCustomers']['status'];
+            $model->business_type_id = $_POST['ShowroomCustomers']['business_type_id'];
+            $model->bank_details = $_POST['ShowroomCustomers']['bank_details'];
+
+            $valid = $model->validate();
+            if ($valid) {
+                $model->save();
+                //do anything here
+
+                echo CJSON::encode(array(
+                    'status' => 'success',
+                ));
+                Yii::app()->end();
+            } else {
+                $error = CActiveForm::validate($model);
+                if ($error != '[]')
+                    echo $error;
+                Yii::app()->end();
+            }
+        } else {
+            $this->render('admin', array(
+                'model' => $model,
+            ));
+        }
+    }
