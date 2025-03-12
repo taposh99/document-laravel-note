@@ -1,0 +1,56 @@
+1.
+  public function actionGatePassReportView()
+    {
+        date_default_timezone_set("Asia/Dhaka");
+        $dateFrom = $_POST['SellDeliveryGatePass']['date_from'];
+        $dateTo = $_POST['SellDeliveryGatePass']['date_to'];
+        $item_id = $_POST['SellDeliveryGatePass']['item_id'];
+        $model_id = $_POST['SellDeliveryGatePass']['model_id'];
+        $region_id = $_POST['SellDeliveryGatePass']['region_id'];
+        $area_id = $_POST['SellDeliveryGatePass']['area_id'];
+        $territory_id = $_POST['SellDeliveryGatePass']['territory_id'];
+        $distributor_id = $_POST['SellDeliveryGatePass']['distributor_id'];
+        $store_id = $_POST['SellDeliveryGatePass']['store_id'];
+        $foreign_local = isset($_POST['SellDeliveryGatePass']['foreign_local']) ? $_POST['SellDeliveryGatePass']['foreign_local'] : "";
+        $message = "";
+        $data = "";
+        if ($dateFrom != "" && $dateTo != '') {
+            $startDate = $dateFrom . ' 00:00:00';
+            $endDate = $dateTo . ' 23:59:59';
+            $condition = "	date BETWEEN '$startDate' AND '$endDate' ";
+            $message .= "Gate Pass Report <br>from  $dateFrom To $dateTo";
+            if ($region_id > 0) {
+                $condition .= " AND t.region_id= $region_id";
+                $message .= " <br> Region: " . Region::model()->nameOfThis($region_id);
+            }
+            if ($area_id > 0) {
+                $condition .= " AND t.area_id= $area_id";
+                $message .= " <br> Area: " . Area::model()->nameOfThis($area_id);
+            }
+            if ($territory_id > 0) {
+                $condition .= " AND t.territory_id= $territory_id";
+                $message .= " <br> Territory: " . Territory::model()->nameOfThis($territory_id);
+            }
+            if ($distributor_id > 0) {
+                $condition .= " AND t.distributor_id= $distributor_id";
+                $message .= " <br> Distributor: " . Distributor::model()->distributorName($distributor_id);
+            }
+            if ($store_id > 0) {
+                $condition .= " AND t.store_id= $store_id";
+                $message .= " <br> Store: " . Stores::model()->nameOfThis($store_id);
+            }
+
+            $data = SellDeliveryGatePass::model()->findAll(array("condition" => $condition));
+        } else {
+            $message = "<div class='flash-error'>Please select date range!</div>";
+        }
+        echo $this->renderPartial('gatePassReportView', array(
+            'data' => $data,
+            'item_id' => $item_id,
+            'model_id' => $model_id,
+            'foreign_local' => $foreign_local,
+            'message' => $message,
+        ), true, true);
+        Yii::app()->end();
+    }
+2.
