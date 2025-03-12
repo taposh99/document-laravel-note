@@ -1,0 +1,17 @@
+PHP (php.ini)
+
+max_execution_time = 300
+memory_limit = 512M
+
+Restart Apache:
+
+sudo systemctl restart apache2
+
+MySQL (my.cnf or my.ini)
+
+wait_timeout = 600
+interactive_timeout = 600
+
+Restart MySQL:
+
+sudo systemctl restart mysql
