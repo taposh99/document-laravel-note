@@ -152,3 +152,42 @@ public function actionCreate()
             ));
         }
     }
+
+5.
+	public function actionCreate() {
+        
+        $model = new EmpPolicyInfo();
+
+        $model::model()->unsetAttributes(); 
+
+        if ( isset( $_POST['EmpPolicyInfo'] ) ) {
+
+            $model->is_breeze           = $_POST['EmpPolicyInfo']['is_breeze'];
+            $model->is_late_deduction   = $_POST['EmpPolicyInfo']['is_late_deduction'];
+            $model->late_deduction_days = $_POST['EmpPolicyInfo']['late_deduction_days'];
+
+            if ( $model->save() ) {
+
+                echo CJSON::encode(array(
+                    'status' => 'success',
+                ));
+                Yii::app()->end();
+
+            } else {
+                
+                print_r($model->getErrors());
+                echo CJSON::encode(array(
+                    'status' => 'failar',
+                ));
+                Yii::app()->end();
+            }
+
+        }else{
+            
+            $this->render('create', array(
+                'model' => $model,
+            ));
+
+        }
+    }
+

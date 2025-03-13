@@ -1,4 +1,4 @@
- Route::get('/export/excel', [CompanyInfoController::class, 'exportExcel'])->name('export.excel');
+   Route::get('/export/excel', [CompanyInfoController::class, 'exportExcel'])->name('export.excel');
     Route::get('/export/pdf', [CompanyInfoController::class, 'exportPDF'])->name('export.excel');
 
     // Define a route for CSV export
