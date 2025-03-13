@@ -1,0 +1,13 @@
+    <?php
+$lastSalary = SalarySheet::model()->find([
+    "order" => "date_of_salary DESC",
+    "limit" => 1, 
+]);
+
+if ($lastSalary) {
+    echo "Last Salary Date: " . $lastSalary->date_of_salary . "<br>";
+} else {
+    echo "No salary data found.<br>";
+}
+
+?>
