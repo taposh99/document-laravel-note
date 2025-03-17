@@ -31,3 +31,22 @@
             Yii::app()->end();
         }
     }
+2.
+
+
+    public function actionApprove($id)
+    {
+        date_default_timezone_set('Asia/Dhaka');
+        $approve_1_by = Yii::app()->user->getId();
+        $approve_1_at = date('Y-m-d H:i:s');
+
+        $update = SellItems::model()->updateAll(array(
+            'approve_1' => 1,
+            'approve_2' => 1,
+            'approve_1_at' => $approve_1_at,
+            'approve_1_by' => $approve_1_by,
+            'is_mobile_approve' => 1,
+            'mobile_approve_datetime' => $approve_1_at,
+            'mobile_approve_by' => $approve_1_by,
+        ), "id = '$id'");
+    }
