@@ -34,9 +34,6 @@ public function update(Request $request)
         $ValueUpdate = Bed::find($request->bed_space_id);
     
         if ($request->hasFile('image')) {
-            // Remove the previous image if it exists
-           
-    
             $image = $request->file('image');
             $imageName = time() . '.' . $image->getClientOriginalExtension();
             $image->storeAs('images', $imageName, 'public');
