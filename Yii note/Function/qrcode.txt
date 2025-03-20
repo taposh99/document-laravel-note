@@ -25,3 +25,28 @@
             
             Yii::app()->end();
         }
+
+
+
+    public function actionUpdatePreviousSpentLeaveData()
+    {
+        $leaveRecords = EmpLeavesNormal::model()->findAllByAttributes(['is_approved' => 16]);
+        foreach ($leaveRecords as $leave_data) {
+            if (!$leave_data) {
+                continue;
+            }
+            $applied_days = $leave_data->applied_days;
+            $lhRecord = LhAmountProllNormal::model()->findByAttributes([
+                'employee_id' => $leave_data->emp_id,
+                'lh_proll_normal_id' => $leave_data->lh_proll_normal_id,
+                'is_active' => 1
+            ]);
+
+            if ($lhRecord) {
+                $lhRecord->spent_leave += $applied_days;
+                $lhRecord->save();
+            }
+        }
+
+        echo "All previous data updated successfully.";
+    }
