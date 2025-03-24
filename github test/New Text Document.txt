@@ -192,3 +192,11 @@ SELECT City, Country FROM Suppliers
 WHERE Country='Germany'
 ORDER BY City;
 
+<script>
+    $('a.so-approve').click(function(event) {
+        $(this).hide();
+        var loader = $('.loader');
+        $(this).parent().append(loader.show());
+    });
+</script>
+
