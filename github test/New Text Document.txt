@@ -200,3 +200,10 @@ ORDER BY City;
     });
 </script>
 
+// Example 53 - Skip if the string contains a space
+$data = ['apple', 'banana pie', 'orange', 'grape fruit'];
+foreach ($data as $d) {
+    if (strpos($d, ' ') !== false) continue;
+    echo "No space in string: $d\n";
+}
+
