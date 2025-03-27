@@ -207,3 +207,12 @@ foreach ($data as $d) {
     echo "No space in string: $d\n";
 }
 
+      <tr>
+                <th colspan="3"> Head Wise Total </th>
+                <?php 
+                    foreach($sumOfHead as $headsum){
+                        echo "<td> $headsum </td>";
+                    }
+                ?>
+                <td> <?php echo array_sum($sumOfHead) ?></td>
+            </tr>
