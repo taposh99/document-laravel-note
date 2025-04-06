@@ -50,3 +50,30 @@
 
         echo "All previous data updated successfully.";
     }
+
+    public function actionUpdateStartEndDates()
+    {
+        $criteria = new CDbCriteria();
+        $criteria->addCondition('is_active = 1');
+        $criteria->addCondition('lh_proll_normal_id = 4');
+        $criteria->addCondition('start_from IS NULL');
+        $criteria->addCondition('end_to IS NULL');
+    
+        $records = LhAmountProllNormal::model()->findAll($criteria);
+    
+        foreach ($records as $record) {
+            $year = date('Y', strtotime($record->create_time));
+            $record->start_from = $year . '-01-01';
+            $record->end_to = $year . '-12-31';
+    
+            if ($record->save()) {
+                echo "Updated ID: {$record->id}<br>";
+            } else {
+                echo "Failed to update ID {$record->id}: ";
+                print_r($record->getErrors());
+                echo "<br>";
+            }
+        }
+    
+        echo "Update complete.";
+    }
