@@ -1,0 +1,8 @@
+
+                            // Show autocomplete dropdown when spacebar is pressed
+                            $("#model_id_text").on("keydown", function(event) {
+                                if (event.which === 32) { // Spacebar keycode
+                                    $(this).autocomplete("search", "");
+                                    event.preventDefault();
+                                }
+                            });
