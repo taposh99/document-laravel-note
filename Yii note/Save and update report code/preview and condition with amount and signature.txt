@@ -1,0 +1,181 @@
+<style>
+    .items {
+        border-collapse: collapse;
+        width: 100%;
+        margin: 25px auto;
+    }
+</style>
+<div style="float: left;">
+    <?php
+    echo "<div class='printBtn' style=''>";
+    $this->widget('ext.mPrint.mPrint', array(
+        'title' => ' ', //the title of the document. Defaults to the HTML title
+        'tooltip' => 'Print', //tooltip message of the print icon. Defaults to 'print'
+        'text' => '', //text which will appear beside the print icon. Defaults to NULL
+        'element' => '.printAllTableForThisReport', //the element to be printed.
+        'exceptions' => array( //the element/s which will be ignored
+            '.summary',
+            '.search-form',
+            '#excludeDiv',
+        ),
+        'publishCss' => FALSE, //publish the CSS for the whole page?
+        'visible' => !Yii::app()->user->isGuest, //should this be visible to the current user?
+        'alt' => 'print', //text which will appear if image can't be loaded
+        'debug' => FALSE, //enable the debugger to see what you will get
+        'id' => 'print-div'         //id of the print link
+    ));
+
+    echo "</div>";
+    ?>
+    <div class='printAllTableForThisReport'>
+        <?php
+        $yourCompanyInfo = YourCompany::model()->findByAttributes(array('is_active' => YourCompany::ACTIVE,));
+        if ($yourCompanyInfo) {
+            $yourCompanyName = $yourCompanyInfo->company_name;
+            $yourCompanyLocation = $yourCompanyInfo->location;
+            $yourCompanyRoad = $yourCompanyInfo->road;
+            $yourCompanyHouse = $yourCompanyInfo->house;
+            $yourCompanyContact = $yourCompanyInfo->contact;
+            $yourCompanyEmail = $yourCompanyInfo->email;
+            $yourCompanyWeb = $yourCompanyInfo->web;
+        } else {
+            $yourCompanyName = 'N/A';
+            $yourCompanyLocation = 'N/A';
+            $yourCompanyRoad = 'N/A';
+            $yourCompanyHouse = 'N/A';
+            $yourCompanyContact = 'N/A';
+            $yourCompanyEmail = 'N/A';
+            $yourCompanyWeb = 'N/A';
+            $yourCompanyWeb = 'N/A';
+        }
+        $singleRow = end($data);
+        $branch_id = "";
+        ?>
+        <h3 style="text-align: center;">Wages Advance Sheet</h3>
+        <h4 style="text-align: center; margin-top: 0px">
+            Branch: <?php echo  Branches::nameOfThis($data[0]->branch_id) ;?>
+        </h4>
+
+        <table border="1" class="items">
+            <tr>
+                <th style="width:22%"><label>Date</label></th>
+                <th style="width:22%"><label>Wages Entry No.</label></th>
+                <th style="width:22%"><label>Wages Entry By</label></th>
+            </tr>
+            <tr>
+                <td style="width:22%;text-align:center;">
+                    <?php echo date('Y-m-d', strtotime($singleRow['date'])); ?>
+                </td>
+                <td style="width:22%;text-align:center;">
+                    <?php echo $singleRow->entry_no; ?>
+                </td>
+                <td style="width:22%;text-align:center;">
+                    <?php echo Users::model()->userNameOfThis($singleRow->created_by); ?>
+                </td>
+            </tr>
+        </table>
+        <table border="1" class="items">
+            <tr>
+                <th style="width:6%"><label>SL No.</label></th>
+                <!-- <th style="width:16%"><label>Branch</label></th>
+                <th style="width:18%"><label>Department</label></th> -->
+                <th style="width:16%"><label>ID No.</label></th>
+                <th style="width:18%"><label>Employee Name</label></th>
+                <th style="width:16%"><label>Designation</label></th>
+                <th style="width:10%"><label>Amount</label></th>
+            </tr>
+            <?php if (count($data) > 0): ?>
+                <?php
+                $i = 1;
+                $totalAmount = 0;
+                foreach ($data as $item):
+                ?>
+                    <tr>
+                        <td style="text-align: center;"><?php echo $i++; ?></td>
+                        <!-- <td><?php echo Branches::nameOfThis($item->branch_id); ?></td>
+                    <td><?php echo Departments::nameOfThis($item->department_id); ?></td> -->
+                        <td style="text-align: center;"><?php echo Employees::getEmpIdNo($item->employee_id); ?></td>
+                        <td style="text-align: center;"><?php echo Employees::fullName($item->employee_id) ?></td>
+                        <td style="text-align: center;"><?php echo Employees::model()->empDesignationName($item->employee_id); ?></td>
+                        <td style="text-align: right;"><?php echo $item->amount; ?></td>
+                    </tr>
+                    <?php $totalAmount += $item->amount; ?>
+                <?php endforeach; ?>
+                <tr>
+                    <td colspan="4" style="text-align: right;"><b>Total:</b></td>
+                    <td style="text-align: right;"><b><?php echo $totalAmount; ?></b></td>
+                </tr>
+            <?php else: ?>
+                <tr>
+                    <td colspan="5" style="text-align: center;">No data found!</td>
+                </tr>
+            <?php endif; ?>
+            <?php
+            $branch_id = isset($data[0]) ? $data[0]->branch_id : '';
+            ?>
+
+        </table>
+
+        <table style="margin-top: 25px;" align="center" width="805" border="0" cellspacing="0" cellpadding="5"
+            style="border:1px solid #333; border-collapse: collapse;">
+            <tr>
+                <td>
+                    <b align="center">In Words:</b>
+                    <?php
+                    $amountInWord = new AmountInWord();
+                    echo $amountInWord->convert(round($totalAmount)) . " Only.";
+                    ?>
+                </td>
+            </tr>
+        </table>
+        <?php if ($branch_id == 2 || $branch_id == 3): ?>
+            <table style="margin-top: 5px;" align="center" width="805" border="0" cellspacing="0" cellpadding="5"
+                style="border:1px solid #333; border-collapse: collapse;">
+                <tr>
+                    <td width="25%" colspan="3"align="center" style="padding-top: 80px; font-weight: bold;">
+                        <hr />
+                        Prepared By
+                    </td>
+                    <td width="25%" colspan="3" align="center"style="padding-top: 80px; font-weight: bold;">
+                        <hr />
+                        Checked By
+                    </td>
+                    <td width="25%" colspan="3" align="center"style="padding-top: 80px; font-weight: bold;">
+                        <hr />
+                        G.M Factory
+                    </td>
+                    <td width="25%" colspan="3" align="center"style="padding-top: 80px; font-weight: bold;">
+                        <hr />
+                        Approved By
+                    </td>
+                </tr>
+            </table>
+        <?php elseif ($branch_id == 12): ?>
+            <table style="margin-top: 25px;" align="center" width="805" border="0" cellspacing="0" cellpadding="5"
+                style="border:1px solid #333; border-collapse: collapse;">
+                <tr>
+                    <td width="25%" colspan="3" align="center" style="padding-top: 80px; font-weight: bold;">
+                        <hr />
+                        Prepared By
+                    </td>
+                    <td width="25%" colspan="3"align="center" style="padding-top: 80px; font-weight: bold;">
+                        <hr />
+                        Checked By
+                    </td>
+                    <td width="25%" colspan="3" align="center"style="padding-top: 80px; font-weight: bold;">
+                        <hr />
+                        G.M Acc. & Internal
+                    </td>
+                    <td width="25%" colspan="3" align="center"style="padding-top: 80px; font-weight: bold;">
+                        <hr />
+                        Approved By
+                    </td>
+                </tr>
+            </table>
+        <?php endif; ?>
+
+
+
+
+    </div>
+</div>

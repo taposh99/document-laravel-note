@@ -1,4 +1,4 @@
-   var description = $('#description_of_goods_id').val().trim();
+        var description = $('#description_of_goods_id').val().trim();
             if (description === '') {
                 toastr.error('Description of Goods is required.', 'Validation Error');
                 return; 

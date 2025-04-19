@@ -160,3 +160,59 @@ Str::is("first\nsecond\n*", $multilineString); // true
 
 so this is new change
 
+
+<table>
+  <tr>
+    <td>Filter Name</td>
+    <td>Filter ID</td>
+  </tr>
+  <?php
+  foreach (filter_list() as $id =>$filter) {
+    echo '<tr><td>' . $filter . '</td><td>' . filter_id($filter) . '</td></tr>';
+  }
+  ?>
+</table>
+
+<!DOCTYPE html>
+<html>
+<body>
+ 
+<?php
+echo "My first PHP script!";
+?>
+
+</body>
+</html>
+
+
+SELECT City, Country FROM Customers
+WHERE Country='Germany'
+UNION ALL
+SELECT City, Country FROM Suppliers
+WHERE Country='Germany'
+ORDER BY City;
+
+<script>
+    $('a.so-approve').click(function(event) {
+        $(this).hide();
+        var loader = $('.loader');
+        $(this).parent().append(loader.show());
+    });
+</script>
+
+// Example 53 - Skip if the string contains a space
+$data = ['apple', 'banana pie', 'orange', 'grape fruit'];
+foreach ($data as $d) {
+    if (strpos($d, ' ') !== false) continue;
+    echo "No space in string: $d\n";
+}
+
+      <tr>
+                <th colspan="3"> Head Wise Total </th>
+                <?php 
+                    foreach($sumOfHead as $headsum){
+                        echo "<td> $headsum </td>";
+                    }
+                ?>
+                <td> <?php echo array_sum($sumOfHead) ?></td>
+            </tr>

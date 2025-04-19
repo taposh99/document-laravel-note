@@ -1,0 +1,93 @@
+1.
+   public function actionApprove($id)
+    {
+        $modelData = CustomerFundTransfer::model()->findByPk($id);
+        if ($modelData) {
+            if ($id > 0) {
+                CustomerFundTransfer::model()->updateByPk(
+                    $id,
+                    array(
+                        "approve_status" => 1,
+                        "approve_by" => Yii::app()->user->getId(),
+                        "approve_datetime" => new CDbExpression('NOW()'),
+                    )
+                );
+
+                echo CJSON::encode(
+                    array(
+                        'status' => 'success',
+                        'message' => 'Approved',
+                    )
+                );
+                Yii::app()->end();
+            }
+        } else {
+            echo CJSON::encode(
+                array(
+                    'status' => 'error',
+                    'message' => 'Error',
+                )
+            );
+            Yii::app()->end();
+        }
+    }
+2.
+
+
+    public function actionApprove($id)
+    {
+        date_default_timezone_set('Asia/Dhaka');
+        $approve_1_by = Yii::app()->user->getId();
+        $approve_1_at = date('Y-m-d H:i:s');
+
+        $update = SellItems::model()->updateAll(array(
+            'approve_1' => 1,
+            'approve_2' => 1,
+            'approve_1_at' => $approve_1_at,
+            'approve_1_by' => $approve_1_by,
+            'is_mobile_approve' => 1,
+            'mobile_approve_datetime' => $approve_1_at,
+            'mobile_approve_by' => $approve_1_by,
+        ), "id = '$id'");
+    }
+
+
+
+
+
+ public function actionApprove($id)
+    {
+        if (isset($_POST['Expense'])) {
+            $newCaHead = $_POST['Expense']['ca_head'];
+            $newAmount = $_POST['Expense']['amount'];
+            $date = date('Y-m-d H:i:s');
+            $dataExpenseOld = Expense::model()->findByPk($id);
+            if ($dataExpenseOld) {
+                $oldCaHead = $dataExpenseOld->ca_head;
+                $oldamount = $dataExpenseOld->amount;
+                $update = Expense::model()->updateByPk($id, array('is_approved' => 1, 'approved_date' => $date, 'old_amount' => $oldamount, 'old_ca_head' => $oldCaHead, 'ca_head' => $newCaHead, 'amount' => $newAmount));
+                if ($update) {
+                    Yii::app()->user->setFlash('success', "Approved Successfully");
+                    $this->redirect(array('adminExpenseApprove'));
+                }
+            }
+
+        }
+
+
+        if (Yii::app()->request->isAjaxRequest) {
+            // Stop jQuery from re-initialization
+            Yii::app()->clientScript->scriptMap['jquery.js'] = false;
+            $model = Expense::model()->findByPk($id);
+            echo CJSON::encode(
+                array(
+                    'status' => 'failure',
+                    'content' => $this->renderPartial('_approveForm', array(
+                        'model' => $model
+                    ), true, true),
+                )
+            );
+            exit;
+        } //else
+        //$this->render('update', array('model' => $model));
+    }

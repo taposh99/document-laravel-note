@@ -1,0 +1,36 @@
+
+
+
+
+date_default_timezone_set("Asia/Dhaka");
+
+array('created_at, updated_at', 'safe'),
+array('created_by, updated_by', 'numerical', 'integerOnly' => true),
+
+
+    public function beforeSave() {
+        if ($this->isNewRecord) {
+            $this->created_at = new CDbExpression('NOW()');
+            $this->created_by = Yii::app()->user->getId();
+        } else {
+            $this->updated_at = new CDbExpression('NOW()');
+            $this->updated_by = Yii::app()->user->getId();
+        }
+        return parent::beforeSave();
+    }
+
+
+
+
+
+date_default_timezone_set("Asia/Dhaka");
+
+
+
+
+
+
+$model->created_by = Yii::app()->user->getId();
+$model->created_at = date('Y-m-d H:i:s');
+$model->updated_by = Yii::app()->user->getId();
+$model->updated_at = date('Y-m-d H:i:s');

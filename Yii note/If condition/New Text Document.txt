@@ -23,3 +23,11 @@
                     }
                     ?>
                 </td>
+
+4.  if ($journalEntry['total_dr'] != $journalEntry['total_cr']) {
+            echo CJSON::encode(array(
+                'status' => 'errorBalance',
+                'message' => 'Total debit and credit amounts do not match.',
+            ));
+            Yii::app()->end(); 
+        }

@@ -130,3 +130,45 @@ public function actionUpdate($id)
         } else
             $this->render('update', array('model' => $model));
     }
+
+
+    public function actionUpdate($id) {
+        $model = $this->loadModel($id);
+
+        // Uncomment the following line if AJAX validation is needed
+        $this->performAjaxValidation($model);
+
+        if (isset($_POST['CustomersContact'])) {
+            $model->attributes = $_POST['CustomersContact'];
+            $model->customer_name = $_POST['CustomersContact']['customer_name'];
+            $model->contact_one = $_POST['CustomersContact']['contact_one'];
+            $model->contact_two = $_POST['CustomersContact']['contact_two'];
+            $model->contact_three = $_POST['CustomersContact']['contact_three'];
+            $model->remarks = $_POST['CustomersContact']['remarks'];
+            $model->district = $_POST['CustomersContact']['district'];
+            if ($model->save()) {
+                if (Yii::app()->request->isAjaxRequest) {
+                    Yii::app()->clientScript->scriptMap['jquery.js'] = false;
+                    echo CJSON::encode(array(
+                        'status' => 'success',
+                        'content' => '<div class="flash-notice">successfully updated</div>',
+                    ));
+                    exit;
+                } else
+                    $this->redirect(array('view', 'id' => $model->id));
+            }
+        }
+
+        if (Yii::app()->request->isAjaxRequest) {
+            // Stop jQuery from re-initialization
+            Yii::app()->clientScript->scriptMap['jquery.js'] = false;
+
+            echo CJSON::encode(array(
+                'status' => 'failure',
+                'content' => $this->renderPartial('_form2', array(
+                    'model' => $model), true, true),
+            ));
+            exit;
+        } else
+            $this->render('update', array('model' => $model));
+    }
