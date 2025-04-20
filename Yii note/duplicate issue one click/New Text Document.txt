@@ -67,9 +67,6 @@
                   $("input[name=yt0]").css({ "pointer-events": "unset" });
                   $("input[name=yt0]").attr("disabled", false);
 
-
-
-
                   if(this.data!="") {
                     $("input[name=yt0]").css({ "pointer-events": "none" });
                     $("input[name=yt0]").attr("disabled", true);
