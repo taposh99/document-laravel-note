@@ -1,0 +1,39 @@
+SHOW_PRICE permission user sudo dekte parbe.how to yii 
+
+
+
+
+array(
+    'name' => 'unit_price',
+    'value' => 'round($data->unit_price, 4)',
+    'footerHtmlOptions' => array(
+        'style' => 'display: none;'
+    ),
+    'visible' => Yii::app()->user->checkAccess('SHOW_PRICE'),
+),
+
+
+
+<?php
+$colspan = Yii::app()->user->checkAccess('SHOW_PRICE') ? 10 : 13;
+?>
+
+array(
+    'name' => 'transaction_date',
+    'footer' => "Total =",
+    'footerHtmlOptions' => array(
+        'colspan' => $colspan,
+        'style' => '
+            background-color: #98B8E8;
+            text-align: right;
+            font-size: 12px;
+            font-weight: bold;'
+    ),
+),
+
+
+
+<?php if(Yii::app()->user->checkAccess('SHOW_PRICE')): ?>
+    <td><label>Transfer Price</label></td>
+    <td><?php echo $form->textField($model, 'bdt_price', array('value' => '0', 'readonly' => true)); ?></td>
+<?php endif; ?>
