@@ -77,3 +77,79 @@
     
         echo "Update complete.";
     }
+
+    public function actionGetRemainingMismatchList()
+    {
+        $mismatches = [];
+    
+        $advanceList = AdvancePayRecv::model()->findAll();
+    
+        foreach ($advanceList as $advance) {
+            $paidAmount = LoanInstallments::model()->find([
+                'select' => 'SUM(amount) AS total',
+                'condition' => 'advance_pay_recv_id = :id',
+                'params' => [':id' => $advance->id],
+            ])->total;
+    
+            $paidAmount = $paidAmount ?: 0;
+    
+            $calculatedRemaining = $advance->amount - $paidAmount;
+    
+            if ((int)$calculatedRemaining !== (int)$advance->remaining_amount) {
+                $mismatches[] = $advance->id;
+            }
+        }
+    
+        if (empty($mismatches)) {
+            echo CJSON::encode([
+                'status' => 'success',
+                'message' => 'All records matched. No mismatch found.',
+            ]);
+        } else {
+            echo CJSON::encode([
+                'status' => 'success',
+                'mismatched_ids' => $mismatches,
+            ]);
+        }
+    
+        Yii::app()->end();
+    }
+    public function actionFixRemainingMismatch()
+    {
+        $fixedIds = [];
+
+        $advanceList = AdvancePayRecv::model()->findAll();
+
+        foreach ($advanceList as $advance) {
+            $paidAmount = LoanInstallments::model()->find([
+                'select' => 'SUM(amount) AS total',
+                'condition' => 'advance_pay_recv_id = :id',
+                'params' => [':id' => $advance->id],
+            ])->total;
+
+            $paidAmount = $paidAmount ?: 0;
+
+            $calculatedRemaining = $advance->amount - $paidAmount;
+
+            if ((int)$calculatedRemaining !== (int)$advance->remaining_amount) {
+                $advance->remaining_amount = $calculatedRemaining;
+                if ($advance->save(false)) {
+                    $fixedIds[] = $advance->id;
+                }
+            }
+        }
+        if (empty($fixedIds)) {
+            echo CJSON::encode([
+                'status' => 'success',
+                'message' => 'No mismatches found. All records are already correct.',
+            ]);
+        } else {
+            echo CJSON::encode([
+                'status' => 'success',
+                'message' => 'Mismatched records fixed successfully.',
+                'updated_ids' => $fixedIds,
+            ]);
+        }
+
+        Yii::app()->end();
+    }
