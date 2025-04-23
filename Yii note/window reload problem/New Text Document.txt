@@ -1,0 +1,20 @@
+<?php
+Yii::app()->clientScript->registerScript('approvalLinks', "
+$( document ).ready(function() {
+        $(document).on('click', '.openDlg', function(e){
+            e.preventDefault();
+            var actionTitle = $(this).attr('title');
+           
+            var r = confirm('Are you sure you want to '+ actionTitle +' ?');
+              if (r == false) {
+                   return false;
+              }
+             var action = '';
+             var url = $( this ).attr( 'href' );
+             var form = $( '#update-dialog div.update-dialog-content form' );
+              {$updateJS}
+            return false; // prevent normal submit
+        })
+    });
+");
+?>
