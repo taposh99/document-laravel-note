@@ -1,0 +1,514 @@
+public function rules() {
+    return array(
+        array('designation', 'required'),
+        array('designation', 'length', 'max' => 255),
+        array('designation', 'unique', 'message' => 'This designation already exists.'),
+        array('id, designation', 'safe', 'on' => 'search'),
+    );
+}
+employees
+
+
+
+if ($model->validate()) {
+    // Save if valid
+    if ($model->save(false)) {
+        echo CJSON::encode(array('status' => 'success'));
+        Yii::app()->end();
+    }
+} else {
+    // Return errors if validation fails
+    echo CJSON::encode($model->getErrors());
+    Yii::app()->end();
+}
+
+
+
+
+
+
+
+public function actionCreate() {
+    $model = new Designations;
+
+    $this->performAjaxValidation($model);
+
+    if (isset($_POST['Designations'])) {
+        $model->attributes = $_POST['Designations'];
+
+        if ($model->validate()) {
+            if ($model->save(false)) {
+                if (Yii::app()->request->isAjaxRequest) {
+                    $data = Designations::model()->findByPk($model->id);
+                    echo CJSON::encode(array(
+                        'status' => 'success',
+                        'div' => "<div class='flash-notice'>New Designation successfully added</div>",
+                        'value' => $data->id,
+                        'label' => $data->designation,
+                    ));
+                    Yii::app()->end();
+                } else {
+                    $this->redirect(array('view', 'id' => $model->id));
+                }
+            }
+        } else {
+            // 🔥 Return validation errors here (including "designation already exists")
+            if (Yii::app()->request->isAjaxRequest) {
+                echo CJSON::encode($model->getErrors());
+                Yii::app()->end();
+            }
+        }
+    }
+
+    // Initial render (non-AJAX fallback)
+    if (Yii::app()->request->isAjaxRequest) {
+        echo CJSON::encode(array(
+            'status' => 'failure',
+            'div' => $this->renderPartial('_form', array('model' => $model), true),
+        ));
+        Yii::app()->end();
+    } else {
+        $this->render('create', array('model' => $model));
+    }
+}
+  
+
+
+
+$.each(data, function(key, val) {
+    $("#designations-form #"+key+"_em_").html(val[0]);
+    $("#designations-form #"+key+"_em_").show();
+});
+
+
+
+
+
+
+
+
+
+
+$.each(data, function(key, val) {
+    var errorElement = $("#designations-form #" + key + "_em_");
+    if (Array.isArray(val)) {
+        errorElement.html(val[0]); // Show the first error
+    } else {
+        errorElement.html(val);
+    }
+    errorElement.show();
+});
+
+
+
+
+
+
+<td>
+    <?php
+    echo $form->dropDownList(
+        $model,
+        'company_id',
+        CHtml::listData(
+            CompanySetup::model()->findAll(array(
+                'condition' => 'is_active = 1',
+                'order' => 'id DESC'
+            )),
+            'id',
+            'company_name'
+        ),
+        array('prompt' => 'Select', 'style' => 'width: 178px')
+    );
+    ?>
+</td>
+
+
+
+which i use aftter
+
+
+
+
+<tr>
+    <td><?php echo $form->labelEx($model, 'company_id'); ?></td>
+    <td>
+        <?php
+        echo $form->dropDownList(
+            $model,
+            'company_id',
+            CompanySetup::getActiveCompanies(),
+            array('prompt' => 'Select', 'style' => 'width: 178px')
+        );
+        ?>
+    </td>
+</tr>
+
+
+
+
+                      echo $form->dropDownList(
+                            $model,
+                            'program_type',
+                            CHtml::listData(PartyType::model()->findAll(array('order' => 'id DESC')), 'id', 'title'),
+                            array('prompt' => 'Select', 'style' => 'width:73%;')
+                        );
+
+
+
+
+     array(
+    'name' => 'company_id',
+    'value' => 'CompanySetup::model()->companyName($data->company_id)',
+    'filter' => CHtml::listData(
+        CompanySetup::model()->findAll(array('condition' => 'is_active = 1')), 
+        'id', 
+        'company_name'
+    ),
+),
+                    
+
+
+
+
+
+
+array(
+    'header' => 'Options',
+    'template' => '{update}{delete}',
+    'class' => 'CButtonColumn',
+    'buttons' => array(
+        'update' => array(
+            'visible' => '$data->is_agreement == 2 || partyBookingInfo::model()->approvedStatus($data->id) != 1',
+            'options' => array('title' => 'Update this booking'), // ✅ Tooltip for Update
+        ),
+        'delete' => array(
+            'visible' => '$data->is_agreement ==2 || partyBookingInfo::model()->approvedStatus($data->id) != 1',
+            'options' => array('title' => 'Delete this booking'), // ✅ Tooltip for Delete
+        ),
+    ),
+),
+
+if ($showHide == true) {
+    echo CHtml::link(
+        CHtml::image(Yii::app()->theme->baseUrl . '/images/approving.ico'),
+        array('approve', 'sl_no' => $sl_no),
+        array(
+            'class' => 'po-approve',
+            'click' => 'function(){return confirm("Are you want to approve?");}',
+            'title' => 'Approve this booking' // ✅ Tooltip text
+        )
+    );
+
+    echo CHtml::link(
+        CHtml::image(Yii::app()->theme->baseUrl . '/images/deny.ico'),
+        array('deny', 'sl_no' => $sl_no),
+        array(
+            'class' => 'po-deny',
+            'click' => 'function(){return confirm("Do you want to deny?");}',
+            'title' => 'Deny this booking' // ✅ Tooltip text
+        )
+    );
+}
+
+
+<tr>
+    <td></td>
+    <td><?php echo $form->error($model, 'department_name'); ?></td>
+</tr>
+
+
+public function actionCreate()
+    {
+        $model = new Departments;
+
+        // Uncomment the following line if AJAX validation is needed
+        $this->performAjaxValidation($model);
+
+        if (isset($_POST['Departments'])) {
+            $model->attributes = $_POST['Departments'];
+            $valid = $model->validate();
+            if ($valid) {
+                $model->save();
+                echo CJSON::encode(array(
+                    'status' => 'success',
+                ));
+                Yii::app()->end();
+            } else {
+                $error = CActiveForm::validate($model);
+                if ($error != '[]')
+                    echo $error;
+                Yii::app()->end();
+            }
+        } else {
+            $this->render('admin', array(
+                'model' => $model,
+            ));
+        }
+    }
+
+    limit data will 20
+
+
+
+    "limit" => 20,
+
+
+
+
+    jquery_showprodSearch
+
+
+
+
+
+
+
+
+
+
+
+    array(
+                'name' => 'supplier_id',
+                'value' => 'CHtml::encode(Suppliers::model()->supplierName($data->supplier_id))',
+                'filter' => CHtml::listData(Suppliers::model()->findAll(), 'id', 'company_name'),
+            ),
+
+
+
+            public function search()
+    {
+        $criteria = new CDbCriteria;
+
+        if ($this->model_id != "") {
+            $criteria->join = "INNER JOIN prod_models ON t.model_id = prod_models.id and prod_models.model_name like '%" . $this->model_id . "%'";
+        }
+
+        if ($this->supplier_id != "") {
+            $criteria->join = "INNER JOIN suppliers ON t.supplier_id = suppliers.id and suppliers.company_name like '%" . $this->supplier_id . "%'";
+        }
+        $user_company_id = Users::model()->getUsersCompany();
+        if ($user_company_id > 0) {
+            $criteria->condition = "company_id = $user_company_id";
+        }
+        $criteria->compare('pr_no', $this->pr_no);
+        $criteria->compare('company_id', $this->company_id);
+        $criteria->compare('req_date', $this->req_date, true);
+        $criteria->compare('max_sl_no', $this->max_sl_no);
+        $criteria->compare('item_id', $this->item_id);
+        $criteria->compare('brand_id', $this->brand_id);
+        $criteria->compare('code', $this->code, true);
+        $criteria->compare('is_approved', $this->is_approved);
+        $criteria->compare('status', $this->status);
+
+        return new CActiveDataProvider($this, array(
+            'criteria' => $criteria,
+            'pagination' => array(
+                'pageSize' => 50,
+            ),
+            'sort' => array(
+                'defaultOrder' => 'id DESC',
+            ),
+        ));
+    }
+
+
+
+
+
+    <tr>
+                                <td>
+                                    <?php echo $form->labelEx($model, 'cheque_date'); ?>
+                                </td>
+                                <td>
+                                    <?php
+                                    Yii::import('application.extensions.CJuiDateTimePicker.CJuiDateTimePicker');
+                                    $dateTimePickerConfig1 = array(
+                                        'model' => $model, //Model object
+                                        'attribute' => 'cheque_date', //attribute name
+                                        'mode' => 'date', //use "time","date" or "datetime" (default)
+                                        'language' => 'en-AU',
+                                        'options' => array(
+                                            'changeMonth' => 'true',
+                                            'changeYear' => 'true',
+                                            'dateFormat' => 'yy-mm-dd',
+                                            'width' => '100',
+                                        ),
+                                        'htmlOptions' => array(
+                                            'value' => date('Y-m-d'),
+                                        ),
+                                    );
+                                    $this->widget('CJuiDateTimePicker', $dateTimePickerConfig1);
+                                    ?>
+                                    <?php echo $form->error($model, 'cheque_date'); ?>
+                                </td>
+                            </tr>
+                            'close' => 'js:function(event, ui) { location.reload(); }',
+            'close' => 'js:function(event, ui) { location.reload(); }',
+      
+            
+
+
+
+
+
+
+
+
+not max_sl_no.it will id 
+
+
+
+
+
+$sql = "UPDATE recipe SET status = :status WHERE id = :id";
+
+
+
+
+
+public function actionUpdate($id)
+{
+    $model = $this->loadModel($id);
+
+    // Uncomment the following line if AJAX validation is needed
+    $this->performAjaxValidation($model);
+
+    if (isset($_POST['Recipe'])) {
+        $status = $_POST['Recipe']['status'];
+
+        // Use id instead of max_sl_no
+        $sql = "UPDATE recipe SET status = :status WHERE id = :id";
+        $connection = Yii::app()->db;
+        $command = $connection->createCommand($sql);
+        $command->bindParam(':status', $status);
+        $command->bindParam(':id', $model->id);
+        $command->execute();
+
+        if ($command) {
+            if (Yii::app()->request->isAjaxRequest) {
+                // Stop jQuery from re-initialization
+                Yii::app()->clientScript->scriptMap['jquery.js'] = false;
+
+                echo CJSON::encode(
+                    array(
+                        'status' => 'success',
+                        'content' => '<div class="flash-notice">Successfully updated</div>',
+                    )
+                );
+                exit;
+            } else {
+                $this->redirect(array('admin', 'id' => $model->id));
+            }
+        }
+    }
+
+    if (Yii::app()->request->isAjaxRequest) {
+        // Stop jQuery from re-initialization
+        Yii::app()->clientScript->scriptMap['jquery.js'] = false;
+
+        echo CJSON::encode(
+            array(
+                'status' => 'failure',
+                'content' => $this->renderPartial('_form2', array(
+                    'model' => $model
+                ), true, true),
+            )
+        );
+        exit;
+    } else {
+        $this->render('update', array('model' => $model));
+    }
+}
+
+
+
+<tr>
+    <td><?php echo $form->labelEx($model, 'password'); ?></td>
+    <td>
+        <div style="position: relative;">
+            <?php echo $form->passwordField($model, 'password', array(
+                'maxlength' => 20,
+                'style' => 'padding-right:30px;',
+                'id' => 'Users_password'
+            )); ?>
+            <span toggle="#Users_password" class="toggle-password" style="position: absolute; right: 8px; top: 8px; cursor: pointer;">👁️</span>
+        </div>
+    </td>
+</tr>
+<tr>
+    <td></td>
+    <td><?php echo $form->error($model, 'password'); ?></td>
+</tr>
+
+<tr>
+    <td><?php echo $form->labelEx($model, 'password2'); ?></td>
+    <td>
+        <div style="position: relative;">
+            <?php echo $form->passwordField($model, 'password2', array(
+                'maxlength' => 20,
+                'style' => 'padding-right:30px;',
+                'id' => 'Users_password2'
+            )); ?>
+            <span toggle="#Users_password2" class="toggle-password" style="position: absolute; right: 8px; top: 8px; cursor: pointer;">👁️</span>
+        </div>
+    </td>
+</tr>
+<tr>
+    <td></td>
+    <td><?php echo $form->error($model, 'password2'); ?></td>
+</tr>
+
+
+$criteria = new CDbCriteria;
+$criteria->select = "t.*, agreement.company_id as company_id";
+$criteria->join = "INNER JOIN agreement ON t.agreement_id = agreement.id";
+
+$user_company_id = Users::model()->getUsersCompany();
+if ($user_company_id > 0) {
+    $criteria->addCondition("agreement.company_id = $user_company_id");
+}
+
+$criteria->compare('t.id', $this->id);
+$criteria->compare('t.max_sl_no', $this->max_sl_no);
+$criteria->compare('t.sl_no', $this->sl_no, true);
+$criteria->compare('t.recipe_id', $this->recipe_id);
+$criteria->compare('t.recipe_no', $this->recipe_no, true);
+$criteria->compare('t.agreement_id', $this->agreement_id);
+$criteria->compare('t.agreement_no', $this->agreement_no, true);
+$criteria->compare('t.status', $this->status);
+
+
+
+
+
+
+public function search()
+{
+    $criteria = new CDbCriteria;
+    $criteria->select = "t.*, agreement.company_id as company_id";
+    $criteria->join = "INNER JOIN agreement ON t.agreement_id = agreement.id";
+
+    $user_company_id = Users::model()->getUsersCompany();
+    if ($user_company_id > 0) {
+        $criteria->addCondition("agreement.company_id = $user_company_id");
+    }
+
+    $criteria->compare('t.id', $this->id);
+    $criteria->compare('t.max_sl_no', $this->max_sl_no);
+    $criteria->compare('t.sl_no', $this->sl_no, true);
+    $criteria->compare('t.recipe_id', $this->recipe_id);
+    $criteria->compare('t.recipe_no', $this->recipe_no, true);
+    $criteria->compare('t.agreement_id', $this->agreement_id);
+    $criteria->compare('t.agreement_no', $this->agreement_no, true);
+    $criteria->compare('t.status', $this->status);
+
+    return new CActiveDataProvider($this, array(
+        'criteria' => $criteria,
+        'sort' => array(
+            'defaultOrder' => 't.max_sl_no DESC',
+        ),
+        'pagination' => array(
+            'pageSize' => 50,
+        ),
+    ));
+}

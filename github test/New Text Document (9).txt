@@ -1,0 +1,79 @@
+public function actionOrsWiseSalesDeliveryReportView()
+    {
+        date_default_timezone_set("Asia/Dhaka");
+        $dateFrom = $_POST['SellDelivery']['date_from'];
+        $dateTo = $_POST['SellDelivery']['date_to'];
+        $soNo = $_POST['SellDelivery']['so_no'];
+        $area_id = $_POST['SellDelivery']['area_id'];
+        $territory_id = $_POST['SellDelivery']['territory_id'];
+        $distributor_id = $_POST['SellDelivery']['distributor_id'];
+        $crm_report_type = isset($_POST['SellDelivery']['crm_report_type']) ? $_POST['SellDelivery']['crm_report_type'] : "";
+        $model_id = trim($_POST['SellDelivery']['model_id']);
+        $category_id = isset($_POST['category_id']) ? $_POST['category_id'] : "";        
+        $message = $data = $category_id_list = "";
+        if ($dateFrom != "" && $dateTo != '') {
+            $criteria = new CDbCriteria;
+            $criteria->select = " t.distributor_id, sid.model_id, sid.sell_qty, sum(sdd.delivery_qty) as delivery_qty, sum(sdd.return_qty) as return_qty, t.is_cancel, sid.combo_id, t.so_no, t.date_of_sell, t.area_id, t.territory_id, t.territory_emp_id";
+            $criteria->join = " INNER JOIN sell_items_details sid ON t.id=sid.sell_item_id";
+            $criteria->join .= " left JOIN sell_delivery_details sdd ON sid.id=sdd.sell_item_details_id";
+            $startDate = $dateFrom . ' 00:00:00';
+            $endDate = $dateTo . ' 23:59:59';
+            $condition = "t.date_of_sell BETWEEN '$startDate' AND '$endDate'";
+            if($crm_report_type == 1){
+                $message .= "Sales Order Product Report <br>";
+            }else if($crm_report_type == 2){
+                $message .= "Sales Delivery Product Report <br>";
+            }else if($crm_report_type == 3){
+                $message .= "Sales Cancel Product Report <br>";
+            }else if($crm_report_type == 4){
+                $message .= "Sales Undelivery Product Report <br>";
+            }else{
+                $message .= "Sales Order Status Report <br>";
+            }
+            $message .= "From  $dateFrom To $dateTo";
+            if ($soNo > 0) {
+                $condition .= " AND t.id= $soNo";
+                $message .= " <br> ORS: " . SellItems::model()->getSoNo($soNo);
+            }
+            if ($area_id > 0) {
+                $condition .= " AND t.area_id= $area_id";
+                $message .= " <br> Area: " . Area::model()->nameOfThis($area_id);
+            }
+            if ($territory_id > 0) {
+                $condition .= " AND t.territory_id= $territory_id";
+                $message .= " <br> Territory: " . Territory::model()->nameOfThis($territory_id);
+            }
+            if ($distributor_id > 0) {
+                $condition .= " AND t.distributor_id= $distributor_id";
+                $message .= " <br> Distributor: " . Distributor::model()->distributorName($distributor_id);
+            }
+            if($category_id != ""){
+                $category_id_list = implode(', ', $category_id);
+                if($category_id_list != ""){
+                    $criteria->join .= " inner join prod_models pm on pm.id = sid.model_id";                    
+                    $condition .= " and pm.item_id in ($category_id_list)";                                     
+                    $category_name = ProdItems::model()->itemNameList($category_id_list);
+                    $message .= " <br> Product Category: " . $category_name;
+                }                
+            }
+            if ($model_id > 0) {
+                $product = ProdModels::model()->prodNameOfThis($model_id);
+                $condition .= " AND sid.model_id= $model_id";
+                $message .= " Product Name: " . $product;
+            }
+            $condition .= " AND t.is_quick_sell = 2 and  t.approve_1 = 1 AND t.approve_2 = 1";
+            $criteria->condition = $condition;
+            $criteria->group = "t.id, sdd.sell_item_details_id";
+            $criteria->order = "t.id";
+            $data = SellItems::model()->findAll($criteria);
+        } else {
+            $message = "<div class='flash-error'>Please select date range!</div>";
+        }
+        echo $this->renderPartial('orsWiseSalesDeliveryReportView', array(
+            'data' => $data,
+            'model_id' => $model_id,
+            'crm_report_type' => $crm_report_type,
+            'message' => $message,
+        ), true, true);
+        Yii::app()->end();
+    }

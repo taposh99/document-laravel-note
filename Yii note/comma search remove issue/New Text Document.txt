@@ -1,0 +1,8 @@
+	$cleaned_quantity = str_replace(',', '', $this->quantity); 
+
+		if (is_numeric($cleaned_quantity)) {
+			$this->quantity = $cleaned_quantity; 
+		} else {
+			$this->quantity = ''; 
+		}
+	
