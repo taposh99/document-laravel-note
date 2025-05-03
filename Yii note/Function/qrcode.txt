@@ -76,7 +76,7 @@
         }
     
         echo "Update complete.";
-    }
+    } 
 
     public function actionGetRemainingMismatchList()
     {
@@ -98,7 +98,7 @@
             if ((int)$calculatedRemaining !== (int)$advance->remaining_amount) {
                 $mismatches[] = $advance->id;
             }
-        }
+        } 
     
         if (empty($mismatches)) {
             echo CJSON::encode([
@@ -114,6 +114,7 @@
     
         Yii::app()->end();
     }
+
     public function actionFixRemainingMismatch()
     {
         $fixedIds = [];
@@ -151,5 +152,36 @@
             ]);
         }
 
+        Yii::app()->end();
+    }
+
+    public function actionCheckMismatchedPurchaseItems()
+    {
+        $criteria = new CDbCriteria;
+        $criteria->addCondition("issue_date >= '2025-01-01'");
+        $criteria->addCondition("issue_date <= '2025-02-28'");
+        $criteria->addCondition("DATE(issue_date) != DATE(received_date)");
+    
+        $mismatchedItems = PurchaseItems::model()->findAll($criteria);
+        $mismatches = [];
+        foreach ($mismatchedItems as $item) {
+            $mismatches[] = [
+                'id' => $item->id,
+                'issue_date' => $item->issue_date,
+                'received_date' => $item->received_date,
+            ];
+        }
+        if (empty($mismatches)) {
+            echo CJSON::encode([
+                'status' => 'success',
+                'message' => 'All records matched. No mismatch found.',
+            ]);
+        } else {
+            echo CJSON::encode([
+                'status' => 'success',
+                'mismatched_ids' => $mismatches,
+            ]);
+        }
+    
         Yii::app()->end();
     }
