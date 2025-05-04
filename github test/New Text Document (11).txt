@@ -1,0 +1,3 @@
+$request->validate([
+    'password' => 'required|compare:confirm_password',
+]

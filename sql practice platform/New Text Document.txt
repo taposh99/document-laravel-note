@@ -1,0 +1,58 @@
+Great! Practicing SQL (and PHP) online is a smart way to improve your skills. Here are some excellent online platforms where you can practice SQL INNER JOINs and more:
+🔹 SQL Practice Platforms
+
+    SQLZoo
+
+        Beginner-friendly interactive lessons.
+
+        Has JOIN exercises with live feedback.
+
+        Good for learning syntax and logic.
+
+    LeetCode SQL
+
+        Real-world database challenges.
+
+        Many problems use JOIN, GROUP BY, and nested queries.
+
+        Great if you're preparing for job interviews.
+
+    Mode SQL Tutorial
+
+        Teaches SQL using real business data.
+
+        You can write JOINs directly and see table previews.
+
+        Clean UI, practical examples.
+
+    W3Schools SQL Try-It Editor
+
+        Simple interface to run basic SQL queries.
+
+        Includes INNER JOIN exercises.
+
+        Best for quick testing and learning syntax.
+
+    Hackerrank SQL
+
+        Challenge-based learning.
+
+        Starts from basics to advanced SQL.
+
+        Includes solutions and community help.
+
+🔸 Bonus: Practice PHP + SQL Together
+
+    replit.com
+
+        Create full PHP projects online with database access.
+
+        You can simulate PHP+MySQL apps (with some setup).
+
+        Great for practicing CRUD + JOINs.
+
+    PHP Fiddle
+
+        Online PHP editor (limited DB access).
+
+        Good for testing small PHP logic pieces.

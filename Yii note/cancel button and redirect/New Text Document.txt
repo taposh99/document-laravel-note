@@ -1,4 +1,4 @@
-  <td>
+                                     <td>
                                         <?php
                                         echo CHtml::button('Cancel', array(
                                             'class' => 'cancel-btn',
