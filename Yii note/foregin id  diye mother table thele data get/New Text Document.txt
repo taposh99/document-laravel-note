@@ -1,0 +1,4 @@
+   <td><?php 
+                        $plumber = Plumber::model()->findByPk($row['plumber_id']);
+                        echo CHtml::encode($plumber->plum_reg);
+                        ?></td>
