@@ -1,0 +1,48 @@
+public function actionUnApproveWithReceive($po_no)
+        {
+            if ($po_no) {
+                $proformaExists = Proforma::model()->exists("po_no = :po_no", [':po_no' => $po_no]);
+                if ($proformaExists) {
+                    echo CJSON::encode([
+                        'status' => 'error',
+                        'message' => 'Cannot UnApprove. This PO number is linked to Proforma invoice.',
+                    ]);
+                    Yii::app()->end();
+                }
+
+                $data = PurchaseItems::model()->findAll("po_no = $po_no");
+                if(count($data) > 0){
+                    foreach($data as $dt){
+                        $model_id = $dt->model_id;
+                        $store_id = $dt->store_id;
+                        $currentStock = Inventory::model()->closingStockOfThis($model_id, $store_id);
+                        if($currentStock < $dt->order_qty){
+                            echo CJSON::encode([
+                                'status' => 'error',
+                                'message' => 'Stock not avaiable to unapprove.',
+                            ]);
+                            Yii::app()->end();
+                        }
+                    }
+                }
+
+                ReceivedPurchase::model()->deleteAll("po_no = $po_no");
+                Inventory::model()->deleteAll("po_no = $po_no");
+                PurchasePrices::model()->deleteAll("po_no = $po_no");
+                PurchaseItems::model()->updateAll(array(
+                        'is_approve'  => 0,
+                        'approved_at' => null,
+                        'approved_by' => null,
+                    ),
+                    'po_no = :po_no',
+                    array(':po_no' => $po_no)
+                );
+                
+
+                echo CJSON::encode([
+                    'status' => 'success',
+                    'message' => 'Purchase order Unapproved.',
+                ]);
+                Yii::app()->end();
+            }
+        }
