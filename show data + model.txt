@@ -75,17 +75,10 @@
                     <th>Serial</th>
                     <th>Note</th>
                     <th>Action</th>
-
                 </tr>
                 </thead>
                 <tbody>
-
-
-
-
-
                     <tr>
-
                         <td>fgf </td>
                         <td>
                             <div style="min-width: 10rem;">
@@ -96,13 +89,9 @@
                                     <button class="btn btn-danger" style="font-size:13px " role="button" onclick="return confirm('Are You Sure !!')"><i class="fa fa-trash" aria-hidden="true"></i></button>
                                 </form>
                             </div>
-
                         </td>
                     </tr>
-
-
                 </tbody>
-
             </table>
         </div>
 

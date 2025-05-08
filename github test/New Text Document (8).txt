@@ -1,7 +1,0 @@
-$role = Role::find(2);	
-
- 
-
-$userIds = [10, 11];
-
-$role->users()->sync($userIds);
