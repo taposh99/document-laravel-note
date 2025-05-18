@@ -1,5 +1,4 @@
 <?php
-
 function countFridaysInRange($startDate, $endDate) {
     $start = new DateTime($startDate);
     $end = new DateTime($endDate);
