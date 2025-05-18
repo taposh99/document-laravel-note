@@ -1,0 +1,18 @@
+            <tr>
+                <td colspan="10" style="text-align: center; font-size: 13px;">
+                    <b>Plumber Registration Report</b><br>
+                    <b>Transaction Period:</b> <?php echo CHtml::encode(date('Y-m-d', strtotime($startDate)) . " to " . date('Y-m-d', strtotime($endDate))); ?><br>
+
+                    <?php if (!empty($selectedPlumber)) : ?>
+                        <?php
+                        $plumber = Plumber::model()->findByPk($selectedPlumber);
+                        echo "<b>Plumber:</b> " . CHtml::encode($plumber ? $plumber->name : '');
+                        ?>
+                        <br>
+                    <?php endif; ?>
+
+                    <?php if (!empty($status)) : ?>
+                        <b>Status:</b> <?php echo ($status == 1) ? 'Active' : (($status == 2) ? 'Inactive' : ''); ?>
+                    <?php endif; ?>
+                </td>
+            </tr>
