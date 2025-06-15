@@ -1,0 +1,5 @@
+        array(
+            'header' => 'Plumber ID',
+            'name' => 'plumber_id',
+            'value' => '($plumber = Plumber::model()->findByPk($data->plumber_id)) ? $plumber->plum_id : ""',
+            ),
