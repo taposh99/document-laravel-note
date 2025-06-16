@@ -1,0 +1,36 @@
+   public function actionJqueryEmpSearchByBranchId()
+    {
+        $empSearch = trim($_POST['emp_search']);
+        $branchId = trim($_POST['branch_id']);
+        $departmentId = trim($_POST['department_id']);
+        $criteria = new CDbCriteria();
+        $criteria->addCondition('is_active = 1');
+        if($empSearch != ''){
+            $criteria->addCondition("full_name LIKE '%$empSearch%' OR emp_id_no LIKE '%$empSearch%'");
+        }
+        if($branchId != ''){
+            $criteria->addCondition("branch_id = $branchId");
+        }
+        if($departmentId != ''){
+            $criteria->addCondition("department_id = $departmentId");
+        }
+        $criteria->order = 'full_name ASC';
+        $criteria->limit = 25;
+        $employees = Employees::model()->findAll($criteria);
+        if ($employees) {
+            foreach ($employees as $empInfo) {
+                $value = $empInfo->id;
+                $code = CHtml::encode($empInfo->emp_id_no);
+                $label = CHtml::encode($empInfo->full_name).' ('.$code.')';
+
+                $results[] = array(
+                    'value' => $value,
+                    'label' => $label,
+                    'code' => $code,
+                );
+            }
+        } else {
+            $results[] = array('value' => "0", 'label' => "Not Available");
+        }
+        echo json_encode($results);
+    }
