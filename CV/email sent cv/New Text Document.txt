@@ -1,0 +1,19 @@
+Subject: Application for the Position of Laravel Developer
+
+Dear Sir/Madam,
+
+Greetings. I hope this message finds you well.
+
+I am writing to express my interest in the Laravel Developer position at your organization. Currently, I am working as a Software Engineer at Multibrand Infotech Ltd., where I develop full-stack web applications using the Laravel framework. With over three years of hands-on experience in PHP, Laravel, and front-end technologies, I have built scalable systems such as Inventory Management, E-commerce platforms, and custom ERP modules.
+
+I hold an MSc in Computer Science from Jahangirnagar University and a BSc in CSE from Daffodil International University. Additionally, I completed professional training in PHP with Laravel Framework from BITM, where I also worked with Vue.js, JavaScript, and AJAX.
+
+I have attached my CV and supporting documents for your kind review. I am confident that my technical skills, project experience, and dedication make me a strong candidate for this role. I would appreciate the opportunity to discuss how I can contribute to your development team.
+
+Thank you very much for your time and consideration. I look forward to the opportunity to speak further.
+
+Sincerely,
+Saniatul Haque
+📞 01934838499
+📧 saniatulhaque@gmail.com
+🌐 Portfolio | GitHub
