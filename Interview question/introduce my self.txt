@@ -1,0 +1,32 @@
+Good [morning/afternoon], and thank you for giving me this opportunity.
+
+My name is Saniatul Haque, and I’m a passionate Software Engineer with over three years of experience in full-stack web development, mainly using PHP and the Laravel framework.
+
+I’ve worked on a wide range of applications including Inventory Management Systems, E-commerce platforms, Procurement Management, and custom ERP modules. I’m comfortable working on both frontend and backend, and I always focus on writing clean, maintainable, and scalable code.
+
+I’m currently working at Multibrand Infotech Ltd., where I contribute to developing and maintaining web applications, collaborating closely with cross-functional teams, and applying performance optimization and debugging techniques.
+
+I have hands-on experience with technologies like Laravel, Yii, React.js, MySQL, SQL Server, and tools like Git, Postman, Composer, and cPanel.
+
+I'm always eager to learn new things and improve my skills. My goal is to grow as a developer while delivering real value to the company I work with.
+
+Outside of work, I also maintain a portfolio of my projects at saniatulhaque.com, and I actively contribute to GitHub.
+
+
+
+
+Hello, my name is Saniatul Haque. I’m a Software Engineer with over three years of experience in web development.
+
+I mostly work with PHP and the Laravel framework, and I have also used JavaScript, React, MySQL, and other tools like Git and Postman.
+
+Right now, I’m working at Multibrand Infotech Ltd., where I develop web applications, fix bugs, and work with a team to build useful systems.
+
+Some of the projects I’ve worked on include an Inventory System, E-commerce website, Plumber Management System, and School Management System.
+
+I enjoy writing clean and organized code, and I always try to improve my skills by learning new things.
+
+I have completed my MSc in CSE from Jahangirnagar University and BSc in CSE from Daffodil International University.
+
+You can also see my work on my website: saniatulhaque.com and GitHub: github.com/taposh99.
+
+Thank you for the opportunity to introduce myself.
