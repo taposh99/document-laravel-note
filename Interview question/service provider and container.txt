@@ -1,0 +1,2 @@
+Service Provider হচ্ছে রাঁধুনি, আর
+Service Container হচ্ছে ফ্রিজ – Laravel যখন দরকার, ফ্রিজ থেকে খাবার (class) বের করে দেয়।
