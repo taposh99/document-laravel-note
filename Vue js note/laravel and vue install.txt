@@ -39,3 +39,8 @@ Setting up Vue Router
 
 Building a small example
 vue plugin configur
+
+    public function boot(): void
+    {
+        Schema::defaultStringLength(191);
+    }
