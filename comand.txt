@@ -83,7 +83,7 @@ php artisan serve
 
 php artisan make:controller StudentController --resource
 
-php artisan db:seed
+
 php artisan migrate:rollback
 php artisan migrate
 
