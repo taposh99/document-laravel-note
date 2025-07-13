@@ -1,0 +1,100 @@
+1. Get all customers
+2. Get all products
+3. Get customer names only
+4. Get product prices over 1000
+5. Get customers with email ending 'example.com'
+6. Get products where customer_id is null
+7. Join customers and products
+8. Count total customers
+9. Count total products
+10. Get max product price
+11. Get min product price
+12. Average product price
+13. Sum of all product prices
+14. Group products by customer_id, count products per customer
+15. Group products by customer_id having count > 1
+16. Insert new customer
+17. Insert new product for a customer
+18. Update a customer’s email
+19. Update product price
+20. Delete products cheaper than a certain price
+21. Get customers without products
+22. Get products ordered by price descending
+23. Get top N expensive products
+24. Find product by name
+25. Find customers whose name starts with a letter
+26. Find products with price between two values
+27. Get distinct product names
+28. Count customers with email not null
+29. Find products without customer (customer_id is null)
+30. Find customers who have products
+31. Paginate products (limit and offset)
+32. Get products with names not matching a pattern
+33. Find max product price per customer
+34. Find customers and count of their products
+35. Find average price of products per customer
+36. Update customer name where email matches
+37. Delete customer by name
+38. Get products created in last X days
+39. Count distinct customers who bought products
+40. Get first product ordered alphabetically
+41. Find customers with specific emails
+42. Find products with prices not in a set
+43. Get products with name containing substring
+44. Get customers ordered by name descending
+45. Insert new product with no customer assigned
+46. Count how many products have null customer_id
+47. Update product prices by percentage
+48. Select customers with null or empty email
+49. Find products with price between two values
+50. Find customers whose name contains substring
+51. Get latest N products by creation date
+52. Get total price of all products per customer
+53. Get products with names starting with multiple letters
+54. Get products with price NOT between two values
+55. Find customers ordered by email ascending
+56. Find products with null or empty customer_id
+57. Count customers grouped by email domain
+58. Find products with price multiple of a number
+59. Find customers with email not matching pattern
+60. Update product price to NULL where condition met
+61. Delete customers who have no products
+62. Find products with prices in a set
+63. Find products with price not null and above a value
+64. Select customers and product counts ordered by counts
+65. Find customers with email ending with specific domains
+66. Select products with id in a range
+67. Get customer email by name
+68. Get product names ordered alphabetically
+69. Insert multiple products at once
+70. Find products with price not equal to a value
+71. Select customers who bought a specific product
+72. Select products without a customer
+73. Count products per customer and filter by count
+74. Find products priced above average price
+75. Get products with names in a set
+76. Update product price by adding a fixed amount conditionally
+77. Delete customers with name starting with letter
+78. Find customers with null or empty email
+79. Get products ordered by price with offset and limit
+80. Count distinct product prices
+81. Find products created today
+82. Find customers with email containing substring
+83. Get products grouped by customer with count and sum
+84. Get customer with the most expensive product
+85. Get customers and products with eager loading
+86. Find product with price closest to a value (less than or equal)
+87. Count customers with multiple emails (comma-separated, example)
+88. Get products excluding a specific product
+89. Find products with price within a range (exclusive)
+90. Get customers with specific email domain
+91. Select first N customers
+92. Select last N products ordered by ID
+93. Get products with prices not in specific values
+94. Find customers without email
+95. Find customers with name not equal to a value
+96. Find products with price divisible by a number
+97. Find products with name length greater than a value
+98. Select customers with id less than a number ordered by name
+99. Update product names to lowercase
+100. Select all customers and products as JSON with relationships
