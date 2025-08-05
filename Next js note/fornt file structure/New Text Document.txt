@@ -1,0 +1,18 @@
+frontend/
+├── app/
+│   └── settings/
+│       └── category/
+│           ├── components/
+│           │   └── CategoryForm.jsx
+│           ├── create/
+│           │   └── page.jsx
+│           ├── update/
+│           │   └── page.jsx
+│           ├── tabConfig.js
+│           └── page.jsx        ← list page
+├── constants/
+│   ├── route.js
+│   ├── menu.js
+│   └── SettingsApiEndPoints.js
+├── services/
+│   └── categoryService.js
