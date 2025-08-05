@@ -1,0 +1,19 @@
+php artisan module:make-migration create_wh_settings_item_brands_table Setting
+php artisan module:make-controller ItemBrandController Setting
+php artisan module:make-model ItemBrand Setting
+php artisan module:custom-make-service ItemBrand Setting
+
+in migration file-> use AppSmartWarehouse\Setting\Helpers\StaticConstant;
+php artisan module:migrate Setting
+
+
+service page->namespace AppSmartWarehouse\
+service page->change table name
+
+api.php->controller import-> make api
+
+in model->
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
+
+php artisan serve --host=192.168.68.157 --port=8000
