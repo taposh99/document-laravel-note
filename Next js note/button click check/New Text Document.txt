@@ -1,0 +1,25 @@
+const handleImportClick = () => {
+  // Add your import logic here (file upload, dialog, API call etc.)
+  notify("Import button clicked!", SUCCESS);
+};
+
+const actionButton = (
+  <>
+    <AddButton
+        variant="contained"
+        color="primary"
+        onClick={handleAddSupplierClick}
+        sx={{ mr: 2 }} // spacing between buttons
+    >
+      {locationDictionary?.addTitle}
+    </AddButton>
+
+    <AddButton
+        variant="contained"
+        color="secondary"
+        onClick={handleImportClick}
+    >
+      Import
+    </AddButton>
+  </>
+);
