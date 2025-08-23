@@ -8,11 +8,6 @@ php artisan module:migrate Setting
 php artisan module:make Blog
 
 
-service page->namespace AppSmartWarehouse\
-service page->change table name
-
-api.php->controller import-> make api
-
 in model->
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
@@ -21,7 +16,5 @@ php artisan serve --host=192.168.68.157 --port=8000
 
 
 
-php artisan module:make-migration create_wh_warehouses_warehouses_table Warehouse
-php artisan module:make-controller ItemBrandController Warehouse
-php artisan module:make-model ItemBrand Warehouse
-php artisan module:custom-make-service ItemBrand Warehouse
+
+
