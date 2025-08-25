@@ -19,6 +19,10 @@ use Illuminate\Support\Str;
 
 php artisan serve --host=192.168.68.157 --port=8000
 
+home
+
+php artisan serve --host=192.168.0.3 --port=8000
+
 
 
 php artisan module:make-migration create_wh_warehouses_warehouses_table Warehouse
