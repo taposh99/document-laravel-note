@@ -1,0 +1,285 @@
+<?php
+
+namespace AppSmartWarehouse\Setting\Services;
+
+use AppSmartWarehouse\Setting\Entities\ItemCategory;
+use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use AppSmartWarehouse\Setting\Entities\ItemPriorityRules;
+use AppSmartWarehouse\Setting\Helpers\StaticConstant;
+use AppSmartWarehouse\Warehouse\Entities\Location;
+use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Support\Str;
+
+
+class ItemPriorityRuleService
+{
+    protected $table = NULL;
+
+    public function __construct()
+    {
+        $this->table = (new ItemPriorityRules())->getTable();
+    }
+
+
+    public function getList(array $filter = [], Builder $queryBuilder = null): array|LengthAwarePaginator|Collection
+    {
+        $page = $filter['page'] ?? null;
+        $perPage = $filter['per_page'] ?? StaticConstant::DEFAULT_PAGE;
+        $orderDirection = $filter['order_direction'] ?? StaticConstant::FILTER_DIRECTION_ASC;
+        $search = $filter['search'] ?? null;
+        $with = $filter['with'] ?? [];
+
+        // Add the relations to load the related location and itemCategory data
+        $with = array_merge($with, ['location', 'itemCategory']);
+        $queryBuilder = ItemPriorityRules::with($with)->select(
+            "{$this->table}.id",
+            "{$this->table}.rule",
+            "{$this->table}.location_id",
+            "{$this->table}.item_category_id",
+            "{$this->table}.row_status"
+        );
+
+        // If a search term is provided, search across relevant fields
+        if ($search) {
+            $queryBuilder->where(function ($query) use ($search) {
+                $query->where("{$this->table}.rule", 'like', "%{$search}%")
+                    ->orWhere("{$this->table}.location_id", 'like', "%{$search}%")
+                    ->orWhere("{$this->table}.item_category_id", 'like', "%{$search}%");
+            });
+        }
+
+        // Apply sorting
+        $queryBuilder->orderBy("{$this->table}.id", $orderDirection);
+
+        // Paginate the results
+        $itemPriorityRules = $queryBuilder->paginate($perPage, ['*'], 'page', $page);
+
+        // Transform the records to include item category names and location names
+        $itemPriorityRules->transform(function ($itemPriorityRule) {
+            $itemCategories = collect([]);
+            $locations = collect([]);
+
+            // Ensure item_category_id is an array
+            $categoryIds = is_array($itemPriorityRule->item_category_id) ? $itemPriorityRule->item_category_id : explode(',', $itemPriorityRule->item_category_id);
+
+            // Fetch ItemCategory data for each item category ID
+            if (!empty($categoryIds)) {
+                $itemCategories = ItemCategory::whereIn('id', $categoryIds)
+                    ->select('id', 'name')
+                    ->get();
+            }
+
+            // Ensure location_id is an array
+            $locationIds = is_array($itemPriorityRule->location_id) ? $itemPriorityRule->location_id : explode(',', $itemPriorityRule->location_id);
+
+            // Fetch Location data for each location ID
+            if (!empty($locationIds)) {
+                $locations = Location::whereIn('id', $locationIds)
+                    ->select('id', 'name')
+                    ->get();
+            }
+
+            // Add the item categories and locations as new properties to the itemPriorityRule
+            $itemPriorityRule->item_categories = $itemCategories;
+            $itemPriorityRule->locations = $locations;
+
+            return $itemPriorityRule;
+        });
+
+        return $itemPriorityRules;
+    }
+
+    /**
+     * @param int|string $id
+     * @return mixed
+     */
+    public function getDetails(int|string $id): mixed
+    {
+        /** @var Builder $queryBuilder */
+        $queryBuilder = ItemPriorityRules::with('location', 'itemCategory')->select([
+            "{$this->table}.id",
+            "{$this->table}.rule",
+            "{$this->table}.location_id",
+            "{$this->table}.item_category_id",
+            "{$this->table}.row_status"
+        ]);
+        $queryBuilder->where("{$this->table}.id", $id);
+
+        // Fetch the ItemPriorityRules record
+        $itemPriorityRule = $queryBuilder->firstOrFail();
+
+        // Fetch related location and itemCategory details (if needed)
+        $locationIds = is_array($itemPriorityRule->location_id) ? $itemPriorityRule->location_id : explode(',', $itemPriorityRule->location_id);
+        $itemCategoryIds = is_array($itemPriorityRule->item_category_id) ? $itemPriorityRule->item_category_id : explode(',', $itemPriorityRule->item_category_id);
+
+        // Fetch related locations
+        $locations = Location::whereIn('id', $locationIds)
+            ->select('id', 'name')
+            ->get();
+
+        // Fetch related item categories
+        $itemCategories = ItemCategory::whereIn('id', $itemCategoryIds)
+            ->select('id', 'name')
+            ->get();
+
+        // Add the location and item category names to the result
+        $itemPriorityRule->locations = $locations;
+        $itemPriorityRule->item_categories = $itemCategories;
+
+        return $itemPriorityRule;
+    }
+
+
+
+    public function create(array $payload): ItemPriorityRules
+    {
+        $payload['location_id'] = $payload['location_id'] ?? null;
+        if (is_array($payload['location_id'])) {
+            $payload['location_id'] = implode(',', $payload['location_id']);
+        }
+
+        $payload['item_category_id'] = $payload['item_category_id'] ?? null;
+        if (is_array($payload['item_category_id'])) {
+            $payload['item_category_id'] = implode(',', $payload['item_category_id']);
+        }
+
+        $itemPriorityRule = new ItemPriorityRules();
+        $itemPriorityRule->fill($payload);
+        $itemPriorityRule->save();
+        return $itemPriorityRule;
+    }
+
+    public function update(array $payload, ItemPriorityRules $itemPriorityRule): ItemPriorityRules
+    {
+        if (!empty($payload['item_category_id']) && is_array($payload['item_category_id'])) {
+            $payload['item_category_id'] = implode(',', $payload['item_category_id']);
+        } else {
+            $payload['item_category_id'] = null; 
+        }
+
+        if (!empty($payload['location_id']) && is_array($payload['location_id'])) {
+            $payload['location_id'] = implode(',', $payload['location_id']);
+        } else {
+            $payload['location_id'] = null; 
+
+        $itemPriorityRule->fill($payload);
+        $itemPriorityRule->save();
+        return $itemPriorityRule;
+    }
+
+
+
+    public function delete($payload): bool|null
+    {
+        foreach ($payload['ids'] as $id) {
+            $itemPriorityRule = ItemPriorityRules::find($id);
+            $itemPriorityRule->deleted_at = now();
+            $itemPriorityRule->deleted_by = getCurrentUserId();
+            $itemPriorityRule->save();
+        }
+        return true;
+    }
+
+    public function filterValidation(Request $request): \Illuminate\Validation\Validator
+    {
+
+        $rules = [
+            "page" => ["nullable", "integer"],
+            "per_page" => ["nullable", "integer"],
+            "search" => ["nullable", "string"],
+            "with" => ["nullable", "array"],
+            "with.*" => ["nullable", "in:company,country", "distinct"],
+            "row_status" => ["nullable", "integer"],
+            'order_direction' => ["nullable", Rule::in(StaticConstant::FIlTER_DIRECTIONS)]
+        ];
+
+        return Validator::make($request->all(), $rules);
+    }
+
+    public function validation(Request $request, int|string|null $id = null): \Illuminate\Validation\Validator
+    {
+        $rules = [
+            "company_id" => [
+                "nullable",
+                new \App\Rules\StringOrInteger,
+                Rule::exists('companies', 'id')->whereNull('deleted_at')
+            ],
+            "rule" => ["nullable", "integer", Rule::in([1, 2, 3])],
+            "location_id" => ["nullable"],
+            "item_category_id" => ["nullable"],
+        ];
+
+        return Validator::make($request->all(), $rules);
+    }
+
+    public function DeleteValidation(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            "id" => ["required", "uuid", Rule::exists('wh_settings_item_priority_rules', 'id')->whereNull('deleted_at')],
+        ], ['required' => 'Must be select any rows !!!', 'uuid' => 'Selected invalid items !!!', 'exists' => 'Selected items not found !!!']);
+
+        if ($validator->fails()) {
+            $errors = $validator->errors()->toArray();
+            $ids = $request->input('ids');
+            foreach ($errors as $field => &$messages) {
+                if (preg_match('/ids\.(\d+)/', $field, $matches)) $messages['id'] = $ids[$matches[1]];
+            }
+
+            throw new HttpResponseException(response()->json([
+                'status_code' => 422,
+                'message' => $validator->errors()->first(),
+                'errors' => $errors,
+            ], 422));
+        }
+        return $validator->validated();
+    }
+    public function bulkDeleteValidation(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            "ids" => ["required", "array"],
+            "ids.*" => ["uuid", Rule::exists('wh_settings_item_mtd', 'id')->whereNull('deleted_at')],
+        ], ['required' => 'Must be select any rows !!!', 'uuid' => 'Selected invalid items !!!', 'exists' => 'Selected items not found !!!']);
+
+        // Check if validation fails
+        if ($validator->fails()) {
+            $errors = $validator->errors()->toArray();
+            $ids = $request->input('ids');
+            foreach ($errors as $field => &$messages) {
+                if (preg_match('/ids\.(\d+)/', $field, $matches)) $messages['id'] = $ids[$matches[1]];
+            }
+            // Throw the modified response
+            throw new HttpResponseException(response()->json([
+                'status_code' => 422,
+                'message' => $validator->errors()->first(),
+                'errors' => $errors,
+            ], 422));
+        }
+        return $validator->validated();
+    }
+    public function bulkDelete($payload): ?bool
+    {
+        foreach ($payload['ids'] as $id) {
+            $itemPriorityRule = ItemPriorityRules::find($id);
+            $itemPriorityRule->deleted_at = now();
+            $itemPriorityRule->deleted_by = getCurrentUserId();
+            $itemPriorityRule->save();
+        }
+
+        return true;
+    }
+    public function updateStatus($id, $rowStatus)
+    {
+        $rowStatus = ($rowStatus == 0) ? 1 : 0;
+        $itemPriorityRule = ItemPriorityRules::find($id);
+        $itemPriorityRule->row_status = $rowStatus;
+        $itemPriorityRule->updated_by = getCurrentUserId();
+        $itemPriorityRule->save();
+
+        return true;
+    }
+}
