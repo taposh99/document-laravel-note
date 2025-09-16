@@ -1,0 +1,13 @@
+import { useEffect } from "react";
+
+const { data: supplierItem, isLoading, destroy, mutate } = useCrudService(
+  LOCATION_API_ENDPOINTS.LOCATION_LIST,
+  { params: filter }
+);
+
+// Log data whenever it changes
+useEffect(() => {
+  if (supplierItem) {
+    console.log("Supplier Item Data:", supplierItem);
+  }
+}, [supplierItem]);
