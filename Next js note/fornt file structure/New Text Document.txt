@@ -3,7 +3,7 @@ frontend/
 │   └── settings/
 │       └── category/
 │           ├── components/
-│           │   └── CategoryForm.jsx
+│           │   └── CategoryList.jsx
 │           ├── create/
 │           │   └── page.jsx
 │           ├── update/
@@ -16,3 +16,33 @@ frontend/
 │   └── SettingsApiEndPoints.js
 ├── services/
 │   └── categoryService.js
+
+
+
+frontend/
+├── src/
+│   ├── app/
+│   │   └── settings/
+│   │       └── category/
+│   │           ├── components/
+│   │           │   └── CategoryList.jsx
+│   │           ├── create/
+│   │           │   └── page.jsx
+│   │           ├── update/
+│   │           │   └── page.jsx
+│   │           ├── tabConfig.js
+│   │           └── page.jsx        ← list page
+│   │
+│   ├── constants/
+│   │   ├── route.js
+│   │   ├── menu.js
+│   │   └── SettingsApiEndPoints.js
+│   │
+│   ├── services/
+│   │   └── categoryService.js
+│   │
+│   └── index.js   ← (entry point, if needed)
+│
+├── package.json
+└── vite.config.js / next.config.js (depending on your stack)
+
