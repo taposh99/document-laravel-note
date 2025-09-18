@@ -1,0 +1,68 @@
+<?php
+
+namespace AppSmartWarehouse\Setting\Entities;
+
+use AppSmartWarehouse\Setting\Entities\ItemCategory as EntitiesItemCategory;
+use AppSmartWarehouse\Warehouse\Entities\Location;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
+
+class ItemPriorityRules extends Model
+{
+    protected $table = "wh_settings_item_priority_rules";
+
+    use HasFactory, SoftDeletes;
+
+    protected $fillable = [
+        'id',
+        'warehouse_id',
+        'location_id',
+        'item_category_id',
+        'rule',
+        'name',
+        'short_code',
+        'company_id',
+        'description',
+        'slug',
+        'status',
+        'row_status',
+        'created_by',
+        'updated_by',
+        'deleted_by',
+        'deleted_at'
+    ];
+    protected $keyType = 'string';
+
+    public $incrementing = false;
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            if (empty($model->id)) {
+                $model->id = (string) Str::uuid();
+            }
+        });
+    }
+    public function location()
+    {
+        return $this->belongsTo(Location::class, 'location_id', 'id')->select('id', 'name');
+    }
+
+    /**
+     * Relationship with the ItemCategory model.
+     */
+    public function itemCategory()
+    {
+        return $this->belongsTo(ItemCategory::class, 'item_category_id', 'id')->select(['id', 'name']);
+    }
+
+
+    protected static function newFactory()
+    {
+        return \AppSmartWarehouse\Setting\Database\factories\ItemPriorityRulesFactory::new();
+    }
+}

@@ -1,0 +1,139 @@
+<?php
+
+namespace AppSmartWarehouse\Setting\Http\Controllers;
+
+use AppSmartWarehouse\Setting\Entities\ItemPriorityRules;
+use AppSmartWarehouse\Setting\Services\ItemPriorityRuleService;
+use Illuminate\Contracts\Support\Renderable;
+use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
+use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Support\Facades\DB;
+use Throwable;
+
+class ItemPriorityRulesController extends Controller
+{
+    public ItemPriorityRuleService $ItemPriorityRuleService;
+
+    public function __construct(ItemPriorityRuleService $ItemPriorityRuleService)
+    {
+        $this->ItemPriorityRuleService = $ItemPriorityRuleService;
+    }
+
+    /**
+     * Display a listing of the resource.
+     * @return JsonResponse
+     */
+    public function index(Request $request): JsonResponse
+    {
+        $filter = $this->ItemPriorityRuleService->filterValidation($request)->validate();
+        $items = $this->ItemPriorityRuleService->getList($filter);
+        return response()->json(responseBuilder(Response::HTTP_OK, "Success", $items->toArray()), Response::HTTP_OK);
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function store(Request $request): JsonResponse
+    {
+        DB::beginTransaction();
+        try {
+            $vData = $this->ItemPriorityRuleService->validation($request);
+
+            if ($vData->fails()) {
+                return response()->json([
+                    'status_code' => 422,
+                    'message' => $vData->errors()->first(),
+                    'errors' => $vData->errors()
+                ], 422);
+            }
+
+            $data = $vData->validate();
+            $result = $this->ItemPriorityRuleService->create($data);
+
+            DB::commit();
+            return response()->json(responseBuilder(Response::HTTP_CREATED, "Success", $result->toArray()), Response::HTTP_OK);
+        } catch (Throwable $exception) {
+            DB::rollBack();
+            throw $exception;
+        }
+    }
+
+    /**
+     * Show the specified resource.
+     * @param string $id
+     * @return JsonResponse
+     */
+    public function show(string $id): JsonResponse
+    {
+        try {
+            $itemPriorityRule = $this->ItemPriorityRuleService->getDetails($id);
+
+            return response()->json([
+                'status_code' => 200,
+                'message' => 'Item Priority Rules retrieved successfully.',
+                'data' => $itemPriorityRule
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status_code' => 404,
+                'message' => 'Item Priority Rule not found.',
+                'error' => $e->getMessage()
+            ], 404);
+        }
+    }
+
+
+    /**
+     * Bulk delete the resources.
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function bulkDelete(Request $request): JsonResponse
+    {
+        $payload = $this->ItemPriorityRuleService->DeleteValidation($request);
+        $this->ItemPriorityRuleService->bulkDelete($payload);
+        return response()->json(responseBuilder(Response::HTTP_OK, "Success", []), Response::HTTP_OK);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     * @param Request $request
+     * @param string $id
+     * @return JsonResponse
+     */
+    public function update(Request $request, string $id): JsonResponse
+    {
+        ValidateUUID($id);
+        DB::beginTransaction();
+        try {
+            $vData = $this->ItemPriorityRuleService->validation($request, $id)->validate();
+            $ItemPriorityRules = ItemPriorityRules::where('id', $id)->firstOrFail();
+
+            $this->ItemPriorityRuleService->update($vData, $ItemPriorityRules);
+
+            DB::commit();
+            return response()->json(responseBuilder(Response::HTTP_OK, "Success", []), Response::HTTP_OK);
+        } catch (Throwable $exception) {
+            DB::rollBack();
+            throw $exception;
+        }
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function destroy(Request $request): JsonResponse
+    {
+        $validated = $this->ItemPriorityRuleService->DeleteValidation($request);
+        $id = $validated['id'];
+        $this->ItemPriorityRuleService->delete($id);
+        return response()->json(responseBuilder(Response::HTTP_OK, "Success", []), Response::HTTP_OK);
+    }
+}
