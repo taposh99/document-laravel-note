@@ -1,0 +1,12 @@
+"use client";
+import React, { useState, useEffect } from "react";
+
+export default function RandomNumber() {
+  const [num, setNum] = useState(null);
+
+  useEffect(() => {
+    setNum(Math.random());
+  }, []);
+
+  return <div>{num ?? "Loading..."}</div>;
+}
