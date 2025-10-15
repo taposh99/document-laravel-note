@@ -1,0 +1,26 @@
+sso admin user access : username : 
+LAND3826931
+password : Land1234
+
+Remote Desktop - 
+ip - 103.93.32.159
+user:syntech
+pass:syntech123
+
+ফরিদপুর জেলা
+User ID: land7351050	জেলা প্রশাসক
+User ID: land9030521	অতিরিক্ত জেলা প্রশাসক (রাজস্ব)
+User ID: land2854683	সহকারী কমিশনার (ভূমি), নগরকান্দা
+User ID: land6862230	সার্ভেয়ার - ২
+User ID: land8498157	অফিস সহকারী (কম্পিউটার মুদ্রাক্ষরিক)
+User ID: land5353579	ইউনিয়ন ভূমি সহকারী কর্মকর্তা, নগরকান্দা
+
+Pass: Land1234
+
+dev branch er jonno portal admin er jonno
+========================================
+php artisan serve --port=8080
+office end
+===========
+php artisan serve --port=8000
+

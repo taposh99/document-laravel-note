@@ -1,0 +1,140 @@
+<!-- Main modal -->
+<div id="sub-module-modal" tabindex="-1" aria-hidden="true"
+    class="modal-form fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+
+    <div class="relative p-4 w-full max-w-lg max-h-full">
+        <!-- Modal content -->
+        <div class="relative bg-white rounded-lg shadow-sm dark:bg-gray-700">
+            
+            <!-- Modal header -->
+            <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t border-gray-200 dark:border-gray-600">
+                <h3 class="text-xl font-semibold text-gray-900 dark:text-white modal-title">
+                    {{ __('globalTrans.sub_module') }} 
+                    {{ isset($model) ? __('globalTrans.update') : __('globalTrans.create') }}
+                </h3>
+                <button type="button"
+                    class="end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white close-modal"
+                    data-modal-hide="sub-module-modal">
+                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                        viewBox="0 0 14 14">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                    </svg>
+                    <span class="sr-only">Close modal</span>
+                </button>
+            </div>
+
+            <!-- Modal body -->
+            <div class="p-4 md:p-5">
+                <form class="space-y-4 relative" action="#" id="sub-module-form">
+                    <div class="grid grid-cols-1 gap-3">
+                        
+                        <!-- Component Name -->
+                        <fieldset class="border border-zinc-400 rounded w-full min-h-12 px-2 py-0 col-span-4">
+                            <legend class="leading-tight">
+                                <label for="component_id" class="text-14 text-black font-semibold px-2">
+                                    {{ __('globalTrans.component') }} <span class="text-red-600">*</span>
+                                </label>
+                            </legend>
+                            <select id="component_id" name="component_id" required
+                                class="w-full text-14 text-zinc-600 outline-none border-none focus:ring-0 bg-transparent -mt-2 pb-0 ps-2">
+                                <option value="">{{ __('globalTrans.select') }}</option>
+                                @forelse($componentList as $item)
+                                    <option value="{{ $item->id }}">
+                                        {{ app()->getLocale() == 'en' ? $item->name_en : $item->name_bn }}
+                                    </option>
+                                @empty
+                                @endforelse
+                            </select>
+                            @error('component_id')
+                                <span class="text-red-500 text-xs">{{ $message }}</span>
+                            @enderror
+                        </fieldset>
+
+                        <!-- Module Name -->
+                        <fieldset class="border border-zinc-400 rounded w-full min-h-12 px-2 py-0 col-span-4">
+                            <legend class="leading-tight">
+                                <label for="module_id" class="text-14 text-black font-semibold px-2">
+                                    {{ __('globalTrans.module') }} <span class="text-red-600">*</span>
+                                </label>
+                            </legend>
+                            <select id="module_id" name="module_id" required
+                                class="w-full text-14 text-zinc-600 outline-none border-none focus:ring-0 bg-transparent -mt-2 pb-0 ps-2">
+                                <option value="">{{ __('globalTrans.select') }}</option>
+                                {{-- Options will load dynamically when component is selected --}}
+                            </select>
+                            @error('module_id')
+                                <span class="text-red-500 text-xs">{{ $message }}</span>
+                            @enderror
+                        </fieldset>
+
+                        <!-- Name English -->
+                        <fieldset class="border border-zinc-400 rounded w-full min-h-12 px-2 py-0 col-span-4">
+                            <legend class="leading-tight">
+                                <label for="name_en" class="text-14 text-black font-semibold px-2">
+                                    {{ __('globalTrans.name') }} {{ __('globalTrans.en') }} <span class="text-red-600">*</span>
+                                </label>
+                            </legend>
+                            <input type="text" id="name_en" name="name_en"
+                                value=""
+                                class="w-full text-14 text-zinc-600 outline-none border-none focus:ring-0 bg-transparent -mt-2 pb-0 ps-2"
+                                placeholder="{{ __('globalTrans.name') }}">
+                            @error('name_en')
+                                <span class="text-red-500 text-xs">{{ $message }}</span>
+                            @enderror
+                        </fieldset>
+
+                        <!-- Name Bangla -->
+                        <fieldset class="border border-zinc-400 rounded w-full min-h-12 px-2 py-0 col-span-4">
+                            <legend class="leading-tight">
+                                <label for="name_bn" class="text-14 text-black font-semibold px-2">
+                                    {{ __('globalTrans.name') }} {{ __('globalTrans.bn') }} <span class="text-red-600">*</span>
+                                </label>
+                            </legend>
+                            <input type="text" id="name_bn" name="name_bn"
+                                value=""
+                                class="w-full text-14 text-zinc-600 outline-none border-none focus:ring-0 bg-transparent -mt-2 pb-0 ps-2"
+                                placeholder="{{ __('globalTrans.name') }}">
+                            @error('name_bn')
+                                <span class="text-red-500 text-xs">{{ $message }}</span>
+                            @enderror
+                        </fieldset>
+
+                        <!-- Sorting Order -->
+                        <fieldset class="border border-zinc-400 rounded w-full min-h-12 px-2 py-0 col-span-4">
+                            <legend class="leading-tight">
+                                <label for="sorting_order" class="text-14 text-black font-semibold px-2">
+                                    {{ __('globalTrans.sorting_order') }} <span class="text-red-600">*</span>
+                                </label>
+                            </legend>
+                            <input type="number" id="sorting_order" name="sorting_order"
+                                value=""
+                                class="w-full text-14 text-zinc-600 outline-none border-none focus:ring-0 bg-transparent -mt-2 pb-0 ps-2"
+                                placeholder="{{ __('globalTrans.sorting_order') }}">
+                            @error('sorting_order')
+                                <span class="text-red-500 text-xs">{{ $message }}</span>
+                            @enderror
+                        </fieldset>
+
+                    </div>
+
+                    <!-- Modal footer -->
+                    <div class="flex items-center justify-end mt-6 space-x-4 rtl:space-x-reverse">
+                        <input type="hidden" id="id" name="id" value="">
+                        <button type="button"
+                            class="bg-[#12633D] text-white px-3 py-1.5 rounded transition duration-300 btn-save"
+                            onclick="saveUpdate()">
+                            {{ __('globalTrans.save') }}
+                        </button>
+                        <button data-modal-hide="sub-module-modal" type="button"
+                            class="bg-red-600 text-white px-3 py-1.5 rounded transition duration-300 cancel-modal">
+                            {{ __('globalTrans.cancel') }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <x-loaders.loader />
+        </div>
+    </div>
+</div>
