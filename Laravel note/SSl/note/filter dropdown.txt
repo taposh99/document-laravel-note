@@ -1,0 +1,35 @@
+
+    $('#component_id').on('change', function () {
+        let componentId = $(this).val();
+        let moduleSelect = $('#module_id');
+
+        moduleSelect.empty();
+
+        if (componentId) {
+            moduleSelect.append('<option value="">{{ __("Loading...") }}</option>');
+
+            $.ajax({
+                url: "{{ route('get.modules', '') }}/" + componentId,
+                type: 'GET',
+                success: function (data) {
+                    moduleSelect.empty();
+
+                    if (data.length > 0) {
+                        moduleSelect.append('<option value="">{{ __("globalTrans.select") }}</option>');
+                        data.forEach(function (item) {
+                            let optionText = "{{ app()->getLocale() }}" === 'en' ? item.name_en : item.name_bn;
+                            moduleSelect.append('<option value="' + item.id + '">' + optionText + '</option>');
+                        });
+                    } else {
+                        moduleSelect.append('<option value="">{{ __("No Type Found") }}</option>');
+                    }
+                },
+                error: function () {
+                    moduleSelect.empty().append('<option value="">{{ __("Error loading data") }}</option>');
+                }
+            });
+        } else {
+            moduleSelect.append('<option value="">{{ __("globalTrans.select") }}</option>');
+        }
+    });
+

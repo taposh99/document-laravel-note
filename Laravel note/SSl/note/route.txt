@@ -1,0 +1,2 @@
+// web.php
+Route::get('/get-modules/{component_id}', [MasterSubModuleController::class, 'getModules'])->name('get.modules');
