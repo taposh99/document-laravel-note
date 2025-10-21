@@ -117,6 +117,7 @@ php artisan make:controller StudentController --api (crud sob auto chole asbe)
 
 
 php artisan o:c
+redis-cli flushall
 
 
 php artisan make:migration create_products_table --create=products 
