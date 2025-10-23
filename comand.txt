@@ -143,6 +143,11 @@ composer install
 
 php artisan install:api
 
+composer clear-cache
+rm composer.lock
+composer install
+
+
 
 
 
