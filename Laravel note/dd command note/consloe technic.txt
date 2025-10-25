@@ -3,3 +3,6 @@
                 // console.log($('#emp_id2').val());
                 $('#status2').html(data.status);
                 $('#employee_list2').html('Employee ID: ' + $('#emp_id2').val());
+
+
+{{ dd($privilege->status) }}

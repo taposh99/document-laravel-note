@@ -33,3 +33,9 @@ dd($item, $amount);
                   $('#emp_id_text2').val(data.data.full_name);
 
 //////////////////////////////
+
+
+   dd([
+           'applications' => $applications,
+
+    ]);
