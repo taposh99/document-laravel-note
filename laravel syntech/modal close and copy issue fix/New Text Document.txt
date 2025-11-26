@@ -3,6 +3,7 @@
 
 opre clss er modde ata bosate hbe -> data-modal-backdrop="static" 
 
+ {{-- modal text copy issue fix --}}
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const modalEl = document.getElementById('easement-modal');
@@ -21,5 +22,5 @@ document.addEventListener('DOMContentLoaded', function () {
     document.addEventListener('mousedown', blockOutside, true);
     document.addEventListener('click', blockOutside, true);
 });
-
 </script>
+ {{-- modal text copy issue fix --}}
