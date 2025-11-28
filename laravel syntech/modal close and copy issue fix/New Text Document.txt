@@ -1,0 +1,26 @@
+
+<div id="easement-modal" data-modal-backdrop="static" tabindex="-1" aria-hidden="true" class="modal-form fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+
+opre clss er modde ata bosate hbe -> data-modal-backdrop="static" 
+
+ {{-- modal text copy and close issue fix --}}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const modalEl = document.getElementById('easement-modal');
+    if (!modalEl) return;
+    try {
+        if (typeof Modal !== 'undefined') {
+            new Modal(modalEl, { backdrop: 'static', closable: false });
+        }
+    } catch (err) {}
+    const blockOutside = function (e) {
+        if (e.target === modalEl) {
+            e.stopImmediatePropagation();
+            e.preventDefault();
+        }
+    };
+    document.addEventListener('mousedown', blockOutside, true);
+    document.addEventListener('click', blockOutside, true);
+});
+</script>
+ {{-- modal text copy and close issue fix --}}
