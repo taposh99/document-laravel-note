@@ -1,0 +1,20 @@
+
+// dd([
+// 'current_route' => $routeName,
+// 'menu_allowed' => $menuCheck,
+// 'permission_allowed'=> $permissionCheck,
+// 'allowed_menu_routes' => $allowedRoutes,
+// 'user_permissions' => $permissionNames,
+// ]);
+
+
+@if(auth()->user())
+<pre>
+{{ print_r(auth()->user()->getAllPermissions()->pluck('name'), true) }}
+</pre>
+@endif
+
+Route::group(['prefix' => '/prepare-calender', 'middleware' => 'route.permission'], function () {
+
+@can('calender.create')
+@endcan

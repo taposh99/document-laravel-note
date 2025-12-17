@@ -3,6 +3,9 @@
 
 opre clss er modde ata bosate hbe -> data-modal-backdrop="static" 
 
+
+
+
  {{-- modal text copy and close issue fix --}}
 <script>
 document.addEventListener('DOMContentLoaded', function () {
