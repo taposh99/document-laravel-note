@@ -1,11 +1,11 @@
 
-// dd([
-// 'current_route' => $routeName,
-// 'menu_allowed' => $menuCheck,
-// 'permission_allowed'=> $permissionCheck,
-// 'allowed_menu_routes' => $allowedRoutes,
-// 'user_permissions' => $permissionNames,
-// ]);
+ dd([
+ 'current_route' => $routeName,
+ 'menu_allowed' => $menuCheck,
+ 'permission_allowed'=> $permissionCheck,
+ 'allowed_menu_routes' => $allowedRoutes,
+ 'user_permissions' => $permissionNames,
+ ]);
 
 
 @if(auth()->user())
