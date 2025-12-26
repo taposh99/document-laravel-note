@@ -1,0 +1,40 @@
+Menu → MySQL → phpMyAdmin
+http://localhost/phpmyadmin
+https://www.phpmyadmin.net/downloads/
+
+
+2️⃣ Extract to Laragon
+
+Extract and place folder here:
+
+C:\laragon\etc\apps\phpmyadmin
+
+
+Folder structure must be:
+
+C:\laragon\etc\apps\phpmyadmin\index.php
+
+3️⃣ Create config file
+
+Inside phpmyadmin folder:
+
+Rename:
+
+config.sample.inc.php → config.inc.php
+
+
+Edit config.inc.php:
+
+$cfg['Servers'][$i]['auth_type'] = 'cookie';
+$cfg['Servers'][$i]['host'] = '127.0.0.1';
+$cfg['Servers'][$i]['port'] = '3306';
+$cfg['Servers'][$i]['AllowNoPassword'] = true;
+
+
+
+
+httpd.conf folder -> none replace hye All 
+<Directory />
+    AllowOverride All
+    Require all denied
+</Directory>
