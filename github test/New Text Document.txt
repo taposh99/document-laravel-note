@@ -1,0 +1,10 @@
+Project:  Smart Warehouse (BYSL)
+
+Task: 
+1.Barcode API Create and data load in Item checkout
+Status: Done
+2.Item checkout – new requirements
+Status: Ongoing
+
+Task Assigned By: Phobir dada
+Date: 01/01/2026
