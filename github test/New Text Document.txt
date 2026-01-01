@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 Project:  Smart Warehouse (BYSL)
 
 Task: 
@@ -8,3 +9,6 @@ Status: Ongoing
 
 Task Assigned By: Phobir dada
 Date: 01/01/2026
+=======
+test
+>>>>>>> 16c9d0c53f3b2cc93aefbbda77f1aa71c592249c
