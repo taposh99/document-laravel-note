@@ -1,1 +1,0 @@
-wh_transaction_checkin_details
