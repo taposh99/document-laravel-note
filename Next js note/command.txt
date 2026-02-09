@@ -7,6 +7,8 @@ in migration file-> use AppSmartWarehouse\Setting\Helpers\StaticConstant;
 php artisan module:migrate Setting
 php artisan module:make Blog
 
+mysql -u root mydb < C:/laragon/www/db_backup/mydb.sql
+
 
 in model->
 use Illuminate\Database\Eloquent\SoftDeletes;
