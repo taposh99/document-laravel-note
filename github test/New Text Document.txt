@@ -1,0 +1,621 @@
+'use client';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
+import {Formik, Form} from 'formik';
+import {Box, Button, Grid, useTheme, Dialog, DialogContent, DialogTitle, IconButton, Typography, FormHelperText, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Paper, MenuItem, FormControl, InputLabel, Select, Chip, OutlinedInput, Checkbox, ListItemText, TextField as MuiTextField, InputAdornment} from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
+import DeleteIcon from '@mui/icons-material/Delete';
+import * as Yup from 'yup';
+import TextField from "@/components/Form/TextField";
+import {useAppConfig} from '@/contexts/AppConfigContext';
+import {useRouter} from 'next/navigation';
+import PageTitle from '@/components/pages/PageTitle';
+import useCrudService from '@/hooks/useCrudService';
+import {HTTP_CREATED, HTTP_OK, HTTP_UNPROCESSABLE_ENTITY} from '@/constants/HttpStatusCode';
+import {TRANSFER_ORDER_API_ENDPOINTS, ITEM_CHECK_IN_API_ENDPOINTS} from '../../SettingsApiEndPoints';
+import { BARCODE_CONFIGURATION_API_ENDPOINTS } from '../../../settings/SettingsApiEndPoints';
+import {ERROR, notify, SUCCESS} from '@/utils/helpers';
+import { TRANSACTION_MODULE } from '@/app/warehouse/constants/routes';
+import TreeSelectField from "@/components/Form/TreeSelect";
+import {fetchData} from "@/app/(smart-office)/(custom-fields)/services/apiService";
+import {CUSTOM_FIELD_ENDPOINTS} from "@/app/(smart-office)/(custom-fields)/constants/CustomFieldApiEndpoints";
+import CustomFieldInputsAndDrawer from "@/app/(smart-office)/(custom-fields)/_components/CustomFieldInputsAndDrawer";
+import Loading from "@/app/loading"
+import apiClient from "@/lib/axios";
+import RefreshIcon from "@mui/icons-material/Refresh";
+import DatePicker from "@/components/Form/DatePicker";
+import SearchIcon from "@mui/icons-material/Search";
+import dayjs from "dayjs";
+import CreateNewSelectDropdown from "@/components/Form/CreateNewSelectDropdown";
+import AddIcon from "@mui/icons-material/Add";
+import {LOCATION_API_ENDPOINTS} from '../../../warehouses/SettingsApiEndPoints';
+
+export const transformLocationData = (response) => {
+    const transformed = {
+        title: response.name,
+        value: response.id,
+        key: response.id,
+        disabled: response.hasOwnProperty("is_selectable")
+            ? !Boolean(response?.is_selectable)
+            : false,
+    };
+    if (response.all_children) {
+        transformed.children = response.all_children.map((child) =>
+            transformLocationData(child)
+        );
+    }
+    return transformed;
+};
+
+const ITEM_HEIGHT = 48;
+const ITEM_PADDING_TOP = 8;
+const MenuProps = {
+  PaperProps: {
+    style: {
+      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+      width: 250,
+    },
+  },
+};
+
+const InternalTransfer = () => {
+  const createUrl = `${TRANSFER_ORDER_API_ENDPOINTS.TRANSFER_ORDER_CREATE}`;
+  const {
+    isLoading,
+    create,
+  } = useCrudService(createUrl);
+  const formikRef = useRef();
+  const router    = useRouter();
+  const [submitType, setSubmitType] = useState("submit");
+  const [isSubmitting, setSubmitting] = useState(false);
+  const [unusedBarcodes, setUnUsedBarcodes] = useState([]);
+  const {useDictionary} = useAppConfig()
+  const dictionary      = useDictionary();
+  const theme           =  useTheme();
+  const [selectedItems, setSelectedItems] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [loadingItems, setLoadingItems] = useState(false);
+  const [availableItems, setAvailableItems] = useState([]);
+
+  // Fetch available items from API
+  const fetchAvailableItems = async (locId, setFieldValue) => {
+    console.log(locId)
+    try {
+      if (!locId || locId.length === 0) {
+        console.log("Missing locId — skipping fetch");
+        return;
+      }
+      setLoadingItems(true);
+      const response = await apiClient.post(
+        ITEM_CHECK_IN_API_ENDPOINTS.ITEM_CHECK_IN_DETAILS_WITH_APPROVED,{
+          loc_id:locId
+        }
+      );
+      console.log("Response",response)
+      if (response?.data.length > 0) {
+        const items = response.data.map(item => ({
+          id: item.variant_id,
+          item_id: item.item_id,
+          item_name: item.item_name,
+          item_code: item.item_code,
+          barcode: item.barcode,
+          variant: item.variant,
+          stock: item.stock_qty,
+          uom: item.uom,
+          uom_id: item.uom_id || null
+        }));
+        setAvailableItems(items);
+      } else {
+        setAvailableItems([]);
+        notify("Not found available items in selected location", ERROR);
+      }
+    } catch (error) {
+      console.error("Error fetching available items:", error);
+      notify("Failed to load items", ERROR);
+      setAvailableItems([]);
+    } finally {
+      setLoadingItems(false);
+    }
+  };
+
+  // for custom field need to set initial values starts
+  const [initialValues, setInitialValues] = useState({
+    company_id: '9f694334-8ece-41a4-8d68-a7fc8d0782d2',
+    barcode: '',
+    flag: 1,
+    source_id: '',
+    destination_id: '',
+    transfer_date: dayjs().format('YYYY-MM-DD'),
+    items: [],
+  });
+
+  useEffect(() => {
+    handleGenerateBarcodes();
+  }, []);
+
+  const handleGenerateBarcodes = async (type = 1, count = 1, setFieldValue = null) => {
+    const responseData = await apiClient.get(
+        `${BARCODE_CONFIGURATION_API_ENDPOINTS.BARCODE_GEN}/${type}/${count}`
+      );
+    if (responseData.data.first_barcode) {
+        const barcode = responseData.data.first_barcode; 
+        if (setFieldValue) {
+          setFieldValue('barcode', barcode);
+        } else {
+          setInitialValues(prev => ({...prev, barcode}));
+        }
+    }
+    if (responseData.data.unused_barcodes.length) {
+      setUnUsedBarcodes(responseData.data.unused_barcodes);
+    }
+  };
+
+  const handleBarcodeRefresh = (setFieldValue) => {
+    if (unusedBarcodes.length > 0) {
+      const newBarcode = unusedBarcodes.shift();
+      setFieldValue('barcode', newBarcode);
+    } else {
+      handleGenerateBarcodes(1, 1, setFieldValue);
+    }
+  }
+
+  // const locationList = useCrudService(LOCATION_API_ENDPOINTS.LOCATION_TREE_LIST, {})?.data?.data?.map((location) => transformLocationData(location)) ?? []
+  const locationList = useCrudService(LOCATION_API_ENDPOINTS.LOCATION_TREE_LIST, {})?.data?.data ?? []
+
+  const TransferOrderManagement = dictionary?.settings?.transferOrderManagement;
+
+
+  const validationSchema = Yup.object({
+    barcode: Yup.string()
+      .required(TransferOrderManagement?.barcodeRequired || 'Barcode is required'),
+    source_id: Yup.string()
+      .required('Source location is required'),
+    destination_id: Yup.string()
+    .required("Destination is required")
+    .test(
+      "different-from-source",
+      "Destination cannot be the same as Source",
+      function (value) {
+        const { source_id } = this.parent;
+        return value !== source_id;
+      }
+    ),
+    transfer_date: Yup.date()
+      .required('Date of transfer is required'),
+    items: Yup.array()
+      .min(1, 'At least one item is required')
+      .of(
+        Yup.object().shape({
+          transferQuantity: Yup.number()
+            .required('Transfer quantity is required')
+            .min(1, 'Transfer quantity must be at least 1')
+            .test(
+              'max-stock',
+              'Transfer quantity cannot exceed available stock',
+              function(value) {
+                const item = this.parent;
+                return value <= item.stock;
+              }
+            )
+        })
+      )
+  });
+
+  const [newlyCreatedType, setNewlyCreatedType] = useState(null);
+
+const handleSubmit = async (values, { setErrors, setSubmitting }) => {
+  try {
+    // Validate form first
+    const errors = await validationSchema.validate(values, { abortEarly: false })
+      .then(() => ({}))
+      .catch(err => {
+        const validationErrors = {};
+        err.inner.forEach(error => {
+          validationErrors[error.path] = error.message;
+        });
+        return validationErrors;
+      });
+
+    // If there are validation errors
+    if (Object.keys(errors).length > 0) {
+      setErrors(errors);
+      notify("Please fix the form errors before proceeding", ERROR);
+      setSubmitting(false);
+      return;
+    }
+
+    // If "Submit and Checkout" was clicked
+    if (submitType === "checkout") {
+      console.log("Form is valid, redirecting to checkout...");
+      
+      // Create minimal data for checkout
+      const checkoutData = {
+        source_id: values.source_id,
+        destination_id: values.destination_id,
+        barcode: values.barcode,
+        transfer_date: values.transfer_date,
+        items_count: values.items.length
+      };
+      
+      // Store in localStorage (persists across tabs)
+      localStorage.setItem('transfer_to_checkout', JSON.stringify(checkoutData));
+      
+      // Redirect to checkout
+      router.push(TRANSACTION_MODULE.ITEM_CHECK_OUT_CREATE);
+      return;
+    }
+    
+    // Original submit logic...
+    // ... your existing code for saving ...
+    
+  } catch (err) {
+    console.error('Submission error:', err);
+    notify("An error occurred", ERROR);
+    setSubmitting(false);
+  }
+};
+  const goToList = () => {
+    router.push(TRANSACTION_MODULE.TRANSFER_ORDER_LIST);
+  };
+
+  const handleItemSelection = (event) => {
+    const selectedIds = event.target.value;
+    setSelectedItems(selectedIds);
+  };
+
+  const addSelectedItems = (setFieldValue, values) => {
+    const newItems = selectedItems.map(id => {
+      const item = availableItems.find(i => i.id === id);
+      return {
+        ...item,
+        transferQuantity: 1 // Set default transfer quantity
+      };
+    });
+    
+    // Filter out items that are already in the list
+    const existingIds = values.items.map(item => item.id);
+    const itemsToAdd = newItems.filter(item => !existingIds.includes(item.id));
+    
+    if (itemsToAdd.length > 0) {
+      setFieldValue('items', [...values.items, ...itemsToAdd]);
+    }
+    
+    // Clear selection
+    setSelectedItems([]);
+  };
+
+  const handleTransferQuantityChange = (index, value, setFieldValue, values) => {
+    const newItems = [...values.items];
+    const numericValue = Math.max(1, Math.min(newItems[index].stock, parseInt(value) || 1));
+    newItems[index].transferQuantity = numericValue;
+    setFieldValue('items', newItems);
+  };
+
+  const removeItem = (index, setFieldValue, values) => {
+    const newItems = [...values.items];
+    newItems.splice(index, 1);
+    setFieldValue('items', newItems);
+  };
+
+  // Filter items based on search term
+  const filteredItems = availableItems.filter(item =>
+    item.item_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.item_code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (item.variant && item.variant.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
+
+  // custom field implement code starts
+  const [isCustomFieldAvailable, setIsCustomFieldAvailable] = useState(false);
+  const [customFieldValidate, setCustomFieldValidate] = useState(() => () => ({}));
+  const [customFieldData, setCustomFieldData] = useState(false);
+  const { config } = useAppConfig();
+  
+  const fetchResponseInputType = useCallback(async () => {
+    const formInformation = await fetchData(
+        CUSTOM_FIELD_ENDPOINTS.IS_CUSTOM_FIELDS,
+        {
+          code: "internal_transfer",
+          table_row_id: "",
+        }
+    );
+    if (formInformation?.data) {
+      setIsCustomFieldAvailable(true);
+      setCustomFieldData(formInformation?.data);
+    }
+  }, [config?.isCustomFieldSubmit]);
+
+  useEffect(() => {
+    fetchResponseInputType();
+  }, [fetchResponseInputType]);
+
+  return (
+      <>
+        {isLoading ? (
+            <Loading />
+        ) : (
+          <Grid container spacing={2} py={2} margin="auto">
+            <Grid item xs={12}>
+              <PageTitle 
+                title={TransferOrderManagement?.addTitle || 'Create Transfer Order'}
+                backToUrl={TRANSACTION_MODULE.TRANSFER_ORDER_LIST}
+              />
+            </Grid>
+            
+            <Grid item xs={12}>
+              <Formik
+                  innerRef={formikRef}
+                  initialValues={initialValues}
+                  validationSchema={validationSchema}
+                  enableReinitialize={true}
+                  onSubmit={handleSubmit}
+                  validate={customFieldValidate}
+                  validateOnMount={true}
+              >
+                {({handleSubmit, values, handleBlur, isValid, isSubmitting, setFieldValue, errors, touched}) => (
+                    <Form>
+                      <Grid container spacing={2}>
+                        <Grid item lg={6} md={6} xs={12}>
+                          <TextField
+                            name="barcode"
+                            label={TransferOrderManagement?.barcodeLabel || 'Barcode'}
+                            onBlur={handleBlur}
+                            fullWidth
+                            error={touched.barcode && Boolean(errors.barcode)}
+                            helperText={touched.barcode && errors.barcode}
+                            InputProps={{
+                              readOnly: true,
+                              endAdornment: (
+                                <InputAdornment position="end">
+                                  <IconButton
+                                    onClick={() => handleBarcodeRefresh(setFieldValue)}
+                                    edge="end"
+                                  >
+                                    <RefreshIcon />
+                                  </IconButton>
+                                </InputAdornment>
+                              ),
+                            }}
+                          />
+                        </Grid>
+
+                        <Grid item lg={6} md={6} xs={12}>
+                          <TreeSelectField
+                            name="source_id"
+                            label="Source"
+                            options={locationList}
+                            onValueChange={(locId) => {
+                              setFieldValue('items', []);
+                              setFieldValue('destination_id', '');
+                              fetchAvailableItems(locId, setFieldValue);
+                            }}
+                          />
+                        </Grid>
+
+                        <Grid item lg={6} md={6} xs={12}>
+                         <TreeSelectField
+                          name="destination_id"
+                          label="Destination"
+                          options={locationList}
+                          fullWidth
+                          error={touched.destination_id && Boolean(errors.destination_id)}
+                          helperText={touched.destination_id && errors.destination_id}
+                        />
+                        </Grid>
+
+                        <Grid item lg={6} md={6} xs={12}>
+                          <DatePicker
+                            name="transfer_date"
+                            label="Date Of Transfer"
+                            value={values.transfer_date ? dayjs(values.transfer_date) : null}
+                            onChange={(value) => setFieldValue("transfer_date", value)}
+                            onBlur={handleBlur}
+                            slotProps={{ textField: { fullWidth: true } }}
+                          />
+                        </Grid>
+
+                        <Grid item xs={12}>
+                          <Typography sx={{ fontWeight: 'bold', mb: 2 }}>Item Information</Typography>
+                          
+                          <Box display="flex" alignItems="flex-start" gap={2}>
+                            <FormControl fullWidth error={touched.items && Boolean(errors.items)}>
+                              <InputLabel id="items-select-label">Select Items</InputLabel>
+                              <Select
+                                labelId="items-select-label"
+                                id="items-select"
+                                multiple
+                                value={selectedItems}
+                                onChange={handleItemSelection}
+                                input={<OutlinedInput label="Select Items" />}
+                                renderValue={(selected) => (
+                                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                    {selected.map((value) => {
+                                      const item = availableItems.find(i => i.id === value);
+                                      return item ? (
+                                        <Chip 
+                                          key={value} 
+                                          label={`${item.item_name} - ${item.item_code}`} 
+                                          size="small"
+                                          onDelete={() => {
+                                            setSelectedItems(selectedItems.filter(id => id !== value));
+                                          }}
+                                        />
+                                      ) : null;
+                                    })}
+                                  </Box>
+                                )}
+                                MenuProps={MenuProps}
+                              >
+                                <MenuItem disabled>
+                                  <MuiTextField
+                                    fullWidth
+                                    placeholder="Search items..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    InputProps={{
+                                      startAdornment: (
+                                        <InputAdornment position="start">
+                                          <SearchIcon />
+                                        </InputAdornment>
+                                      ),
+                                    }}
+                                    onClick={(e) => e.stopPropagation()}
+                                  />
+                                </MenuItem>
+                                {filteredItems.length === 0 ? (
+                                  <MenuItem disabled>
+                                    {loadingItems ? 'Loading items...' : 'No items available'}
+                                  </MenuItem>
+                                ) : (
+                                  filteredItems.map((item) => (
+                                    <MenuItem key={item.id} value={item.id}>
+                                      <Checkbox checked={selectedItems.indexOf(item.id) > -1} />
+                                      <ListItemText 
+                                        primary={`${item.item_name} - ${item.item_code} ${item.variant ? `(${item.variant})` : ''}`} 
+                                        secondary={`Stock: ${item.stock ?? 0} ${item.uom ?? ''}`} 
+                                      />
+                                    </MenuItem>
+                                  ))
+                                )}
+                              </Select>
+                              {touched.items && errors.items && (
+                                <FormHelperText error>{errors.items}</FormHelperText>
+                              )}
+                            </FormControl>
+                            
+                            <Button
+                              variant="contained"
+                              startIcon={<AddIcon />}
+                              onClick={() => addSelectedItems(setFieldValue, values)}
+                              sx={{ mt: 1 }}
+                              disabled={selectedItems.length === 0 || loadingItems}
+                            >
+                              Add
+                            </Button>
+                          </Box>
+                        </Grid>
+
+                        <Grid item xs={12}>
+                          <TableContainer component={Paper} sx={{ borderRadius: 2, mt: 2 }}>
+                            <Table>
+                              <TableHead>
+                                <TableRow sx={{ backgroundColor: theme.palette.grey[200] }}>
+                                  <TableCell sx={{ fontWeight: 'bold' }}>Item</TableCell>
+                                  <TableCell sx={{ fontWeight: 'bold' }}>Item Code</TableCell>
+                                  <TableCell sx={{ fontWeight: 'bold' }}>Variant</TableCell>
+                                  <TableCell sx={{ fontWeight: 'bold' }}>Stock Quantity</TableCell>
+                                  <TableCell sx={{ fontWeight: 'bold' }}>Transfer Quantity</TableCell>
+                                  <TableCell sx={{ fontWeight: 'bold' }}>UoM</TableCell>
+                                  <TableCell sx={{ fontWeight: 'bold' }}></TableCell>
+                                </TableRow>
+                              </TableHead>
+                              <TableBody>
+                                {values.items && values.items.length === 0 ? (
+                                  <TableRow>
+                                    <TableCell colSpan={7} align="center" sx={{ py: 3 }}>
+                                      No items added yet.
+                                    </TableCell>
+                                  </TableRow>
+                                ) : (
+                                  values.items.map((item, index) => (
+                                    <TableRow key={index}>
+                                      <TableCell>{item.item_name}</TableCell>
+                                      <TableCell>{item.item_code}</TableCell>
+                                      <TableCell>{item.variant || ''}</TableCell>
+                                      <TableCell>{item.stock ?? 0}</TableCell>
+                                      <TableCell>
+                                        <MuiTextField
+                                          type="number"
+                                          value={item.transferQuantity || 1}
+                                          onChange={(e) => handleTransferQuantityChange(index, e.target.value, setFieldValue, values)}
+                                          inputProps={{ 
+                                            min: 1, 
+                                            max: item.stock 
+                                          }}
+                                          sx={{ width: 100 }}
+                                          size="small"
+                                          error={errors.items && errors.items[index] && errors.items[index].transferQuantity}
+                                          helperText={errors.items && errors.items[index] && errors.items[index].transferQuantity}
+                                        />
+                                      </TableCell>
+                                      <TableCell>{item.uom}</TableCell>
+                                      <TableCell>
+                                        <Button 
+                                          color="error" 
+                                          onClick={() => removeItem(index, setFieldValue, values)}
+                                          size="small"
+                                        >
+                                          <DeleteIcon />
+                                        </Button>
+                                      </TableCell>
+                                    </TableRow>
+                                  ))
+                                )}
+                              </TableBody>
+                            </Table>
+                          </TableContainer>
+                        </Grid>
+
+                        <CustomFieldInputsAndDrawer
+                            key={"bottom"}
+                            isCustomFieldAvailable={isCustomFieldAvailable}
+                            isCustomFieldInputs={true}
+                            isCustomFieldDrawer={true}
+                            values={values}
+                            isAddExisting={true}
+                            customFieldData={customFieldData}
+                            position={"bottom"}
+                            setInitialValues={setInitialValues}
+                            setCustomFieldValidate={setCustomFieldValidate}
+                        />
+
+                        <Grid item xs={12}>
+                          <Box sx={{mb: 0, pl: 1}}>
+                            <Button
+                                variant="contained"
+                                type="submit"
+                                sx={{
+                                  mt: 2,
+                                  mr: 2,
+                                  fontWeight: 800,
+                                  "&.Mui-disabled": {
+                                    background: theme.palette.action.disabled,
+                                    color: theme.palette.text.disabled,
+                                  },
+                                }}
+                                size="small"
+                                disabled={!isValid || isSubmitting}
+                                onClick={() => setSubmitType("checkout")}
+                            >
+                              {'Submit and Check Out'}
+                            </Button>
+                            <Button
+                                variant="contained"
+                                type="submit"
+                                sx={{
+                                  mt: 2,
+                                  mr: 2,
+                                  fontWeight: 800,
+                                  "&.Mui-disabled": {
+                                    background: theme.palette.action.disabled,
+                                    color: theme.palette.text.disabled,
+                                  },
+                                }}
+                                size="small"
+                                disabled={!isValid || isSubmitting}
+                                onClick={() => setSubmitType("submit")}
+                            >
+                              {dictionary?.common?.submit || 'submit'}
+                            </Button>
+                          </Box>
+                        </Grid>
+                      </Grid>
+                    </Form>
+                )}
+              </Formik>
+            </Grid>
+          </Grid>
+        )}
+      </>
+  );
+}
+
+export default InternalTransfer;
