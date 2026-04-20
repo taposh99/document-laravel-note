@@ -1,0 +1,14 @@
+  const actionButton = (
+      <>
+      {
+        can(CUSTOMER_TYPE_CREATE) &&
+        <AddButton
+            variant="contained"
+            color="primary"
+            onClick={handleAddSupplierClick}
+        >
+          {VendorDictionary?.addTitle}
+        </AddButton>
+      }
+      </>
+  );
