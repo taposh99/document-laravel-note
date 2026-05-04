@@ -8,18 +8,30 @@ php artisan module:migrate Setting
 php artisan module:make Blog
 
 mysql -u root mydb < C:/laragon/www/db_backup/mydb.sql
-mysql -u root smart_warehouse_live < D:/smart_warehouse_live_02_03.sql
+mysql -u root smart_warehouse_new < D:/2026-03-16_smart_warehouse_live.sql
 
 
 in model->
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
-php artisan serve --host=192.168.68.157 --port=8000
+php artisan serve --host=192.168.68.119 --port=8000
 
 home
 
 php artisan serve --host=192.168.0.3 --port=8000
+
+
+
+Project: LSMS
+
+Task : Update Print list to show Applicant position tracker
+Status: Done
+Task3: Meeting with all members of LSMS Project
+Status: Done
+Task : Discussed Payment Report and Application Report with Rashed Vai.
+
+date: 28/04/2026
 
 
 
