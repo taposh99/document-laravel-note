@@ -1,0 +1,46 @@
+Order date :16-05-2026
+Order no:2
+Sub seller : Saniatul Haque Taposh
+
+Customer name:সাগরিকা রাজ বংশী   
+Customer number:০১৯২৪৩১১১৮০
+Customer address  :চুড়াইন বাজার
+Thana:নবাবগঞ্জ 
+zila:Dhaka
+Receive point :চুড়াইন বাজার
+
+Admin price:999 +999
+Sell Price:1480+1480
+
+Condition :5078
+
+Commission:920
+Delivery charge:120
+
+Reference/ seller name: Zaina rahmam
+
+
+
+
+
+Order date :16-05-2026
+Order no:3
+Sub seller : Saniatul Haque Taposh
+
+Customer name:Marzana Aktar
+Customer number:01892757127
+Customer address  :Niyamotpur, duhaliya bazar
+Thana:duwara bazar 
+zila:Sunamganj
+Receive point :Niyamotpur, duhaliya bazar
+
+Admin price:1300
+Sell Price:1880
+
+Condition :3810
+
+Commission:510
+Delivery charge:150
+
+Reference/ seller name: Zaina rahmam
+
