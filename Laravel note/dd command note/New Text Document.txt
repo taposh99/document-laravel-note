@@ -1,6 +1,6 @@
 dd($event->subCategory()->pluck('agendaTitle')->toArray());
 
- dd($request->input('gross_salary')),
+dd($request->input('gross_salary')),
 dd($item, $amount);
 
   dd($request->present_house_no),
