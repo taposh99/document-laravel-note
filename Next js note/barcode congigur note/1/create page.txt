@@ -1,0 +1,646 @@
+'use client';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Formik, Form } from 'formik';
+import {
+  Box,
+  Button,
+  Grid,
+  useTheme,
+  RadioGroup,
+  Checkbox,
+  FormControlLabel,
+  Radio,
+  FormLabel,
+  Typography
+} from '@mui/material';
+import * as Yup from 'yup';
+import TextField from "@/components/Form/TextField";
+import { useAppConfig } from '@/contexts/AppConfigContext';
+import { useRouter } from 'next/navigation';
+import PageTitle from '@/components/pages/PageTitle';
+import useCrudService from '@/hooks/useCrudService';
+import { HTTP_CREATED, HTTP_OK, HTTP_UNPROCESSABLE_ENTITY } from '@/constants/HttpStatusCode';
+import { BARCODE_CONFIGURATION_API_ENDPOINTS } from '../../SettingsApiEndPoints';
+import { ERROR, notify, SUCCESS } from '@/utils/helpers';
+import { SETTING_MODULES } from '@/app/warehouse/constants/routes';
+import { fetchData } from "@/app/(smart-office)/(custom-fields)/services/apiService";
+import { CUSTOM_FIELD_ENDPOINTS } from "@/app/(smart-office)/(custom-fields)/constants/CustomFieldApiEndpoints";
+import CustomFieldInputsAndDrawer from "@/app/(smart-office)/(custom-fields)/_components/CustomFieldInputsAndDrawer";
+import Loading from "@/app/loading";
+import Barcode from "react-barcode";
+import { useSearchParams } from "next/navigation";
+
+// ==================== BARCODE CHECKSUM UTILITIES ====================
+
+/**
+ * Calculate checksum digit for EAN-13
+ * @param {string} digits - 12 digit string
+ * @returns {number} checksum digit
+ */
+const calculateEAN13Checksum = (digits) => {
+  let sum = 0;
+  for (let i = 0; i < 12; i++) {
+    const weight = i % 2 === 0 ? 1 : 3;
+    sum += parseInt(digits[i]) * weight;
+  }
+  const checksum = (10 - (sum % 10)) % 10;
+  return checksum;
+};
+
+/**
+ * Calculate checksum digit for UPC-A
+ * @param {string} digits - 11 digit string
+ * @returns {number} checksum digit
+ */
+const calculateUPCChecksum = (digits) => {
+  let sum = 0;
+  for (let i = 0; i < 11; i++) {
+    const weight = i % 2 === 0 ? 3 : 1;
+    sum += parseInt(digits[i]) * weight;
+  }
+  const checksum = (10 - (sum % 10)) % 10;
+  return checksum;
+};
+
+/**
+ * Calculate checksum digit for ITF-14
+ * @param {string} digits - 13 digit string
+ * @returns {number} checksum digit
+ */
+const calculateITF14Checksum = (digits) => {
+  let sum = 0;
+  for (let i = 0; i < 13; i++) {
+    const weight = i % 2 === 0 ? 3 : 1;
+    sum += parseInt(digits[i]) * weight;
+  }
+  const checksum = (10 - (sum % 10)) % 10;
+  return checksum;
+};
+
+/**
+ * Generate full barcode with checksum for preview
+ * @param {string} barcodeType - EAN-13, UPC-A, ITF-14, etc.
+ * @param {string} startingValue - user entered value
+ * @param {string} leadingZero - 'yes' or 'no'
+ * @returns {string} full barcode with checksum
+ */
+const getFullBarcodeWithChecksum = (barcodeType, startingValue, leadingZero) => {
+  const requirements = {
+    'EAN-13': { userDigits: 12, totalDigits: 13, calculator: calculateEAN13Checksum },
+    'UPC-A': { userDigits: 11, totalDigits: 12, calculator: calculateUPCChecksum },
+    'ITF-14': { userDigits: 13, totalDigits: 14, calculator: calculateITF14Checksum }
+  };
+
+  const req = requirements[barcodeType];
+  if (!req) return startingValue;
+
+  let valueForChecksum = startingValue;
+
+  // Apply leading zero padding for checksum calculation
+  if (leadingZero === 'yes') {
+    valueForChecksum = startingValue.padStart(req.userDigits, '0');
+  }
+
+  // Ensure we have exactly the right number of digits for checksum
+  if (valueForChecksum.length !== req.userDigits) {
+    return startingValue;
+  }
+
+  // Validate that all characters are digits
+  if (!/^\d+$/.test(valueForChecksum)) {
+    return startingValue;
+  }
+
+  const checksum = req.calculator(valueForChecksum);
+  return valueForChecksum + checksum;
+};
+
+/**
+ * Get dynamic validation schema based on barcode type
+ */
+const getValidationSchema = (barcodeType, leadingZero) => {
+  const requirements = {
+    'EAN-13': { userDigits: 12, totalDigits: 13, errorMessage: 'EAN-13 requires exactly 12 digits (last digit will be auto-calculated)' },
+    'UPC-A': { userDigits: 11, totalDigits: 12, errorMessage: 'UPC-A requires exactly 11 digits (last digit will be auto-calculated)' },
+    'ITF-14': { userDigits: 13, totalDigits: 14, errorMessage: 'ITF-14 requires exactly 13 digits (last digit will be auto-calculated)' }
+  };
+
+  const req = requirements[barcodeType];
+
+  if (req) {
+    const baseSchema = Yup.string()
+      .required('Starting value is required')
+      .matches(/^\d+$/, 'Must be numeric only');
+
+    if (leadingZero === 'yes') {
+      return baseSchema
+        .max(req.userDigits, `Cannot exceed ${req.userDigits} digits (will be padded with leading zeros)`)
+        .test('len', req.errorMessage, function (value) {
+          return value.length <= req.userDigits;
+        });
+    } else {
+      return baseSchema
+        .length(req.userDigits, req.errorMessage);
+    }
+  }
+
+  // For Code-128 and Code-39
+  return Yup.string().required('Starting value is required');
+};
+
+const BarcodeConfigurationCreate = () => {
+  const createUrl = BARCODE_CONFIGURATION_API_ENDPOINTS.BARCODE_CONFIGURATION_CREATE;
+  const { isLoading, create } = useCrudService(createUrl);
+  const formikRef = useRef();
+  const router = useRouter();
+  const { useDictionary } = useAppConfig();
+  const dictionary = useDictionary();
+  const theme = useTheme();
+  const [category, setCategory] = useState(null);
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    setCategory(searchParams.get("category"));
+  }, [searchParams]);
+
+  const [initialValues, setInitialValues] = useState({
+    company_id: '9f694334-8ece-41a4-8d68-a7fc8d0782d2',
+    barcode_type: 'Code-128',
+    starting_value: '',
+    increment_pattern: '1',
+    prefix: '',
+    postfix: '',
+    leading_zero: 'no',
+    row_status: '1',
+    category: category || ''
+  });
+
+  const CATEGORY_MAP = {
+    items: 1,
+    locations: 2,
+    transactions: 3,
+  };
+
+  const barcodeConfigurationManagement = dictionary?.settings?.barcodeConfigurationManagement;
+
+  const barcodeTypes = [
+    { value: 'Code-128', label: 'Code-128' },
+    { value: 'EAN-13', label: 'EAN-13' },
+    { value: 'UPC-A', label: 'UPC-A' },
+    { value: 'ITF-14', label: 'ITF-14' },
+    { value: 'Code-39', label: 'Code-39' }
+  ];
+
+  const mapFormat = (type) => {
+    const map = {
+      "Code-128": "CODE128",
+      "EAN-13": "EAN13",
+      "UPC-A": "UPC",
+      "ITF-14": "ITF14",
+      "Code-39": "CODE39"
+    };
+    return map[type] || "CODE128";
+  };
+
+  const handleSubmit = async (values, { setErrors, setSubmitting }) => {
+    try {
+      // Prepare data for submission
+      const submitData = {
+        ...values,
+        category: category, // Add category from URL
+        leading_zero: values.leading_zero || 'no'
+      };
+
+      console.log('Submitting form with values:', submitData);
+      const response = await create(submitData);
+      console.log('API Response:', response);
+
+      if ([HTTP_CREATED, HTTP_OK].includes(response?.status)) {
+        notify(barcodeConfigurationManagement?.addSuccess || 'Barcode configuration created successfully', SUCCESS);
+        goToList();
+      } else if (response?.status === HTTP_UNPROCESSABLE_ENTITY) {
+        setErrors(response?.errors || {});
+        notify(response?.message || 'Validation error', ERROR);
+      } else {
+        notify(response?.message || 'An error occurred while creating barcode configuration', ERROR);
+      }
+    } catch (error) {
+      console.error('Submission error:', error);
+      notify('Failed to submit form', ERROR);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const goToList = () => {
+    router.push(SETTING_MODULES.BARCODE_CONFIGURATION_LIST);
+  };
+
+  // Custom field logic
+  const [isCustomFieldAvailable, setIsCustomFieldAvailable] = useState(false);
+  const [customFieldValidate, setCustomFieldValidate] = useState(() => () => ({}));
+  const [customFieldData, setCustomFieldData] = useState(null);
+  const { config } = useAppConfig();
+
+  const fetchResponseInputType = useCallback(async () => {
+    try {
+      const formInformation = await fetchData(
+        CUSTOM_FIELD_ENDPOINTS.IS_CUSTOM_FIELDS,
+        {
+          code: "warehouse_setting_barcode_configuration",
+          table_row_id: "",
+        }
+      );
+      if (formInformation?.data) {
+        setIsCustomFieldAvailable(true);
+        setCustomFieldData(formInformation.data);
+      }
+    } catch (error) {
+      console.error('Error fetching custom fields:', error);
+    }
+  }, [config?.isCustomFieldSubmit]);
+
+  useEffect(() => {
+    fetchResponseInputType();
+  }, [fetchResponseInputType]);
+
+  // Reset handler
+  const handleReset = (setFieldValue) => {
+    setFieldValue('starting_value', '');
+    setFieldValue('prefix', '');
+    setFieldValue('postfix', '');
+    setFieldValue('leading_zero', 'no');
+    setFieldValue('barcode_type', 'Code-128');
+    setFieldValue('increment_pattern', '1');
+  };
+
+  return (
+    <>
+      {isLoading ? (
+        <Loading />
+      ) : (
+        <Grid container spacing={2} py={2} margin="auto">
+          <Grid item xs={12}>
+            <PageTitle
+              title={barcodeConfigurationManagement?.addTitle || 'Create Barcode Configuration'}
+              backToUrl={SETTING_MODULES.BARCODE_CONFIGURATION_LIST}
+              backToUrlText={barcodeConfigurationManagement?.backToTypeList}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <Formik
+              innerRef={formikRef}
+              initialValues={initialValues}
+              enableReinitialize={true}
+              onSubmit={handleSubmit}
+              validate={customFieldValidate}
+              validateOnMount={false}
+              validateOnChange={true}
+              validateOnBlur={true}
+            >
+              {({ values, handleBlur, isValid, isSubmitting, setFieldValue, errors, touched, validateForm }) => {
+                
+                // Update category when it changes from URL
+                useEffect(() => {
+                  if (category && values.category !== category) {
+                    setFieldValue('category', category);
+                  }
+                }, [category, setFieldValue, values.category]);
+
+                // Re-validate when barcode type or leading zero changes
+                useEffect(() => {
+                  validateForm();
+                }, [values.barcode_type, values.leading_zero, validateForm]);
+
+                // Get the full barcode with checksum for preview
+                const getPreviewBarcode = () => {
+                  if (!values.starting_value) return '';
+                  
+                  if (['EAN-13', 'UPC-A', 'ITF-14'].includes(values.barcode_type)) {
+                    const fullBarcode = getFullBarcodeWithChecksum(
+                      values.barcode_type,
+                      values.starting_value,
+                      values.leading_zero
+                    );
+                    return `${values.prefix || ''}${fullBarcode}${values.postfix || ''}`;
+                  }
+                  
+                  return `${values.prefix || ''}${values.starting_value || ''}${values.postfix || ''}`;
+                };
+
+                const previewBarcode = getPreviewBarcode();
+
+                // Handle starting value change with validation
+                const handleStartingValueChange = (e) => {
+                  let value = e.target.value;
+                  const barcodeType = values.barcode_type;
+                  const leadingZero = values.leading_zero;
+
+                  // For numeric barcode types, only allow digits
+                  if (['EAN-13', 'UPC-A', 'ITF-14'].includes(barcodeType)) {
+                    value = value.replace(/[^\d]/g, '');
+
+                    const requirements = {
+                      'EAN-13': { userDigits: 12 },
+                      'UPC-A': { userDigits: 11 },
+                      'ITF-14': { userDigits: 13 }
+                    };
+
+                    const req = requirements[barcodeType];
+                    if (req && leadingZero !== 'yes') {
+                      // Without leading zero, limit to exact length
+                      if (value.length > req.userDigits) {
+                        value = value.slice(0, req.userDigits);
+                      }
+                    } else if (req && leadingZero === 'yes') {
+                      // With leading zero, limit to max length
+                      if (value.length > req.userDigits) {
+                        value = value.slice(0, req.userDigits);
+                      }
+                    }
+                  }
+
+                  setFieldValue('starting_value', value);
+                };
+
+                // Get helper text for starting value field
+                const getStartingValueHelperText = () => {
+                  if (!['EAN-13', 'UPC-A', 'ITF-14'].includes(values.barcode_type)) {
+                    return '';
+                  }
+
+                  const requirements = {
+                    'EAN-13': 12,
+                    'UPC-A': 11,
+                    'ITF-14': 13
+                  };
+                  const requiredDigits = requirements[values.barcode_type];
+
+                  if (values.leading_zero === 'yes') {
+                    return `Enter up to ${requiredDigits} digits (will be padded with leading zeros to make ${requiredDigits} digits, then checksum will be auto-calculated)`;
+                  } else {
+                    return `Enter exactly ${requiredDigits} digits (last digit will be auto-calculated)`;
+                  }
+                };
+
+                return (
+                  <Form>
+                    <Grid container spacing={2} direction="row" xs={8} md={8} margin="auto">
+                      {/* Barcode Type */}
+                      <Grid item lg={12} md={12} xs={12}>
+                        <FormLabel component="legend">Barcode Type</FormLabel>
+                        <RadioGroup
+                          row
+                          name="barcode_type"
+                          value={values.barcode_type}
+                          onChange={(e) => {
+                            setFieldValue('barcode_type', e.target.value);
+                            setFieldValue('starting_value', '');
+                            setFieldValue('prefix', '');
+                            setFieldValue('postfix', '');
+                          }}
+                        >
+                          {barcodeTypes.map((type) => (
+                            <FormControlLabel
+                              key={type.value}
+                              value={type.value}
+                              control={<Radio />}
+                              label={type.label}
+                            />
+                          ))}
+                        </RadioGroup>
+                        {errors.barcode_type && touched.barcode_type && (
+                          <div style={{ color: 'red' }}>{errors.barcode_type}</div>
+                        )}
+                      </Grid>
+
+                      {/* Leading Zero - Only for EAN-13, UPC-A, ITF-14 */}
+                      {['EAN-13', 'UPC-A', 'ITF-14'].includes(values.barcode_type) && (
+                        <Grid item lg={12} md={12} xs={12}>
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                name="leading_zero"
+                                checked={values.leading_zero === 'yes'}
+                                onChange={(e) => {
+                                  setFieldValue('leading_zero', e.target.checked ? 'yes' : 'no');
+                                  setFieldValue('starting_value', '');
+                                }}
+                              />
+                            }
+                            label="Show Leading Zero"
+                          />
+                          <Typography variant="caption" color="textSecondary" component="div">
+                            If checked, leading zeros will be added automatically to meet the required length of {
+                              values.barcode_type === 'EAN-13' ? '12' : values.barcode_type === 'UPC-A' ? '11' : '13'
+                            } digits before calculating the checksum.
+                          </Typography>
+                        </Grid>
+                      )}
+
+                      {/* Prefix & Postfix - Only for Code-128 and Code-39 */}
+                      {['Code-128', 'Code-39'].includes(values.barcode_type) && (
+                        <>
+                          <Grid item lg={6} md={6} xs={12}>
+                            <TextField
+                              name="prefix"
+                              label="Prefix (Optional)"
+                              onBlur={handleBlur}
+                              fullWidth
+                              onChange={(e) => setFieldValue('prefix', e.target.value)}
+                            />
+                          </Grid>
+                          <Grid item lg={6} md={6} xs={12}>
+                            <TextField
+                              name="postfix"
+                              label="Postfix (Optional)"
+                              onBlur={handleBlur}
+                              fullWidth
+                              onChange={(e) => setFieldValue('postfix', e.target.value)}
+                            />
+                          </Grid>
+                        </>
+                      )}
+
+                      {/* Starting Value */}
+                      <Grid item lg={6} md={6} xs={12}>
+                        <TextField
+                          name="starting_value"
+                          label="Barcode Start"
+                          onBlur={handleBlur}
+                          fullWidth
+                          required
+                          value={values.starting_value}
+                          onChange={handleStartingValueChange}
+                          helperText={getStartingValueHelperText()}
+                          error={touched.starting_value && !!errors.starting_value}
+                        />
+                        {touched.starting_value && errors.starting_value && (
+                          <Typography variant="caption" color="error">
+                            {errors.starting_value}
+                          </Typography>
+                        )}
+                      </Grid>
+
+                      {/* Increment Pattern */}
+                      <Grid item lg={6} md={6} xs={12}>
+                        <TextField
+                          name="increment_pattern"
+                          label="Increment By"
+                          onBlur={handleBlur}
+                          fullWidth
+                          required
+                          type="number"
+                          inputProps={{ min: 1 }}
+                        />
+                        {errors.increment_pattern && touched.increment_pattern && (
+                          <div style={{ color: 'red' }}>{errors.increment_pattern}</div>
+                        )}
+                      </Grid>
+
+                      {/* Barcode Preview with Checksum */}
+                      <Grid item lg={12} md={12} xs={12}>
+                        <Typography variant="h6">Barcode Preview</Typography>
+                        <Box border={1} p={2} borderRadius={1} borderColor="grey.300">
+                          <Box mt={2}>
+                            {previewBarcode ? (
+                              <Grid container spacing={2} alignItems="center">
+                                <Grid item xs={12} md={4}>
+                                  <Box
+                                    sx={{
+                                      display: 'flex',
+                                      justifyContent: 'center',
+                                      backgroundColor: 'white',
+                                      p: 2,
+                                      borderRadius: 1
+                                    }}
+                                  >
+                                    <Barcode
+                                      value={previewBarcode}
+                                      format={mapFormat(values.barcode_type)}
+                                      width={2}
+                                      height={80}
+                                      displayValue={true}
+                                      background="white"
+                                    />
+                                  </Box>
+                                </Grid>
+                                <Grid item xs={12} md={8}>
+                                  <Box sx={{ fontSize: '0.9rem', color: '#555', lineHeight: 1.6 }}>
+                                    {values.barcode_type === 'Code-128' && (
+                                      <>
+                                        <strong>Value: {previewBarcode}</strong><br />
+                                        This type has no character limit, allowing A-Z, a-z. 0-9, symbol format.<br />
+                                        Example: A-00000001
+                                      </>
+                                    )}
+                                    {values.barcode_type === 'EAN-13' && (
+                                      <>
+                                        <strong>Full Barcode: {previewBarcode}</strong><br />
+                                        User digits: {values.leading_zero === 'yes' 
+                                          ? values.starting_value.padStart(12, '0').slice(0, 12)
+                                          : values.starting_value.slice(0, 12)}<br />
+                                        Checksum digit: {previewBarcode[12]}<br />
+                                        This type supports only 13 digit numeric format. First 12 digits are user defined & last digit is auto-calculated.
+                                        <br />Example: 5901234123457
+                                      </>
+                                    )}
+                                    {values.barcode_type === 'UPC-A' && (
+                                      <>
+                                        <strong>Full Barcode: {previewBarcode}</strong><br />
+                                        User digits: {values.leading_zero === 'yes'
+                                          ? values.starting_value.padStart(11, '0').slice(0, 11)
+                                          : values.starting_value.slice(0, 11)}<br />
+                                        Checksum digit: {previewBarcode[11]}<br />
+                                        This type supports only 12 digit numeric format. First 11 digits are user defined & last digit is auto-calculated.
+                                        <br />Example: 072527273076
+                                      </>
+                                    )}
+                                    {values.barcode_type === 'ITF-14' && (
+                                      <>
+                                        <strong>Full Barcode: {previewBarcode}</strong><br />
+                                        User digits: {values.leading_zero === 'yes'
+                                          ? values.starting_value.padStart(13, '0').slice(0, 13)
+                                          : values.starting_value.slice(0, 13)}<br />
+                                        Checksum digit: {previewBarcode[13]}<br />
+                                        This type supports only 14 digit numeric format. First 13 digits are user defined & last digit is auto-calculated.
+                                        <br />Example: 30712345000010
+                                      </>
+                                    )}
+                                    {values.barcode_type === 'Code-39' && (
+                                      <>
+                                        <strong>Value: {previewBarcode}</strong><br />
+                                        This type Barcode supports uppercase letters (A-Z), numbers (0-9), and symbols ($./, +, %, and space).
+                                        <br />Example: A-1000000000123-Z
+                                      </>
+                                    )}
+                                  </Box>
+                                </Grid>
+                              </Grid>
+                            ) : (
+                              <Box
+                                height={100}
+                                bgcolor="grey.100"
+                                display="flex"
+                                alignItems="center"
+                                justifyContent="center"
+                                borderRadius={1}
+                              >
+                                <Typography color="textSecondary">
+                                  Enter starting value to preview barcode
+                                </Typography>
+                              </Box>
+                            )}
+                          </Box>
+                        </Box>
+                      </Grid>
+
+                      {/* Custom Fields */}
+                      {isCustomFieldAvailable && (
+                        <CustomFieldInputsAndDrawer
+                          isCustomFieldAvailable={isCustomFieldAvailable}
+                          isCustomFieldInputs={true}
+                          isCustomFieldDrawer={true}
+                          values={values}
+                          isAddExisting={true}
+                          customFieldData={customFieldData}
+                          position={"bottom"}
+                          setInitialValues={setInitialValues}
+                          setCustomFieldValidate={setCustomFieldValidate}
+                        />
+                      )}
+
+                      {/* Action Buttons */}
+                      <Grid item xs={12}>
+                        <Box display="flex" justifyContent="flex-end" mt={2}>
+                          <Button
+                            variant="outlined"
+                            color="secondary"
+                            onClick={() => handleReset(setFieldValue)}
+                            sx={{ mr: 2 }}
+                          >
+                            Reset Default
+                          </Button>
+                          <Button
+                            variant="contained"
+                            type="submit"
+                            disabled={!isValid || isSubmitting || !values.starting_value}
+                            sx={{ bgcolor: '#EC1C24', '&:hover': { bgcolor: '#c4181f' } }}
+                          >
+                            {isSubmitting ? 'Saving...' : 'Save Barcode'}
+                          </Button>
+                        </Box>
+                      </Grid>
+                    </Grid>
+                  </Form>
+                );
+              }}
+            </Formik>
+          </Grid>
+        </Grid>
+      )}
+    </>
+  );
+};
+
+export default BarcodeConfigurationCreate;

@@ -1,0 +1,179 @@
+<?php
+
+namespace App\Traits;
+
+trait BarcodeChecksumTrait
+{
+    /**
+     * Calculate EAN-13 checksum digit
+     * 
+     * @param string $digits 12 digit string
+     * @return int checksum digit (0-9)
+     */
+    public function calculateEAN13Checksum($digits)
+    {
+        $sum = 0;
+        for ($i = 0; $i < 12; $i++) {
+            // Weight: 1 for odd positions (1,3,5,7,9,11), 3 for even positions (2,4,6,8,10,12)
+            $weight = ($i % 2 == 0) ? 1 : 3;
+            $sum += intval($digits[$i]) * $weight;
+        }
+        // Checksum = (10 - (sum % 10)) % 10
+        return (10 - ($sum % 10)) % 10;
+    }
+
+    /**
+     * Calculate UPC-A checksum digit
+     * 
+     * @param string $digits 11 digit string
+     * @return int checksum digit (0-9)
+     */
+    public function calculateUPCChecksum($digits)
+    {
+        $sum = 0;
+        for ($i = 0; $i < 11; $i++) {
+            // Weight: 3 for odd positions, 1 for even positions (opposite of EAN-13)
+            $weight = ($i % 2 == 0) ? 3 : 1;
+            $sum += intval($digits[$i]) * $weight;
+        }
+        // Checksum = (10 - (sum % 10)) % 10
+        return (10 - ($sum % 10)) % 10;
+    }
+
+    /**
+     * Calculate ITF-14 checksum digit
+     * 
+     * @param string $digits 13 digit string
+     * @return int checksum digit (0-9)
+     */
+    public function calculateITF14Checksum($digits)
+    {
+        $sum = 0;
+        for ($i = 0; $i < 13; $i++) {
+            // Weight: 3 for odd positions, 1 for even positions
+            $weight = ($i % 2 == 0) ? 3 : 1;
+            $sum += intval($digits[$i]) * $weight;
+        }
+        // Checksum = (10 - (sum % 10)) % 10
+        return (10 - ($sum % 10)) % 10;
+    }
+
+    /**
+     * Generate full barcode with checksum
+     * 
+     * @param string $barcodeType EAN-13, UPC-A, ITF-14, etc.
+     * @param string $startingValue User entered value
+     * @param bool $leadingZero Whether to add leading zeros
+     * @return string Full barcode with checksum
+     * @throws \Exception
+     */
+    public function generateFullBarcode($barcodeType, $startingValue, $leadingZero = false)
+    {
+        switch ($barcodeType) {
+            case 'EAN-13':
+                // Pad to 12 digits if leading zero is enabled
+                $paddedValue = $leadingZero ? str_pad($startingValue, 12, '0', STR_PAD_LEFT) : $startingValue;
+                
+                if (strlen($paddedValue) != 12) {
+                    throw new \Exception("EAN-13 requires 12 digits for checksum calculation. Current length: " . strlen($paddedValue));
+                }
+                
+                if (!ctype_digit($paddedValue)) {
+                    throw new \Exception("EAN-13 requires numeric digits only");
+                }
+                
+                $checksum = $this->calculateEAN13Checksum($paddedValue);
+                return $paddedValue . $checksum;
+
+            case 'UPC-A':
+                // Pad to 11 digits if leading zero is enabled
+                $paddedValue = $leadingZero ? str_pad($startingValue, 11, '0', STR_PAD_LEFT) : $startingValue;
+                
+                if (strlen($paddedValue) != 11) {
+                    throw new \Exception("UPC-A requires 11 digits for checksum calculation. Current length: " . strlen($paddedValue));
+                }
+                
+                if (!ctype_digit($paddedValue)) {
+                    throw new \Exception("UPC-A requires numeric digits only");
+                }
+                
+                $checksum = $this->calculateUPCChecksum($paddedValue);
+                return $paddedValue . $checksum;
+
+            case 'ITF-14':
+                // Pad to 13 digits if leading zero is enabled
+                $paddedValue = $leadingZero ? str_pad($startingValue, 13, '0', STR_PAD_LEFT) : $startingValue;
+                
+                if (strlen($paddedValue) != 13) {
+                    throw new \Exception("ITF-14 requires 13 digits for checksum calculation. Current length: " . strlen($paddedValue));
+                }
+                
+                if (!ctype_digit($paddedValue)) {
+                    throw new \Exception("ITF-14 requires numeric digits only");
+                }
+                
+                $checksum = $this->calculateITF14Checksum($paddedValue);
+                return $paddedValue . $checksum;
+
+            default:
+                // For Code-128, Code-39, etc. - no checksum calculation
+                return $startingValue;
+        }
+    }
+
+    /**
+     * Get target length for barcode type
+     * 
+     * @param string $barcodeType
+     * @return int|null
+     */
+    public function getTargetLength($barcodeType)
+    {
+        switch ($barcodeType) {
+            case 'EAN-13':
+                return 13;
+            case 'UPC-A':
+                return 12;
+            case 'ITF-14':
+                return 14;
+            default:
+                return null;
+        }
+    }
+
+    /**
+     * Validate a complete barcode with its checksum
+     * 
+     * @param string $barcodeType
+     * @param string $fullBarcode
+     * @return bool
+     */
+    public function validateBarcodeChecksum($barcodeType, $fullBarcode)
+    {
+        switch ($barcodeType) {
+            case 'EAN-13':
+                if (strlen($fullBarcode) != 13) return false;
+                $digits = substr($fullBarcode, 0, 12);
+                $providedChecksum = intval($fullBarcode[12]);
+                $calculatedChecksum = $this->calculateEAN13Checksum($digits);
+                return $providedChecksum === $calculatedChecksum;
+
+            case 'UPC-A':
+                if (strlen($fullBarcode) != 12) return false;
+                $digits = substr($fullBarcode, 0, 11);
+                $providedChecksum = intval($fullBarcode[11]);
+                $calculatedChecksum = $this->calculateUPCChecksum($digits);
+                return $providedChecksum === $calculatedChecksum;
+
+            case 'ITF-14':
+                if (strlen($fullBarcode) != 14) return false;
+                $digits = substr($fullBarcode, 0, 13);
+                $providedChecksum = intval($fullBarcode[13]);
+                $calculatedChecksum = $this->calculateITF14Checksum($digits);
+                return $providedChecksum === $calculatedChecksum;
+
+            default:
+                return true;
+        }
+    }
+}

@@ -1,0 +1,80 @@
+<?php
+
+namespace AppSmartWarehouse\Items\Entities;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
+use App\Traits\BarcodeChecksumTrait;
+
+class BarcodeConfiguration extends Model
+{
+    use HasFactory, SoftDeletes;
+    use BarcodeChecksumTrait;
+
+    protected $table = 'wh_settings_barcode_configurations';
+
+    protected $keyType = 'string';
+    public $incrementing = false;
+
+    protected $fillable = [
+        'company_id',
+        'barcode_type',
+        'starting_value',
+        'increment_pattern',
+        'prefix',
+        'postfix',
+        'leading_zero',
+        'row_status',
+        'status',
+        'category',
+        ];
+
+        protected $casts = [
+        'leading_zero' => 'string',
+        'status' => 'integer',
+        'row_status' => 'integer',
+        'category' => 'integer',
+        'increment_pattern' => 'integer'
+    ];
+
+      public function getFullStartingBarcodeAttribute()
+    {
+        return $this->generateFullBarcode(
+            $this->barcode_type,
+            $this->starting_value,
+            $this->leading_zero === 'yes'
+        );
+    }
+
+    /**
+     * Generate next barcode value
+     */
+    public function generateNextBarcode($currentValue = null)
+    {
+        $nextValue = ($currentValue ?? $this->starting_value) + $this->increment_pattern;
+        
+        return $this->generateFullBarcode(
+            $this->barcode_type,
+            (string)$nextValue,
+            $this->leading_zero === 'yes'
+        );
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            if (empty($model->id)) {
+                $model->id = (string) Str::uuid();
+            }
+        });
+    }
+
+    protected static function newFactory()
+    {
+        // return \AppSmartWarehouse\Items\Database\factories\BarcodeConfigurationFactory::new();
+    }
+}

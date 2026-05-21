@@ -1,0 +1,624 @@
+<?php
+
+namespace AppSmartWarehouse\Items\Http\Controllers;
+
+use Illuminate\Contracts\Support\Renderable;
+use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
+use AppSmartWarehouse\Items\Entities\BarcodeConfiguration;
+use AppSmartWarehouse\Items\Entities\Barcode;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
+use Symfony\Component\HttpFoundation\Response;
+use App\Traits\BarcodeChecksumTrait;
+
+class BarcodeConfigurationController extends Controller
+{
+    // public function store(Request $request)
+    // {
+    //     $validator = Validator::make($request->all(), [
+    //         'company_id'        => 'required|uuid',
+    //         'barcode_type'      => 'required|string|in:EAN-13,UPC-A,ITF-14,Code-128,Code-39',
+    //         'starting_value'    => 'required|string',
+    //         'increment_pattern' => 'required|integer|min:1',
+    //         'prefix'            => 'nullable|string|max:20',
+    //         'postfix'           => 'nullable|string|max:20',
+    //         'leading_zero'      => 'nullable|string|in:yes,no',
+    //         'row_status'        => 'required|in:0,1',
+    //         'category'          => 'required|string'
+    //     ]);
+
+    //     if ($validator->fails()) {
+    //         return response()->json([
+    //             'status' => 'error',
+    //             'message' => 'Validation failed',
+    //             'errors' => $validator->errors()
+    //         ], 422);
+    //     }
+
+    //     try {
+    //         $data = $validator->validated();
+    //         $categoryMap = [
+    //         'items'        => 1,
+    //         'locations'    => 2,
+    //         'transactions' => 3,
+    //     ];
+
+    //     $categoryValue = $categoryMap[$data['category']];
+
+    //         $config = BarcodeConfiguration::updateOrCreate(
+    //             [
+    //                 'company_id'   => $data['company_id'],
+    //                 'barcode_type' => $data['barcode_type'],
+    //                 'category'     => $categoryValue,
+    //             ],
+    //             [
+    //                 'starting_value'    => $data['starting_value'],
+    //                 'increment_pattern' => $data['increment_pattern'],
+    //                 'prefix'            => $data['prefix'] ?? '',
+    //                 'postfix'           => $data['postfix'] ?? '',
+    //                 'leading_zero'      => $data['leading_zero'] ?? 'no',
+    //                 'row_status'        => $data['row_status'],
+    //             ]
+    //         );
+
+
+    //         return response()->json(responseBuilder(Response::HTTP_CREATED, "Success", []), Response::HTTP_OK);
+    //     } catch (\Exception $e) {
+    //         \Log::error('Failed', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+    //         return response()->json([
+    //             'status' => 'error',
+    //             'message' => 'Failed to create barcode configuration',
+    //             'error' => $e->getMessage()
+    //         ], 500);
+    //     }
+    // }
+// public function store(Request $request)
+// {
+//     $validator = Validator::make($request->all(), [
+//         'company_id'        => 'required|uuid',
+//         'barcode_type'      => 'required|string|in:EAN-13,UPC-A,ITF-14,Code-128,Code-39',
+//         'starting_value'    => 'required|string',
+//         'increment_pattern' => 'required|integer|min:1',
+//         'prefix'            => 'nullable|string|max:20',
+//         'postfix'           => 'nullable|string|max:20',
+//         'leading_zero'      => 'nullable|string|in:yes,no',
+//         'row_status'        => 'required|in:0,1',
+//         'category'          => 'required|string|in:items,locations,transactions'
+//     ]);
+
+//     if ($validator->fails()) {
+//         return response()->json([
+//             'status' => 'error',
+//             'errors' => $validator->errors()
+//         ], 422);
+//     }
+
+//     DB::beginTransaction();
+
+//     try {
+
+//         $data = $validator->validated();
+
+//         $categoryMap = [
+//             'items'        => 1,
+//             'locations'    => 2,
+//             'transactions' => 3,
+//         ];
+
+//         $categoryValue = $categoryMap[$data['category']];
+
+//         /**
+//          * STEP 1: Check existing same barcode_type
+//          */
+//         $existing = BarcodeConfiguration::where('category', $categoryValue)
+//             ->where('barcode_type', $data['barcode_type'])
+//             ->first();
+
+//         /**
+//          * STEP 2: Always inactive all in this category first
+//          */
+//         BarcodeConfiguration::where('category', $categoryValue)
+//             ->update([
+//                 'status' => 2
+//             ]);
+
+//         /**
+//          * STEP 3: If exists → update it
+//          */
+//         if ($existing) {
+
+//             BarcodeConfiguration::where('id', $existing->id)
+//                 ->update([
+//                     'starting_value'    => $data['starting_value'],
+//                     'increment_pattern' => $data['increment_pattern'],
+//                     'prefix'            => $data['prefix'] ?? '',
+//                     'postfix'           => $data['postfix'] ?? '',
+//                     'leading_zero'      => $data['leading_zero'] ?? 'no',
+//                     'status'            => 1,
+//                     'row_status'        => $data['row_status'],
+//                 ]);
+
+//             $config = BarcodeConfiguration::find($existing->id);
+
+//         } 
+//         /**
+//          * STEP 4: If not exists → create new active row
+//          */
+//         else {
+
+//             $config = BarcodeConfiguration::create([
+//                 'company_id'        => $data['company_id'],
+//                 'barcode_type'      => $data['barcode_type'],
+//                 'starting_value'    => $data['starting_value'],
+//                 'increment_pattern' => $data['increment_pattern'],
+//                 'prefix'            => $data['prefix'] ?? '',
+//                 'postfix'           => $data['postfix'] ?? '',
+//                 'leading_zero'      => $data['leading_zero'] ?? 'no',
+//                 'status'            => 1,
+//                 'row_status'        => $data['row_status'],
+//                 'category'          => $categoryValue,
+//             ]);
+//         }
+
+//         DB::commit();
+
+//         return response()->json([
+//             'status' => 'success',
+//             'message' => 'Barcode configuration saved successfully',
+//             'data' => $config
+//         ]);
+
+//     } catch (\Exception $e) {
+
+//         DB::rollBack();
+
+//         return response()->json([
+//             'status' => 'error',
+//             'message' => $e->getMessage()
+//         ], 500);
+//     }
+// }
+
+
+public function store(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'company_id'        => 'required|uuid',
+        'barcode_type'      => 'required|string|in:EAN-13,UPC-A,ITF-14,Code-128,Code-39',
+        'starting_value'    => 'required|string',
+        'increment_pattern' => 'required|integer|min:1',
+        'prefix'            => 'nullable|string|max:20',
+        'postfix'           => 'nullable|string|max:20',
+        'leading_zero'      => 'nullable|string|in:yes,no',
+        'row_status'        => 'required|in:0,1',
+        'category'          => 'required|string|in:items,locations,transactions'
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'status' => 'error',
+            'errors' => $validator->errors()
+        ], 422);
+    }
+
+    DB::beginTransaction();
+
+    try {
+        $data = $validator->validated();
+
+        $categoryMap = [
+            'items'        => 1,
+            'locations'    => 2,
+            'transactions' => 3,
+        ];
+
+        $categoryValue = $categoryMap[$data['category']];
+        $barcodeType = $data['barcode_type'];
+        $startingValue = $data['starting_value'];
+        $leadingZero = $data['leading_zero'] ?? 'no';
+
+        // Validate starting value based on barcode type
+        $lengthRequirements = [
+            'EAN-13' => ['user_digits' => 12, 'total_digits' => 13],
+            'UPC-A'   => ['user_digits' => 11, 'total_digits' => 12],
+            'ITF-14'  => ['user_digits' => 13, 'total_digits' => 14],
+        ];
+
+        if (isset($lengthRequirements[$barcodeType])) {
+            $req = $lengthRequirements[$barcodeType];
+            
+            if ($leadingZero === 'yes') {
+                // With leading zero, user can enter fewer digits
+                if (strlen($startingValue) > $req['user_digits']) {
+                    throw new \Exception("Starting value cannot exceed {$req['user_digits']} digits for {$barcodeType}");
+                }
+                if (!ctype_digit($startingValue)) {
+                    throw new \Exception("Starting value must be numeric for {$barcodeType}");
+                }
+            } else {
+                // Without leading zero, exact length required
+                if (strlen($startingValue) != $req['user_digits']) {
+                    throw new \Exception("Starting value must be exactly {$req['user_digits']} digits for {$barcodeType}");
+                }
+                if (!ctype_digit($startingValue)) {
+                    throw new \Exception("Starting value must be numeric for {$barcodeType}");
+                }
+            }
+        }
+
+        // Check existing configuration
+        $existing = BarcodeConfiguration::where('category', $categoryValue)
+            ->where('barcode_type', $barcodeType)
+            ->first();
+
+        // Deactivate all in this category
+        BarcodeConfiguration::where('category', $categoryValue)
+            ->update(['status' => 2]);
+
+        // Create or update
+        if ($existing) {
+            $existing->update([
+                'starting_value'    => $startingValue,
+                'increment_pattern' => $data['increment_pattern'],
+                'prefix'            => $data['prefix'] ?? '',
+                'postfix'           => $data['postfix'] ?? '',
+                'leading_zero'      => $leadingZero,
+                'status'            => 1,
+                'row_status'        => $data['row_status'],
+            ]);
+            $config = $existing;
+        } else {
+            $config = BarcodeConfiguration::create([
+                'company_id'        => $data['company_id'],
+                'barcode_type'      => $barcodeType,
+                'starting_value'    => $startingValue,
+                'increment_pattern' => $data['increment_pattern'],
+                'prefix'            => $data['prefix'] ?? '',
+                'postfix'           => $data['postfix'] ?? '',
+                'leading_zero'      => $leadingZero,
+                'status'            => 1,
+                'row_status'        => $data['row_status'],
+                'category'          => $categoryValue,
+            ]);
+        }
+
+        DB::commit();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Barcode configuration saved successfully',
+            'data' => [
+                'id' => $config->id,
+                'barcode_type' => $config->barcode_type,
+                'starting_value' => $config->starting_value,
+                'full_barcode' => $config->full_starting_barcode,
+                'increment_pattern' => $config->increment_pattern,
+                'leading_zero' => $config->leading_zero,
+                'category' => $config->category
+            ]
+        ]);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage()
+        ], 500);
+    }
+}
+
+    public function getByCategory($category)
+    {
+        $map = [
+            'items' => 1,
+            'locations' => 2,
+            'transactions' => 3,
+        ];
+
+        $categoryValue = $map[$category] ?? null;
+
+        if (!$categoryValue) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Invalid category'
+            ], 400);
+        }
+
+        $data = BarcodeConfiguration::where('category', $categoryValue)
+            ->where('status', 1)
+            ->first();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $data
+        ]);
+    }
+    public function generateAndStoreBulkBarcodes($category, $count)
+    {
+        if ($count <= 0 || $count > 10000) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Count must be between 1 and 10000'
+            ], 400);
+        }
+
+        try {
+            $config = BarcodeConfiguration::where('category', $category)->first();
+
+            if (!$config) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Barcode configuration not found for category: ' . $category
+                ], 404);
+            }
+
+            DB::beginTransaction();
+
+            // 1. Check existing unused barcodes
+            $existingUnused = Barcode::where('barcode_configuration_id', $config->id)
+                ->where('use_status', 'unused')
+                ->orderBy('created_at', 'desc')
+                ->pluck('value');
+
+            $unusedCount = $existingUnused->count();
+
+            $needed = max(0, $count - $unusedCount); // how many new ones we actually need
+
+            $generatedBarcodes = [];
+
+            // 2. Only generate if not enough unused exist
+            if ($needed > 0) {
+                $generatedBarcodes = $this->generateBarcodes([
+                    'starting_value'    => $config->starting_value,
+                    'increment_pattern' => $config->increment_pattern,
+                    'prefix'            => $config->prefix,
+                    'postfix'           => $config->postfix,
+                    'barcode_type'      => $config->barcode_type,
+                    'leading_zero'      => $config->leading_zero,
+                    'count'             => $needed
+                ]);
+
+                $barcodeRecords = array_map(function ($value) use ($config) {
+                    return [
+                        'barcode_configuration_id' => $config->id,
+                        'value'        => $value,
+                        'use_status'   => 'unused',
+                        'item_id'      => null,
+                        'created_at'   => now(),
+                        'updated_at'   => now(),
+                    ];
+                }, $generatedBarcodes);
+
+                Barcode::insert($barcodeRecords);
+
+                // Update starting_value correctly
+                $config->update([
+                    'starting_value' => $config->starting_value + ($needed * $config->increment_pattern)
+                ]);
+            }
+
+            DB::commit();
+
+            // 3. Now fetch final bulk (new + old), up to demand
+            $bulkBarcode = Barcode::where('barcode_configuration_id', $config->id)
+                ->where('use_status', 'unused')
+                ->orderBy('created_at', 'desc')
+                ->take($count)
+                ->pluck('value');
+
+            $firstBarcode = $bulkBarcode->first() ?? null;
+
+            // If new ones generated, exclude the first one from this batch
+            $unusedBarcodes = collect($generatedBarcodes)->skip(1)->values();
+
+            return response()->json([
+                'status' => 'success',
+                'data' => [
+                    'bulk_barcode'     => $bulkBarcode      // new + old, up to demand
+                ]
+            ], 200);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to generate barcodes',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+
+    public function generateAndStoreBarcodes($category, $count)
+    {
+    $categoryMap = [
+            'items'        => 1,
+            'locations'    => 2,
+            'transactions' => 3,
+        ];
+
+        if (!is_numeric($category)) {
+            if (!isset($categoryMap[$category])) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Invalid category: ' . $category
+                ], 400);
+            }
+
+            $category = $categoryMap[$category];
+        }
+        // Input validation
+        if ($count <= 0 || $count > 10000) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Count must be between 1 and 10000'
+            ], 400);
+        }
+
+        try {
+            $config = BarcodeConfiguration::where('category', $category)->first();
+
+            if (!$config) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Barcode configuration not found for category: ' . $category
+                ], 404);
+            }
+
+            DB::beginTransaction();
+
+            // Generate barcodes
+            $generatedBarcodes = $this->generateBarcodes([
+                'starting_value'    => $config->starting_value,
+                'increment_pattern' => $config->increment_pattern,
+                'prefix'            => $config->prefix,
+                'postfix'           => $config->postfix,
+                'barcode_type'      => $config->barcode_type,
+                'leading_zero'      => $config->leading_zero,
+                'count'             => $count
+            ]);
+
+            // Prepare insert records
+            $barcodeRecords = array_map(function ($value) use ($config ,  $category) {
+                return [
+                    'barcode_configuration_id' => $config->id,
+                    'category'     => $category,
+                    'value'        => $value,
+                    'use_status'   => 'unused',
+                    'item_id'      => null,
+                    'created_at'   => now(),
+                    'updated_at'   => now(),
+                ];
+            }, $generatedBarcodes);
+
+            // Insert barcodes
+            Barcode::insert($barcodeRecords);
+
+            // Update configuration's starting value for next generation
+            $config->update([
+                'starting_value' => $config->starting_value + ($config->increment_pattern * $count)
+            ]);
+
+            DB::commit();
+
+            // Option 2: Return all newly generated barcodes in unused_barcodes
+            // and use the first one as first_barcode as well
+            $firstBarcode = $generatedBarcodes[0] ?? null;
+
+            $barcodesX = Barcode::where('barcode_configuration_id', $config->id)
+            ->where('category', $category)
+            ->where('use_status', 'unused')
+            ->orderBy('created_at', 'desc')
+            ->pluck('value');
+            $unusedBarcodes = $barcodesX->skip(1)->values();
+
+            return response()->json([
+                'status' => 'success',
+                'data' => [
+                    'first_barcode' => $firstBarcode,
+                    'unused_barcodes' => $unusedBarcodes, // All newly generated barcodes
+                    'total_generated' => count($generatedBarcodes)
+                ]
+            ], 200);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to generate barcodes',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    private function generateBarcodes(array $data): array
+    {
+        $barcodes = [];
+        $current = (int)$data['starting_value'];
+        $increment = $data['increment_pattern'];
+        $count = $data['count'];
+        $prefix = $data['prefix'] ?? '';
+        $postfix = $data['postfix'] ?? '';
+        $type = $data['barcode_type'];
+        $leadingZero = $data['leading_zero'] ?? 'no';
+
+        $expectedLength = match($type) {
+            'EAN-13' => 12,
+            'UPC-A'  => 11,
+            'ITF-14' => 13,
+            default  => strlen((string)$current),
+        };
+
+        // First, find the next available starting point
+        $maxAttempts = $count * 100; // Increase search range significantly
+        $attempts = 0;
+
+        // Debug: Get the highest existing barcode value for this config
+        $configId = BarcodeConfiguration::where('prefix', $prefix)
+            ->where('postfix', $postfix)
+            ->first()?->id;
+
+        if ($configId) {
+            $lastBarcode = Barcode::where('barcode_configuration_id', $configId)
+                ->orderBy('id', 'desc')
+                ->first();
+
+            if ($lastBarcode) {
+                // Extract numeric part from the last barcode
+                $numericPart = str_replace([$prefix, $postfix], '', $lastBarcode->value);
+                $numericPart = ltrim($numericPart, '0') ?: '0'; // Remove leading zeros but keep at least one digit
+                $lastNumeric = (int)$numericPart;
+
+                // Start from next available number
+                if ($lastNumeric >= $current) {
+                    $current = $lastNumeric + $increment;
+                }
+            }
+        }
+
+        // Generate barcodes one by one with collision checking
+        while (count($barcodes) < $count && $attempts < $maxAttempts) {
+            $valueStr = (string)$current;
+            if ($leadingZero === 'yes') {
+                $valueStr = str_pad($valueStr, $expectedLength, '0', STR_PAD_LEFT);
+            }
+
+            $fullBarcode = $prefix . $valueStr . $postfix;
+
+            // Check if this barcode already exists
+            if (!Barcode::where('value', $fullBarcode)->exists()) {
+                $barcodes[] = $fullBarcode;
+            }
+
+            $current += $increment;
+            $attempts++;
+        }
+
+        if (count($barcodes) < $count) {
+            // More detailed error information
+            $existingCount = Barcode::when($configId, function($query) use ($configId) {
+                return $query->where('barcode_configuration_id', $configId);
+            })->count();
+
+            throw new \RuntimeException(
+                sprintf(
+                    'Unable to generate %d unique barcodes. Only %d generated after %d attempts. ' .
+                    'Starting value: %d, Increment: %d, Existing barcodes in DB: %d, ' .
+                    'Pattern: %s[NUMBER]%s',
+                    $count,
+                    count($barcodes),
+                    $attempts,
+                    (int)$data['starting_value'],
+                    $increment,
+                    $existingCount,
+                    $prefix,
+                    $postfix
+                )
+            );
+        }
+
+        return $barcodes;
+    }
+}
