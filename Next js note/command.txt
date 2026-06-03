@@ -15,7 +15,7 @@ in model->
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
-php artisan serve --host=192.168.68.119 --port=8000
+php artisan serve --host=192.168.68.194 --port=8000
 
 home
 
