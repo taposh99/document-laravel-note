@@ -22,18 +22,6 @@ home
 php artisan serve --host=192.168.0.3 --port=8000
 
 
-
-Project: LSMS
-
-Task : Update Print list to show Applicant position tracker
-Status: Done
-Task3: Meeting with all members of LSMS Project
-Status: Done
-Task : Discussed Payment Report and Application Report with Rashed Vai.
-
-date: 28/04/2026
-
-
-
+php artisan db:seed --class="AppSmartWarehouse\\Transaction\\Database\\Seeders\\TransactionDatabaseSeeder"
 
 
