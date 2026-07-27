@@ -1,0 +1,106 @@
+SET FOREIGN_KEY_CHECKS = 0;
+
+-- =========================================================
+-- Transaction Tables
+-- =========================================================
+
+TRUNCATE TABLE wh_transaction_checkin_details;
+TRUNCATE TABLE wh_transaction_checkins;
+
+TRUNCATE TABLE wh_transaction_checkout_details;
+TRUNCATE TABLE wh_transaction_checkout_lot;
+TRUNCATE TABLE wh_transaction_checkout_batch;
+TRUNCATE TABLE wh_transaction_checkouts;
+
+TRUNCATE TABLE wh_transaction_transfer_order_details;
+TRUNCATE TABLE wh_transaction_transfer_orders;
+
+TRUNCATE TABLE wh_transaction_internal_transfer_details;
+TRUNCATE TABLE wh_transaction_internal_transfers;
+
+TRUNCATE TABLE wh_transaction_batch_trackings;
+TRUNCATE TABLE wh_transaction_attrachments;
+
+TRUNCATE TABLE wh_item_stocks;
+
+-- =========================================================
+-- Item Tables
+-- =========================================================
+
+TRUNCATE TABLE wh_items_item_attachments;
+TRUNCATE TABLE wh_items_variant_value_map;
+TRUNCATE TABLE wh_items_variant_attribute_values;
+TRUNCATE TABLE wh_items_variant_attributes;
+TRUNCATE TABLE wh_items_item_variants;
+TRUNCATE TABLE wh_items_items;
+
+-- =========================================================
+-- Warehouse Tables
+-- =========================================================
+
+TRUNCATE TABLE wh_warehouses_locations;
+TRUNCATE TABLE wh_warehouses_warehouses;
+TRUNCATE TABLE wh_setting_location_type;
+
+-- =========================================================
+-- Item Settings
+-- =========================================================
+
+TRUNCATE TABLE wh_settings_item_attribute_details;
+TRUNCATE TABLE wh_settings_item_attributes;
+
+TRUNCATE TABLE wh_setting_item_tags;
+
+TRUNCATE TABLE wh_settings_item_category_mtds;
+
+TRUNCATE TABLE wh_settings_item_brands;
+TRUNCATE TABLE wh_settings_item_categories;
+TRUNCATE TABLE wh_settings_item_types;
+
+TRUNCATE TABLE wh_setting_measurement_types;
+TRUNCATE TABLE wh_settings_measurement_unit;
+TRUNCATE TABLE wh_settings_unit_of_measurement_conver;
+
+-- =========================================================
+-- SKU & Barcode Settings
+-- =========================================================
+
+TRUNCATE TABLE wh_settings_sku_configs;
+TRUNCATE TABLE wh_settings_barcode_configurations;
+
+-- =========================================================
+-- Inventory Settings
+-- =========================================================
+
+TRUNCATE TABLE wh_settings_item_priority_rules;
+TRUNCATE TABLE wh_settings_inventory_audit_schedules;
+
+-- =========================================================
+-- Vendor Settings
+-- =========================================================
+
+TRUNCATE TABLE wh_settings_vendors;
+TRUNCATE TABLE wh_settings_vendor_types;
+
+-- =========================================================
+-- Customer Settings
+-- =========================================================
+
+TRUNCATE TABLE wh_settings_customers;
+TRUNCATE TABLE wh_settings_customers_types;
+
+-- =========================================================
+-- Barcode Print Layout
+-- =========================================================
+
+TRUNCATE TABLE wh_print_barcode_layout_details;
+TRUNCATE TABLE wh_print_barcode_layouts;
+
+-- =========================================================
+-- System ID Configuration
+-- =========================================================
+
+TRUNCATE TABLE wh_transaction_system_id_counters;
+TRUNCATE TABLE wh_transaction_system_id_configs;
+
+SET FOREIGN_KEY_CHECKS = 1;

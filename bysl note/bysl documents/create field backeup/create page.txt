@@ -1,0 +1,391 @@
+'use client';
+import CustomFieldInputsAndDrawer from "@/app/(smart-office)/(custom-fields)/_components/CustomFieldInputsAndDrawer";
+import { CUSTOM_FIELD_ENDPOINTS } from "@/app/(smart-office)/(custom-fields)/constants/CustomFieldApiEndpoints";
+import { fetchData } from "@/app/(smart-office)/(custom-fields)/services/apiService";
+import Loading from "@/app/loading";
+import { SETTING_MODULES } from '@/app/warehouse/constants/routes';
+import PhoneInputField from "@/components/Form/PhoneInput";
+import CreateNewSelectDropdown from "@/components/Form/CreateNewSelectDropdown";
+import SwitchWrapper from '@/components/Form/Switch';
+import TextArea from "@/components/Form/TextArea";
+import TextField from "@/components/Form/TextField";
+import ImageUploaderBox from "@/components/Form/ImageUploaderBox";
+import PageTitle from '@/components/pages/PageTitle';
+import { HTTP_CREATED, HTTP_OK, HTTP_UNPROCESSABLE_ENTITY } from '@/constants/HttpStatusCode';
+import { useAppConfig } from '@/contexts/AppConfigContext';
+import useCrudService from '@/hooks/useCrudService';
+import { ERROR, notify, SUCCESS } from '@/utils/helpers';
+import { Box, Button, Grid, useTheme, Dialog, DialogContent, DialogTitle, IconButton } from '@mui/material';
+import { Form, Formik, useFormikContext } from 'formik';
+import { useRouter } from 'next/navigation';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import * as Yup from 'yup';
+import { VENDOR_API_ENDPOINTS, VENDOR_TYPE_API_ENDPOINTS } from '../../../SettingsApiEndPoints';
+import VendorTypeCreate from './../../vendor-type/create/page';
+import { Close } from '@mui/icons-material';
+import apiClient from "@/lib/axios";
+
+const VendorCreate = () => {
+  const createUrl = `${VENDOR_API_ENDPOINTS.VENDOR_CREATE}`;
+  const {
+    isLoading,
+    create,
+  } = useCrudService(createUrl);
+  const formikRef = useRef();
+  const router = useRouter();
+  const [isSubmitting, setSubmitting] = useState(false);
+  const [vendorTypeOptions, setVendorTypeOptions] = useState([]);
+  const { useDictionary } = useAppConfig()
+  const dictionary = useDictionary();
+  const theme = useTheme();
+  // for custom field need to set initial values starts
+  const [initialValues, setInitialValues] = useState({
+    company_id: '9f694334-8ece-41a4-8d68-a7fc8d0782d2',
+    name: '',
+    vendor_type_id: '',
+    contact_number: '',
+    contact_person: '',
+    email_address: '',
+    physical_address: '',
+    additional_notes: '',
+    row_status: '1'
+  });
+  // for custom field need to set initial values ends
+  const vendorManagement = dictionary?.settings?.vendorManagement;
+  const vendorListUrl = `${VENDOR_TYPE_API_ENDPOINTS.VENDOR_TYPE_LIST}`;
+  const handleVendorType = async () => {
+    const responseData = await apiClient.get(vendorListUrl);
+    if (responseData.data) {
+      const options = responseData.data.filter(e => e.row_status === 1)
+        ?.map((e) => ({
+          value: e.id,
+          name: e.name,
+        }));
+      setVendorTypeOptions(options);
+    } else {
+      setVendorTypeOptions([]);
+    }
+  };
+
+  const validationSchema = Yup.object({
+    name: Yup.string()
+      .required(vendorManagement?.vendorTitleRequired)
+      .max(200, 'Vendor Name cannot exceed 200 characters.'),
+
+    contact_person: Yup.string()
+      .required(vendorManagement?.titleRequired)
+      .max(100, 'Contact Person cannot exceed 100 characters.'),
+
+    contact_number: Yup.string()
+      .required(vendorManagement?.contactNumberRequired)
+      .max(20, 'Contact Number cannot exceed 20 characters.'),
+
+    email_address: Yup.string()
+      .required(vendorManagement?.emailRequired)
+      .email('Invalid email format')
+      .max(100, 'Email Address cannot exceed 100 characters.'),
+
+    physical_address: Yup.string()
+      .required(vendorManagement?.physicalAddressRequired)
+      .max(1000, 'Physical Address cannot exceed 1000 characters.'),
+
+    additional_notes: Yup.string()
+      .required(vendorManagement?.noteRequired)
+      .max(2000, 'Additional Notes cannot exceed 2000 characters.'),
+
+    row_status: Yup.string()
+      .required(vendorManagement?.statusValidation)
+      .oneOf(["0", "1"], 'Status must be 0 or 1')
+  });
+
+
+  const [openVendorTypeDialog, setOpenVendorTypeDialog] = useState(false);
+
+  const handleVendorTypeCreated = async (newType) => {
+    setOpenVendorTypeDialog(false);
+    await handleVendorType();
+    if (formikRef.current) {
+      formikRef.current.setFieldValue("vendor_type_id", newType.id);
+    }
+  };
+const handleSubmit = async (values, { setErrors, setSubmitting }) => {
+  try {
+    const formData = new FormData();
+
+    const cleanedValues = { ...values };
+    delete cleanedValues.contact_numberCountry;
+
+    // 👇 custom_fields ke alag kore felo, JSON stringify korar jonno
+    const customFields = cleanedValues.custom_fields;
+    delete cleanedValues.custom_fields;
+
+    // Normal fields append (custom_fields ar photo bad diye)
+    Object.keys(cleanedValues).forEach((key) => {
+      if (key !== 'photo') {
+        formData.append(key, cleanedValues[key]);
+      }
+    });
+
+    // Photo append
+    if (cleanedValues.photo && typeof cleanedValues.photo === 'object') {
+      formData.append('photo', cleanedValues.photo);
+    }
+
+    // 👇 custom_fields ke filter kore (undefined key bad diye) + JSON stringify
+    if (customFields && Array.isArray(customFields) && customFields.length > 0) {
+      const validCustomFields = customFields.filter(item => {
+        const keys = Object.keys(item).filter(k =>
+          !['root_cf_form_position_id', 'root_cf_form_input_id', 'root_cf_form_id', 'is_api_input_type'].includes(k)
+        );
+        return keys.length > 0 && keys[0] !== 'undefined';
+      });
+
+      if (validCustomFields.length > 0) {
+        formData.append('custom_fields', JSON.stringify(validCustomFields));
+      }
+    }
+
+    const response = await create(formData, { url: createUrl });
+
+    if ([HTTP_CREATED, HTTP_OK].includes(response.status)) {
+      notify(vendorManagement?.addSuccess, SUCCESS);
+      setSubmitting(false);
+      goToList();
+    } else if (response?.status === HTTP_UNPROCESSABLE_ENTITY) {
+      setErrors(response.errors);
+      notify(response.message, ERROR);
+    } else {
+      notify(response.message, ERROR);
+    }
+
+  } catch (err) {
+    console.error("Submit Error:", err);
+    notify("Something went wrong", ERROR);
+  } finally {
+    setSubmitting(false);
+  }
+};
+  const goToList = () => {
+    router.push(SETTING_MODULES.VENDOR_LIST);
+  };
+
+  // custom field implement code starts
+  const [isCustomFieldAvailable, setIsCustomFieldAvailable] = useState(false);
+  const [customFieldValidate, setCustomFieldValidate] = useState(
+    () => () => ({})
+  );
+  const [customFieldData, setCustomFieldData] = useState(false);
+  const { config } = useAppConfig();
+
+  const fetchResponseInputType = useCallback(async () => {
+    const formInformation = await fetchData(
+      CUSTOM_FIELD_ENDPOINTS.IS_CUSTOM_FIELDS,
+      {
+        code: "wh_settings_vendors",
+        table_row_id: "",
+      }
+    );
+    if (formInformation?.data) {
+      setIsCustomFieldAvailable(true);
+      setCustomFieldData(formInformation?.data);
+    }
+  }, [config?.isCustomFieldSubmit]);
+
+  useEffect(() => {
+    fetchResponseInputType();
+  }, [fetchResponseInputType]);
+
+  useEffect(() => {
+    handleVendorType();
+  }, []);
+  // custom field implement code ends
+
+  return (
+    <>
+      {isLoading ? (
+        <Loading />
+      ) : (
+        <Grid container spacing={2} py={2} margin="auto" >
+          <Grid item xs={12}>
+            <PageTitle title={vendorManagement.addTitle}
+              backToUrl={SETTING_MODULES.VENDOR_LIST}
+              backToUrlText={vendorManagement?.backToVendorList} />
+          </Grid>
+          <Grid item xs={12}>
+            <Dialog
+              open={openVendorTypeDialog}
+              onClose={() => setOpenVendorTypeDialog(false)}
+              maxWidth="sm"
+            >
+              <DialogTitle>
+                <IconButton
+                  aria-label="close"
+                  onClick={() => setOpenVendorTypeDialog(false)}
+                  sx={{
+                    position: 'absolute',
+                    right: 8,
+                    top: 8,
+                  }}
+                >
+                  <Close />
+                </IconButton>
+              </DialogTitle>
+
+              <DialogContent sx={{ backgroundColor: "#f0f0f0", p: 3 }}>
+                <VendorTypeCreate
+                  onSuccess={handleVendorTypeCreated}
+                  embedded={true}
+                />
+              </DialogContent>
+            </Dialog>
+          </Grid>
+
+
+          <Grid item xs={12}>
+            <Formik
+              innerRef={formikRef}
+              initialValues={initialValues}
+              validationSchema={validationSchema}
+              enableReinitialize={true}
+              onSubmit={handleSubmit}
+              // for custom field need to set customFieldValidate starts
+              validate={customFieldValidate}
+              // for custom field need to set customFieldValidate ends
+              validateOnMount={true}
+            >
+              {({ handleSubmit, values, handleBlur, isValid, isSubmitting, setFieldValue, }) => (
+                <Form>
+                  <Grid container spacing={2} direction="row" xs={8} md={8} margin="auto">
+                    <Grid item lg={12} md={12} xs={12}>
+                      <ImageUploaderBox
+                        width="150px"
+                        name="photo"
+                      >
+                      </ImageUploaderBox>
+                    </Grid>
+                    <Grid item lg={6} md={6} xs={6}>
+                      <TextField
+                        sx={{ label: { color: "#bfbfbf" } }}
+                        name="name"
+                        label={vendorManagement?.titleLabel}
+                        onBlur={handleBlur}
+                        fullWidth
+                      />
+                    </Grid>
+                    <Grid item lg={6} md={6} xs={6}>
+                      <CreateNewSelectDropdown
+                        sx={{ label: { color: "#bfbfbf" } }}
+                        name="vendor_type_id"
+                        label="Vendor Type"
+                        options={vendorTypeOptions}
+                        value={values.vendor_type_id}
+                        groupBy="group"
+                        isAddMore={true}
+                        addMoreHandle={() => setOpenVendorTypeDialog(true)}
+                        onChange={(value) => setFieldValue("vendor_type_id", value)}
+                        key={vendorTypeOptions.length}
+                      />
+                    </Grid>
+                    <Grid item lg={6} md={6} xs={6}>
+                      <TextField
+                        name="contact_person"
+                        label="Contact Person"
+                        sx={{ label: { color: "#bfbfbf" } }}
+                        onBlur={handleBlur}
+                        fullWidth
+                      />
+                    </Grid>
+                    <Grid item lg={6} md={6} xs={6}>
+                      <PhoneInputField
+                        sx={{ label: { color: "#bfbfbf" } }}
+                        name="contact_number"
+                        label="Contact Number"
+                        placeholder="Phone Number"
+                      />
+                    </Grid>
+                    <Grid item lg={6} md={6} xs={6}>
+                      <TextField
+                        sx={{ label: { color: "#bfbfbf" } }}
+                        name="email_address"
+                        label="Email Address"
+                        onBlur={handleBlur}
+                        fullWidth
+                      />
+                    </Grid>
+                    <Grid item lg={6} md={6} xs={6}>
+                      <TextField
+                        sx={{ label: { color: "#bfbfbf" } }}
+                        name="physical_address"
+                        label="Physical Address"
+                        onBlur={handleBlur}
+                        fullWidth
+                      />
+                    </Grid>
+                    <Grid item lg={12} md={12} xs={12}>
+                      <TextArea
+                        name="additional_notes"
+                        label="Aditional Notes"
+                        multiline
+                        minRows={2}
+                        maxRows={Infinity}
+                      />
+                    </Grid>
+                    <Grid item lg={12} md={12} xs={12}>
+                      <SwitchWrapper
+                        name="row_status"
+                        title={vendorManagement.statusTitle}
+                        label={vendorManagement.statusLabel}
+                      />
+                    </Grid>
+
+                    {/*custom field implement code starts*/}
+                    <CustomFieldInputsAndDrawer
+                      key={"bottom"}
+                      isCustomFieldAvailable={isCustomFieldAvailable}
+                      isCustomFieldInputs={true}
+                      isCustomFieldDrawer={true}
+                      values={values}
+                      isAddExisting={true}
+                      customFieldData={customFieldData}
+                      position={"bottom"}
+                      setInitialValues={setInitialValues}
+                      setCustomFieldValidate={setCustomFieldValidate}
+                    />
+                    {/*custom field implement code ends*/}
+
+                    <Grid pl={1}>
+                      <Box sx={{ mb: 0 }}>
+                        <div>
+                          <Button
+                            variant="contained"
+                            type="submit"
+                            sx={{
+                              mt: 2,
+                              mr: 2,
+                              ml: 1,
+                              fontWeight: 800,
+                              "&.Mui-disabled": {
+                                background: theme.palette.action.disabled,
+                                color: theme.palette.text.disabled,
+                              },
+                            }}
+                            size="small"
+                            disabled={!isValid || isSubmitting} // Disable button if form is invalid or submitting
+                          >
+                            {dictionary?.common?.save}
+                          </Button>
+                        </div>
+                      </Box>
+                    </Grid>
+                  </Grid>
+                </Form>
+              )}
+            </Formik>
+          </Grid>
+        </Grid>
+      )}
+    </>
+  );
+}
+
+export default VendorCreate;

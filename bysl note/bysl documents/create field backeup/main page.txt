@@ -1,0 +1,366 @@
+"use client";
+import {
+  ACTIVE_INACTIVE_OPTIONS,
+  BUTTON_ACTION_TYPE_DELETE,
+  BUTTON_ACTION_TYPE_DETAILS,
+  BUTTON_ACTION_TYPE_EDIT,
+  EXPORT_TYPE_EXCEL,
+  EXPORT_TYPE_PDF
+} from "@/constants/static-const";
+import { Grid } from '@mui/material';
+import { useState, useRef } from "react";
+
+import { postData } from "@/app/(smart-office)/(custom-fields)/services/apiService";
+import { SETTING_MODULES } from "@/app/warehouse/constants/routes";
+import { Button } from '@mui/material';
+import FilterListIcon from '@mui/icons-material/FilterList';
+import AddButton from "@/components/Buttons/AddButton";
+import DeleteDialog from '@/components/DialogBox/DeleteDialog';
+import StatusDialog from '@/components/DialogBox/StatusDialog';
+import PageTitle from "@/components/pages/PageTitle";
+import GlobalTabs from '@/components/Stepper/GlobalTabs';
+import { HTTP_OK } from '@/constants/HttpStatusCode';
+import { useAppConfig } from '@/contexts/AppConfigContext';
+import useCrudService from '@/hooks/useCrudService';
+import useFilter from '@/hooks/useFilter';
+import apiClient from "@/lib/axios";
+import { can, ERROR, notify, SUCCESS } from '@/utils/helpers';
+import { useRouter } from "next/navigation";
+import { VENDOR_API_ENDPOINTS } from '../../SettingsApiEndPoints';
+import Details from "./_components/Details";
+import VendorList from "./_components/VendorList";
+import tabsConfig from "../tabsConfig";
+import { VENDOR_CREATE } from "@/constants/warehouse-permissions";
+/**
+ * Default attributes to be fetched from the API
+ * @type {string[]}
+ */
+const defaultAttributes = ["id", "name"];
+/**
+ * Default columns to be displayed in the table
+ * @type {string[]}
+ */
+const selectableColumns = [
+  "name",
+  "vendor_type_id",
+  "contact_number",
+  "email_address",
+  "contact_person",
+  "row_status"
+]
+const exportValidColumns = [
+  'name',
+  'vendor_type_id',
+  'contact_number',
+  'contact_person',
+  'email_address',
+  'physical_address',
+  'additional_notes',
+  'row_status'
+];
+
+const vendor = () => {
+  const [activeMenu, setActiveMenu] = useState("vendor");
+  const router = useRouter();
+  const { useDictionary, config } = useAppConfig()
+  const dictionary = useDictionary();
+  const settings_tabs = tabsConfig();
+  const [mutation, setMutation] = useState(false);
+  const [itemID, setItemID] = useState(null);
+  const [editData, setEditData] = useState([]);
+  const [deleteID, setDeleteID] = useState([]);
+  const [statusID, setStatusID] = useState([]);
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [table, setTable] = useState(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [statusDialogOpen, setStatusDialogOpen] = useState(false);
+  const [detailsModal, setDetailsModal] = useState(false);
+  const [detailInfo, setDetailsInfo] = useState({});
+  const VendorDictionary = dictionary?.settings?.vendorManagement;
+  const vendorListRef = useRef(null);
+  const [isDownloaded, setIsDownloaded] = useState(false);
+
+  const { filter, setFilter } = useFilter({
+    fields: {
+      default: defaultAttributes,
+      custom: selectableColumns
+    }
+  })
+  const {
+    data: supplierItem,
+    isLoading,
+    destroy,
+    mutate
+  } = useCrudService(
+    VENDOR_API_ENDPOINTS.VENDOR_LIST,
+    {
+      params: filter,
+    }
+  );
+  const onBulkDeleteClick = (selectedRows, tableInstance) => {
+    const ids = selectedRows?.map((row) => row?.id);
+    setDeleteID(ids);
+    setDeleteDialogOpen(true);
+    setTable(tableInstance);
+  }
+  const handleDeleteConfirm = async () => {
+    setDeleteDialogOpen(false);
+    await handleDelete(deleteID);
+  };
+  const handleDelete = async (ids) => {
+    try {
+      const deleteResponse = await postData(
+        VENDOR_API_ENDPOINTS?.VENDOR_DELETE,
+        {
+          ids: ids
+        }
+      );
+      if ([HTTP_OK].includes(deleteResponse.status)) {
+        notify('Vendor Deleted Successfully!', SUCCESS);
+        setSelectedRows([]);
+        setDeleteDialogOpen(false);
+        if (table) {
+          table.resetRowSelection();
+        }
+        await mutate();
+      }
+    } catch (error) {
+      notify(error?.message, ERROR);
+      return false;
+    }
+  };
+
+  const handleStatusConfirm = async () => {
+    setStatusDialogOpen(false);
+    await handleStatusDelete(statusID);
+  };
+  const handleStatusDelete = async (id) => {
+    try {
+      const updateResponse = await postData(
+        VENDOR_API_ENDPOINTS?.VENDOR_CHANGE_STATUS,
+        {
+          id: id
+        }
+      );
+      if ([HTTP_OK].includes(updateResponse.status)) {
+        notify('Status Updated Successfully!', SUCCESS);
+        setStatusDialogOpen(false);
+        if (table) {
+          table.resetRowSelection();
+        }
+        await mutate();
+      }
+    } catch (error) {
+      notify(error?.message, ERROR);
+      return false;
+    }
+  };
+  const handleChange = (event, newValue) => {
+    setActiveMenu(newValue);
+    router.push(settings_tabs.find((tab) => tab.key === newValue).path);
+  };
+
+  const fetchdetailInformation = async (params) => {
+    try {
+      const responseData = await apiClient.get(VENDOR_API_ENDPOINTS.VENDOR_UPDATE + '/' + params.id);
+      if (responseData?.status == HTTP_OK) {
+        setDetailsModal(true);
+        setDetailsInfo({
+          data: responseData?.data
+        });
+      }
+    } catch (error) {
+      notify(error?.message, ERROR);
+    }
+  };
+  const handleAction = async (action, row) => {
+    switch (action) {
+      case BUTTON_ACTION_TYPE_EDIT:
+        setEditData(row);
+        const url = `${SETTING_MODULES.VENDOR_UPDATE}/${row.id}`;
+        return router.push(url);
+        break;
+      case BUTTON_ACTION_TYPE_DETAILS:
+        await fetchdetailInformation(
+          {
+            id: row.id,
+          }
+        );
+        break;
+      case BUTTON_ACTION_TYPE_DELETE:
+        const idData = [row.id]
+        setDeleteID(idData);
+        setDeleteDialogOpen(true);
+        break;
+      case ACTIVE_INACTIVE_OPTIONS:
+        const id = row.id
+        setStatusID(id);
+        setStatusDialogOpen(true);
+        break;
+      default:
+        notify('Something went wrongs!', ERROR);
+        console.warn("Unhandled action:", action);
+    }
+  };
+
+  const handleDownload = async (type, selectedRows, visibleColumns) => {
+    if (!selectedRows || selectedRows.length === 0) {
+      notify("Please select at least one record to export", WARNING);
+      return;
+    }
+    setIsDownloaded(true);
+
+    const columns = (visibleColumns || exportValidColumns)
+      .filter(col => exportValidColumns.includes(col));
+
+    if (columns.length === 0) {
+      notify("No valid columns selected for export", WARNING);
+      setIsDownloaded(false);
+      return;
+    }
+
+    const payload = {
+      ids: selectedRows.map((row) => row.id),
+      type,
+      columns,
+    };
+
+    try {
+      const response = await apiClient.post(
+        VENDOR_API_ENDPOINTS.VENDOR_EXPORT,
+        payload
+      );
+
+      const fileBase64 = response?.data?.data?.file ?? response?.data?.file;
+      const fileName = response?.data?.data?.file_name ?? response?.data?.file_name;
+
+      if (!fileBase64 || !fileName) {
+        notify(response?.data?.message || "Export failed", ERROR);
+        setIsDownloaded(false);
+        return;
+      }
+
+      const binaryString = window.atob(fileBase64);
+      const bytes = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+      const blob = new Blob([bytes], {
+        type: type === 'pdf'
+          ? 'application/pdf'
+          : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      });
+
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      notify(`${type.toUpperCase()} exported successfully!`, SUCCESS);
+    } catch (error) {
+      notify(error?.response?.data?.message || error?.message || "Download failed", ERROR);
+    } finally {
+      setIsDownloaded(false);
+    }
+  };
+
+
+  const handleDownloadMenuItemClick = (itemId, selectedRows, visibleColumns) => {
+    switch (itemId) {
+      case EXPORT_TYPE_PDF:
+        handleDownload(EXPORT_TYPE_PDF, selectedRows, visibleColumns);
+        break;
+      case EXPORT_TYPE_EXCEL:
+        handleDownload(EXPORT_TYPE_EXCEL, selectedRows, visibleColumns);
+        break;
+      default:
+        console.log("Unknown option selected");
+    }
+  };
+
+  const handleAddSupplierClick = () => {
+    router.push(SETTING_MODULES.VENDOR_CREATE);
+  };
+
+  const actionButton = (
+    <>
+      {/* <Button
+        startIcon={<FilterListIcon />}
+        sx={{ paddingLeft: 2, paddingRight: 2, color: '#222222' }}
+      >
+        Filter
+      </Button> */}
+      {
+        can(VENDOR_CREATE) &&
+        <AddButton
+          variant="contained"
+          color="primary"
+          onClick={handleAddSupplierClick}
+        >
+          {VendorDictionary?.addTitle}
+        </AddButton>
+      }
+    </>
+  );
+
+
+  return (
+    <Grid container spacing={2}>
+      <Grid item xs={12}>
+        <PageTitle title={VendorDictionary?.title} />
+      </Grid>
+      <Grid item xs={12}>
+        <GlobalTabs
+          tabs={settings_tabs}
+          handleChange={handleChange}
+          value={activeMenu}
+        />
+      </Grid>
+      <Grid item xs={12}>
+        <VendorList
+          ref={vendorListRef}
+          data={supplierItem ?? {}}
+          handleAction={handleAction}
+          loading={isLoading}
+          actionButton={actionButton}
+          advanceFilter={"wh_settings_vendors"}
+          defaultColumns={[
+            ...(filter?.fields?.split(",") || [])
+          ]}
+          docType="wh_settings_vendors"
+          onBulkDeleteClick={onBulkDeleteClick}
+          downloadMenuItems={[EXPORT_TYPE_EXCEL, EXPORT_TYPE_PDF]}
+          onDownloadMenuItemsClick={handleDownloadMenuItemClick}
+        />
+
+        <DeleteDialog
+          title={VendorDictionary?.confirmDialogTitle}
+          message={VendorDictionary?.confirmDeleteSubTitle}
+          open={deleteDialogOpen}
+          onClose={() => setDeleteDialogOpen(false)}
+          onConfirm={handleDeleteConfirm}
+        />
+        <StatusDialog
+          title={VendorDictionary?.confirmDialogTitle}
+          message={VendorDictionary?.confirmStatusSubTitle}
+          open={statusDialogOpen}
+          onClose={() => setStatusDialogOpen(false)}
+          onConfirm={handleStatusConfirm}
+        />
+        <Grid xs={12} item>
+          <Details
+            open={detailsModal}
+            onClose={() => setDetailsModal(false)}
+            data={detailInfo}
+          />
+        </Grid>
+      </Grid>
+    </Grid>
+  );
+};
+
+export default vendor;

@@ -1,0 +1,432 @@
+<?php
+
+namespace AppSmartWarehouse\Transaction\Services;
+
+use AppSmartWarehouse\Transaction\Entities\ItemCheckin;
+use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use AppSmartWarehouse\Transaction\Entities\Vendor;
+use Illuminate\Http\Response;
+use AppSmartWarehouse\Warehouse\Helpers\FileUpload;
+use AppSmartWarehouse\Warehouse\Helpers\StaticConstant;
+use Illuminate\Support\Str;
+use Illuminate\Http\Exceptions\HttpResponseException;
+use App\Helpers\AdvanceFilter;
+use AppSmartPeople\Employee\Services\HelperService;
+use AppSmartOffice\CustomFieldModule\Services\CustomFieldService;
+
+
+class VendorService
+{
+    /**
+     * Model table name.
+     * @var string
+     */
+    protected $table = NULL;
+
+    /**
+     * Assign table and alias name of it's model.
+     */
+    public function __construct(public FileUpload $fileUpload)
+    {
+        $this->table = (new Vendor())->getTable();
+        $this->fileUpload = $fileUpload;
+    }
+
+    /**
+     * Get Vendor list
+     * @param Request $request
+     * @return array|LengthAwarePaginator|Collection
+     */
+    public function getList(array $filter = [], Builder $queryBuilder = null) : array|LengthAwarePaginator|Collection
+    {
+        $page = $filter['page'] ?? null;
+        $perPage = $filter['per_page'] ?? StaticConstant::DEFAULT_PAGE;
+        // $orderDirection = $filter['order_direction'] ?? StaticConstant::FILTER_DIRECTION_ASC;
+        $search = $filter['search'] ?? null;
+        $with = $filter['with'] ?? [];
+        $vendorType = ['vendorType'];
+        $with = array_merge($with, $vendorType);
+
+        $queryBuilder = $queryBuilder ?? Vendor::with($with)->select(
+            "{$this->table}.id",
+            "{$this->table}.name",
+            "{$this->table}.contact_number",
+            "{$this->table}.contact_person",
+            "{$this->table}.email_address",
+            "{$this->table}.physical_address",
+            "{$this->table}.additional_notes",
+            "{$this->table}.photo",
+            "{$this->table}.row_status",
+            "{$this->table}.vendor_type_id"
+        );
+        $queryBuilder->where("{$this->table}.company_id", getCompanyId());
+
+        if ($search) {
+            $queryBuilder->where("{$this->table}.name", 'like', "%{$search}%");
+        }
+                if (request()->has('advance_filter')) {
+            $advanceFilterQuery =
+            AdvanceFilter::decodeAndDecompressData(\request()->get('advance_filter'));
+            $hasAttributes = array_filter($advanceFilterQuery, fn($filter) =>in_array($filter['attribute'],
+                [
+                    'name',
+                    'contact_person',
+                    'contact_number',
+                    'email_address',
+                    'physical_address',
+                    'additional_notes',
+                    'created_at',
+                    'created_by',
+                    'row_status'
+            ]));
+            \Log::info('hasAttributes', [
+                'hasAttributes' => $hasAttributes
+            ]);
+            foreach ($advanceFilterQuery as &$item) {
+                $attribute = $item['attribute'];
+                $date = $item['value'];
+                if ($attribute === 'created_at') {
+                    $item['attribute'] = 'date_time';
+                    $item['value'] = ['created_at',$date,''];
+                }
+            }
+            if ($hasAttributes) {
+                HelperService::customAdvanceFilterNestedRelation($queryBuilder, $advanceFilterQuery);
+            }
+        }
+        // $queryBuilder->orderBy("{$this->table}.id", $orderDirection);
+        $queryBuilder->orderBy("{$this->table}.created_at", 'desc');
+    
+    $result = $queryBuilder->paginate($perPage, ['*'], 'page', $page);
+
+    // 👇 NOTUN: custom field values attach koro
+    $this->attachCustomFieldValues($result);
+
+    return $result;
+}
+
+protected function attachCustomFieldValues($result): void
+{
+    $items = $result->items();
+    $vendorIds = collect($items)->pluck('id')->toArray();
+
+    if (empty($vendorIds)) {
+        return;
+    }
+
+    $customValues = \DB::table('root_cf_form_values')
+        ->whereIn('table_row_id', $vendorIds)
+        ->whereNull('deleted_at')
+        ->get();
+
+    if ($customValues->isEmpty()) {
+        return;
+    }
+
+    $inputIds = $customValues->pluck('root_cf_form_input_id')->unique()->toArray();
+    $inputs = \DB::table('root_cf_form_inputs')
+        ->whereIn('id', $inputIds)
+        ->get()
+        ->keyBy('id');
+
+    // table_row_id (vendor id) => [field_name => value]
+    $grouped = $customValues->groupBy('table_row_id')->map(function ($valuesForRow) use ($inputs) {
+        $fields = [];
+        foreach ($valuesForRow as $item) {
+            $input = $inputs->get($item->root_cf_form_input_id);
+            $fieldName = $input->field_name ?? null;
+            if ($fieldName) {
+                $fields[$fieldName] = json_decode($item->value, true);
+            }
+        }
+        return $fields;
+    });
+
+    foreach ($items as $vendor) {
+        $fields = $grouped->get($vendor->id, []);
+        foreach ($fields as $fieldName => $value) {
+            $vendor->{$fieldName} = $value;  // 👈 directly row-e field_name key hishebe attach
+        }
+    }
+}
+
+    /**
+     * @param int|string $id
+     * @return mixed
+     */
+    public function getDetails(int|string $id): mixed
+    {
+        /** @var Builder $queryBuilder */
+        $queryBuilder = Vendor::with('vendorType')->select([
+            "{$this->table}.id",
+            "{$this->table}.name",
+            "{$this->table}.contact_person",
+            "{$this->table}.contact_number",
+            "{$this->table}.email_address",
+            "{$this->table}.physical_address",
+            "{$this->table}.additional_notes",
+            "{$this->table}.photo",
+            "{$this->table}.row_status",
+            "{$this->table}.vendor_type_id"
+        ]);
+        $queryBuilder->where("{$this->table}.id", $id);
+        return $queryBuilder->firstOrFail();
+    }
+
+    /**
+     * @param array $payload
+     * @return Vendor
+     */
+public function create(array $payload, $imagePath = null, $request = null): Vendor
+{
+    $payload['slug'] = Str::slug($payload['name']);
+    $payload['company_id'] = getCompanyId();
+
+    $vendor = new Vendor();
+    $vendor->fill($payload);
+
+    if ($imagePath) {
+        $vendor->photo = $imagePath;
+    }
+
+    $vendor->save();
+
+    if ($request && $request->filled('custom_fields')) {
+        $customFields = $request->custom_fields;
+        if (is_string($customFields)) {
+            $decoded = json_decode($customFields, true);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                $request->merge(['custom_fields' => $decoded]);
+            }
+        }
+
+        try {
+            app(CustomFieldService::class)
+                ->storeCustomFieldInputValue($request, $vendor->id);
+        } catch (\Throwable $e) {
+            // Data already save hoye geche query-level e; method-er
+            // internal post-processing-e error, kintu eta vendor
+            // creation block korbe na
+            \Log::warning('storeCustomFieldInputValue post-process warning: ' . $e->getMessage());
+        }
+    }
+
+    return $vendor;
+}
+
+    /**
+     * @param array $payload
+     * @param Vendor $vendor
+     * @return Vendor
+     */
+    public function update(array $payload, Vendor $vendor, $imagePath = null): Vendor
+    {
+        $slug = Str::slug($payload['name']);
+        $payload['slug'] = $slug;
+        $vendor->fill($payload);
+
+        if ($imagePath !== null) {
+            $vendor->photo = $imagePath;
+        }
+
+        $vendor->save();
+        return $vendor;
+    }
+
+    /**
+     * @param $id
+     * @return bool|null
+     */
+
+    // public function delete($payload): bool
+    // {
+    //     foreach ($payload['ids'] as $id) {
+    //         $vendor = Vendor::withTrashed()->find($id);
+    //         if (!$vendor) {
+    //             continue;
+    //         }
+    //         if (!empty($vendor->photo)) {
+    //             $this->fileUpload->deleteFile($vendor->photo);
+    //         }
+    //         $vendor->forceDelete();
+    //     }
+    //     return true;
+    // }
+    public function delete($payload): array
+    {
+        foreach ($payload['ids'] as $id) {
+
+            $vendor = Vendor::withTrashed()->find($id);
+
+            if (!$vendor) {
+                continue;
+            }
+
+            // Dependency check
+            $checkinCount = ItemCheckin::where('source_id', $id)->count();
+
+            if ($checkinCount > 0) {
+                return [
+                    'success' => false,
+                    'message' => 'Cannot delete Vendor "' . $vendor->name .
+                        '". Used in Item Checkin'
+                ];
+            }
+
+            // Delete photo
+            if (!empty($vendor->photo)) {
+                $this->fileUpload->deleteFile($vendor->photo);
+            }
+
+            // Force delete
+            $vendor->forceDelete();
+        }
+
+    return [
+        'success' => true,
+        'message' => 'Vendor deleted successfully.'
+    ];
+}
+
+    // public function delete($payload): ?Bool
+    // {
+    //     foreach ($payload['ids'] as $id) {
+    //         $vendor = Vendor::find($id);
+    //         $vendor->deleted_at = now();
+    //         $vendor->deleted_by = getCurrentUserId();
+    //         $vendor->save();
+
+    //         if ($vendor->photo != null) {
+    //             $this->fileUpload->deleteFile($vendor->photo);
+    //         }
+    //     }
+    //     return true;
+    // }
+
+    /**
+     * @param $id
+     * @return bool|null
+     */
+    public function updateStatus($id, $rowStatus)
+    {   
+        $rowStatus = ($rowStatus == StaticConstant::ROW_STATUS_IN_ACTIVE) ? StaticConstant::ROW_STATUS_ACTIVE : StaticConstant::ROW_STATUS_IN_ACTIVE;
+        $vendorType = Vendor::find($id);
+        $vendorType->row_status = $rowStatus;
+        $vendorType->updated_by = getCurrentUserId();
+        $vendorType->save();
+
+        return true;
+    }
+
+    /**
+     * @param Request $request
+     * @param int|string|null $id
+     * @return \Illuminate\Validation\Validator
+     */
+    public function validation(Request $request, int|string|null $id = null): \Illuminate\Validation\Validator
+    {
+        $rules = [
+            // "company_id" => [
+            //     "required",
+            //     "uuid",
+            // ],
+            "name" => [
+                "required",
+                "string",
+                "max:200",
+                Rule::unique($this->table)->where(function ($query) use ($request) {
+                    return $query->where([['name', $request->name], ['company_id', getCompanyId()], ['id', '!=', $request->id]])->whereNull('deleted_at');
+                }),
+            ],
+            "contact_person" => [
+                "required",
+                "string",
+                "max:100",
+                Rule::unique($this->table)->ignore($id),
+            ],
+            "contact_number" => [
+                "required",
+                "numeric",
+                Rule::unique($this->table)->ignore($id),
+            ],
+            "email_address" => [
+                "required",
+                "email",
+                "max:100",
+                Rule::unique($this->table)->ignore($id),
+            ],
+            "physical_address" => [
+                "required",
+                "string",
+                "max:1000",
+            ],
+            "additional_notes" => [
+                "required",
+                "string",
+                "max:2000",
+            ],
+            "vendor_type_id" => [
+                "required",
+                "uuid",
+                Rule::exists('wh_settings_vendor_types', 'id')->whereNull('deleted_at')
+            ],
+            "row_status" => [
+                "nullable",
+                "integer"
+            ],
+        ];
+
+        return Validator::make($request->all(), $rules);
+    }
+
+
+    public function filterValidation(Request $request): \Illuminate\Validation\Validator
+    {
+
+        $rules = [
+            "page" => ["nullable", "integer"],
+            "per_page" => ["nullable", "integer"],
+            "search" => ["nullable", "string"],
+            "with" => ["nullable", "array"],
+            "with.*" => ["nullable", "in:company,country", "distinct"],
+            "row_status" => ["nullable", "integer"],
+            'order_direction' => ["nullable", Rule::in(StaticConstant::FIlTER_DIRECTIONS)]
+        ];
+
+        return Validator::make($request->all(), $rules);
+    }
+
+    public function DeleteValidation(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            "ids" => ["required", "array"],
+            "ids.*" => ["uuid", Rule::exists($this->table, 'id')->whereNull('deleted_at')],
+        ], ['required' => 'Must be select any rows !!!', 'uuid' => 'Selected invalid items !!!', 'exists' => 'Selected items not found !!!']);
+
+        // Check if validation fails
+        if ($validator->fails()) {
+            $errors = $validator->errors()->toArray();
+            $ids = $request->input('ids');
+            foreach ($errors as $field => &$messages) {
+                if (preg_match('/ids\.(\d+)/', $field, $matches)) $messages['id'] = $ids[$matches[1]];
+            }
+            // Throw the modified response
+            throw new HttpResponseException(
+                response()->json(
+                    responseBuilder(
+                        Response::HTTP_UNPROCESSABLE_ENTITY,
+                        $validator->errors()->first(),
+                        $errors
+                    ),
+                    Response::HTTP_UNPROCESSABLE_ENTITY
+                )
+            );
+        }
+        return $validator->validated();
+    }
+}
