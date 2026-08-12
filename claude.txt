@@ -19,3 +19,33 @@ Before writing code:
 3. List assumptions.
 4. Propose the implementation plan.
 5. Then generate the code.
+
+
+Implement this feature in my existing project.
+
+Follow these instructions carefully:
+
+* First analyze the existing architecture and coding pattern.
+* Reuse existing services, helpers, validation, and components wherever possible.
+* Keep the implementation consistent with the current project structure and naming conventions.
+* Do not introduce a new architecture or unnecessary refactoring.
+* Generate production-ready code only.
+* Include proper validation, error handling, database transactions, and performance optimization.
+* Consider edge cases and avoid duplicate logic.
+* Update only the files that need modification.
+* If any existing implementation should be followed, identify it and use the same pattern.
+* After the implementation, provide:
+
+  1. the list of modified files,
+  2. a short explanation of the logic,
+  3. any migration or API changes,
+  4. test scenarios,
+  5. any potential risks or compatibility concerns.
+
+Before writing code, briefly explain the implementation plan. Then provide the complete code for each modified file.
+
+Reference: AdvanceFilter.php
+
+Follow the implementation pattern of ADVANCE_FILTER_TYPE_WH_TRANSACTION_CHECKINS
+
+Use the same service layer and response format
