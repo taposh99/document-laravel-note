@@ -1,0 +1,21 @@
+1.
+Expected:
+Stock should update after approval.
+
+Actual:
+Stock remains unchanged.
+
+Attached:
+- Screenshot
+- Approval controller
+- Stock service
+
+Find the root cause and provide the minimal code change.
+
+2.
+Before writing code:
+1. Analyze the existing architecture.
+2. Identify affected files.
+3. List assumptions.
+4. Propose the implementation plan.
+5. Then generate the code.
