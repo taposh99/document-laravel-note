@@ -1,0 +1,13 @@
+controller
+service   $this->attachCustomFieldValues($result);
+list page
+also edit page handleCustomFieldService
+
+
+কাস্টম ফিল্ড ইস্যু নিয়ে কাজ করা ফাইলগুলোর লিস্ট:
+
+Frontend:
+
+frontend/src/app/warehouse/(modules)/settings/vendor-management/vendor/_components/VendorList.jsx — ভাঙা doc_type = root_cf_forms.wh_settings_vendors লাইন (invalid JSX) রিমুভ করা হয়েছে।
+frontend/src/app/warehouse/(modules)/settings/vendor-management/vendor/page.jsx — কমেন্ট করা docType="wh_settings_vendors" প্রপ আনকমেন্ট করা হয়েছে (List component-এ পাস করার জন্য)।
+frontend/src/app/warehouse/(modules)/settings/vendor-management/vendor/update/[id]/page.jsx — handleCustomFieldService() ফাংশন ঠিক করা হয়েছে: raw object/JSON-string পাঠানোর বদলে bracket-notation FormData দিয়ে custom_fields পাঠানো হচ্ছে এখন (Edit পেজ থেকে custom field value সেভ না হওয়ার মূল কারণ ছিল এটা)।
