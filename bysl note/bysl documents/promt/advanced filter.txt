@@ -1,0 +1,10 @@
+now we develop AdvanceFilter.
+implement hobe inventory adjustment e
+F:\laragon\www\smart-warehouse-syntechbd\frontend\src\app\warehouse\(modules)\inventory\inventory-adjustment\page.jsx
+
+F:\laragon\www\smart-warehouse-syntechbd\backend\AppSmartWarehouse\Items\Helpers\AdvanceFilter.php
+F:\laragon\www\smart-warehouse-syntechbd\backend\AppSmartWarehouse\Items\Config\config.php
+
+
+F:\laragon\www\smart-warehouse-syntechbd\frontend\src\app\warehouse\(modules)\warehouses\warehouse\page.jsx (exesting kora ase follow this)
+F:\laragon\www\smart-warehouse-syntechbd\backend\AppSmartWarehouse\Warehouse\Services\WarehouseService.php
