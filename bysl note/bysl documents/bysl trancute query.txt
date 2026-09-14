@@ -42,6 +42,32 @@ TRUNCATE TABLE wh_warehouses_locations;
 TRUNCATE TABLE wh_warehouses_warehouses;
 TRUNCATE TABLE wh_setting_location_type;
 
+
+-- =========================================================
+-- Invenrory Tables
+-- =========================================================
+
+TRUNCATE TABLE inventory_adjustment_items;
+TRUNCATE TABLE inventory_adjustments;
+TRUNCATE TABLE wh_inventory_audit_item_variants;
+TRUNCATE TABLE wh_inventory_audit_items;
+TRUNCATE TABLE wh_inventory_audits;
+
+-- =========================================================
+-- Dashboard Tables
+-- =========================================================
+
+TRUNCATE TABLE wh_custom_widget_shares;
+TRUNCATE TABLE wh_custom_widgets;
+TRUNCATE TABLE wh_widget_shares;
+TRUNCATE TABLE wh_widget_modules;
+TRUNCATE TABLE wh_dashboard_widgets;
+TRUNCATE TABLE wh_dashboards;
+TRUNCATE TABLE wh_widgets;
+TRUNCATE TABLE wh_submodules;
+TRUNCATE TABLE wh_modules;
+TRUNCATE TABLE wh_settings_module_widgets;
+
 -- =========================================================
 -- Item Settings
 -- =========================================================
