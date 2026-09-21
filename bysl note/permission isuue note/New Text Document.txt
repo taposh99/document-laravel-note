@@ -1,0 +1,24 @@
+Permanently ঠিক করতে হলে ৩ জায়গায় হাত দিতে হবে:
+
+1. Root cause (কোড লেভেল) — এখনই ঠিক করা সম্ভব না
+
+ফাইল: AppSmartOffice\Admin\Services\PermissionService.php — এনকোডেড (asencode(...)), পড়া/এডিট করা যায় না এই এনভায়রনমেন্ট থেকে।
+সমস্যা এখানে: role তৈরি/আপডেট করার সময় (Permissions Group থেকে হোক বা Company Designation-এ role লিংক করার সময়) app_id সঠিক app-context (Appcode header) থেকে বসছে না — ভুল app-এর id বসে যাচ্ছে।
+এটা স্থায়ীভাবে ঠিক করতে হলে যাদের কাছে এনকোডিং-এর আগের আসল সোর্স আছে, তাদের এই ফাইলে role save করার লজিক ঠিক করতে হবে — Appcode header/current app থেকে app_id নেওয়া, hardcode বা ভুল ম্যাপিং থেকে না।
+2. DB সেফটি-নেট — এটা আগেই বসানো হয়েছে
+
+Trigger: fix_role_app_id (on role_has_permissions AFTER INSERT) — নতুন কোনো role-এ permission attach হলে সেই permission-এর app_id দিয়ে role-এর app_id অটো-কারেক্ট করে দেয়।
+সীমাবদ্ধতা: এটা শুধু নতুন role_has_permissions insert-এ কাজ করে। কোনো role তৈরি হয়ে গেলে কিন্তু কোনো নতুন permission attach না হলে (existing role reuse/relink), trigger ফায়ার হবে না।
+3. পুরনো ডেটা অডিট — মাঝেমধ্যে চালিয়ে চেক করা
+এই কোয়েরি দিয়ে সব company-তে mismatch খুঁজে বের করা যাবে:
+
+
+SELECT r.id, r.name, r.app_id AS role_app_id, p.app_id AS permission_app_id, COUNT(*) AS perm_count
+FROM roles r
+JOIN role_has_permissions rhp ON rhp.role_id = r.id
+JOIN permissions p ON p.id = rhp.permission_id
+WHERE r.app_id != p.app_id
+GROUP BY r.id, r.app_id, p.app_id;
+যা যা row আসবে, সেগুলোর role_app_id কে permission_app_id-তে UPDATE করে দিলেই ঠিক হয়ে যাবে (যেমনটা "Executive" role-এ করেছিলাম)।
+
+সংক্ষেপে: #2 আর #3 দিয়ে আপাতত সিস্টেম সুরক্ষিত/মনিটরড, কিন্তু আসল bug (#1) এনকোডেড ফাইলে থাকায় কোড-লেভেলে স্থায়ী fix করা এই সেশন থেকে সম্ভব না — ওটা backend developer-দের (যাদের আনএনকোডেড সোর্স আছে) করতে হবে।
