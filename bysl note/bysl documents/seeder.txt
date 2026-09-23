@@ -3,3 +3,7 @@ php artisan db:seed --class="AppSmartWarehouse\\Transaction\\Database\\Seeders\\
 php artisan db:seed --class=AdvanceFilterFieldSeeder
 php artisan db:seed --class="AppSmartWarehouse\Items\Database\Seeders\WarehouseCustomFieldSeeder"
 php artisan permission:seed
+
+php artisan app-module:seed AppSmartOffice Notification
+php artisan queue:clear
+php artisan	queue:work
