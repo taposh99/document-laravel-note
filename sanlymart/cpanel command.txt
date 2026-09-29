@@ -1,4 +1,4 @@
-cd public_html/sanlymart
+cd public_html/sanlymart.com
 
 
 
