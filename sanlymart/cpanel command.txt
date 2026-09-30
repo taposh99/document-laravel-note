@@ -1,0 +1,5 @@
+cd public_html/sanlymart.com
+
+
+
+git fetch origin main && git checkout origin/main -- resources/views/frontEnd/layouts/pages/campaign/campaign.blade.php resources/views/frontEnd/layouts/ajax/cart.blade.php app/Http/Controllers/Frontend/FrontendController.php app/Http/Controllers/Frontend/ShoppingController.php app/Http/Controllers/Frontend/CustomerController.php && php artisan view:clear && php artisan cache:clear
