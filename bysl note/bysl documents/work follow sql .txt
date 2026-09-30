@@ -1,0 +1,78 @@
+-- ================================================================
+-- STEP 0: Backup/দেখুন — কোন কোন row-এ malformed (ভাঙা) JSON আছে
+-- ================================================================
+SELECT id, title, process_flow_type,
+       actor_ids, designation_ids, other_unit_approver,
+       all_status_ids, ending_status_ids, rejection_status_ids
+FROM process_flow_steps
+WHERE NOT JSON_VALID(actor_ids)
+   OR NOT JSON_VALID(designation_ids)
+   OR NOT JSON_VALID(other_unit_approver)
+   OR NOT JSON_VALID(all_status_ids)
+   OR NOT JSON_VALID(ending_status_ids)
+   OR NOT JSON_VALID(rejection_status_ids);
+
+-- ================================================================
+-- STEP 1: malformed JSON ঠিক করা (escape missing হলে যোগ করে দেওয়া)
+-- ================================================================
+START TRANSACTION;
+
+UPDATE process_flow_steps
+SET
+    actor_ids = CASE WHEN JSON_VALID(actor_ids) THEN actor_ids
+        ELSE CONCAT('"', REPLACE(SUBSTRING(actor_ids, 2, LENGTH(actor_ids)-2), '"', '\\"'), '"') END,
+    designation_ids = CASE WHEN JSON_VALID(designation_ids) THEN designation_ids
+        ELSE CONCAT('"', REPLACE(SUBSTRING(designation_ids, 2, LENGTH(designation_ids)-2), '"', '\\"'), '"') END,
+    other_unit_approver = CASE WHEN JSON_VALID(other_unit_approver) THEN other_unit_approver
+        ELSE CONCAT('"', REPLACE(SUBSTRING(other_unit_approver, 2, LENGTH(other_unit_approver)-2), '"', '\\"'), '"') END,
+    all_status_ids = CASE WHEN JSON_VALID(all_status_ids) THEN all_status_ids
+        ELSE CONCAT('"', REPLACE(SUBSTRING(all_status_ids, 2, LENGTH(all_status_ids)-2), '"', '\\"'), '"') END,
+    ending_status_ids = CASE WHEN JSON_VALID(ending_status_ids) THEN ending_status_ids
+        ELSE CONCAT('"', REPLACE(SUBSTRING(ending_status_ids, 2, LENGTH(ending_status_ids)-2), '"', '\\"'), '"') END,
+    rejection_status_ids = CASE WHEN JSON_VALID(rejection_status_ids) THEN rejection_status_ids
+        ELSE CONCAT('"', REPLACE(SUBSTRING(rejection_status_ids, 2, LENGTH(rejection_status_ids)-2), '"', '\\"'), '"') END
+WHERE NOT JSON_VALID(actor_ids)
+   OR NOT JSON_VALID(designation_ids)
+   OR NOT JSON_VALID(other_unit_approver)
+   OR NOT JSON_VALID(all_status_ids)
+   OR NOT JSON_VALID(ending_status_ids)
+   OR NOT JSON_VALID(rejection_status_ids);
+
+-- ================================================================
+-- STEP 2: deleted employee-দের actor হিসেবে যেখানে সেট আছে, active employee দিয়ে replace
+--         (Parvez, sazzad, Sabbir Bahadur -> Rashed Ahmed)
+-- ================================================================
+UPDATE process_flow_steps
+SET actor_ids = REPLACE(
+    REPLACE(
+        REPLACE(actor_ids, 'a0fb7578-9335-4237-9457-b357db3e0d11', 'a05ecc55-1074-4177-b0fd-07bcfdd58477'),
+        'a08ebafe-9623-4765-8541-44171f0389cf', 'a05ecc55-1074-4177-b0fd-07bcfdd58477'
+    ),
+    'a0f33a09-6fa8-4b72-9cd5-07979374b0fd', 'a05ecc55-1074-4177-b0fd-07bcfdd58477'
+)
+WHERE actor_ids LIKE '%a0fb7578-9335-4237-9457-b357db3e0d11%'
+   OR actor_ids LIKE '%a08ebafe-9623-4765-8541-44171f0389cf%'
+   OR actor_ids LIKE '%a0f33a09-6fa8-4b72-9cd5-07979374b0fd%';
+
+-- ================================================================
+-- STEP 3: ভেরিফাই — দুটোই খালি আসা উচিত
+-- ================================================================
+SELECT id, title, actor_ids, all_status_ids, ending_status_ids, rejection_status_ids
+FROM process_flow_steps
+WHERE NOT JSON_VALID(actor_ids)
+   OR NOT JSON_VALID(designation_ids)
+   OR NOT JSON_VALID(other_unit_approver)
+   OR NOT JSON_VALID(all_status_ids)
+   OR NOT JSON_VALID(ending_status_ids)
+   OR NOT JSON_VALID(rejection_status_ids);
+
+SELECT id, title, actor_ids
+FROM process_flow_steps
+WHERE actor_ids LIKE '%a0fb7578-9335-4237-9457-b357db3e0d11%'
+   OR actor_ids LIKE '%a08ebafe-9623-4765-8541-44171f0389cf%'
+   OR actor_ids LIKE '%a0f33a09-6fa8-4b72-9cd5-07979374b0fd%';
+
+-- দুটো SELECT-ই খালি (empty result) দেখলে:
+COMMIT;
+-- কোনো row/সমস্যা দেখলে:
+-- ROLLBACK;

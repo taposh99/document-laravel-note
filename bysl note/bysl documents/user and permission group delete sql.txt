@@ -1,0 +1,41 @@
+START TRANSACTION;
+
+DELETE FROM model_has_roles WHERE role_id IN (
+  'a034978f-43aa-495b-8444-289f20da83d6','9f694336-2612-4a71-91b9-fb6bee53adcf',
+  '9f694336-26d0-4efc-a384-6cc447ae71fd','9f694336-2794-4482-adb7-c5dadf1736ca',
+  '9f694336-2823-4f37-8571-1df3bec55db5'
+) OR model_id IN (
+  'a01e5657-7b2b-48f3-b1e6-a657149deb85','a088936c-8c2c-469f-a80f-66243aace2f7',
+  'a1c2ac99-e959-4666-8404-01e6ad249468','a28be49f-a195-4c7b-8475-77ead5da88a1',
+  'a28be554-261f-4cb9-a3a1-2593490561fb','a2a608c9-23ff-4b01-9b29-bb5d2574a1d5',
+  'a2a61273-fb13-42a0-a6f4-683784e2aded','a2b43dfb-60d3-4383-bd10-fff35b6ef2dd',
+  'a2ce7f4d-e9bf-47ed-a82d-5edc84c68d23','a2ce8340-2f0b-42fb-96b8-53063fcdf6df',
+  'a2ce8d2d-60b8-47d7-812a-a56160e93687','a2ce9a47-878b-49dd-969e-21c4dafe4ea2',
+  'a2d80091-855d-4c9e-9f4c-0dcc4be4e6a4'
+);
+
+DELETE FROM roles WHERE id IN (
+  'a034978f-43aa-495b-8444-289f20da83d6',
+  '9f694336-2612-4a71-91b9-fb6bee53adcf',
+  '9f694336-26d0-4efc-a384-6cc447ae71fd',
+  '9f694336-2794-4482-adb7-c5dadf1736ca',
+  '9f694336-2823-4f37-8571-1df3bec55db5'
+);
+
+DELETE FROM users WHERE id IN (
+  'a01e5657-7b2b-48f3-b1e6-a657149deb85',
+  'a088936c-8c2c-469f-a80f-66243aace2f7',
+  'a1c2ac99-e959-4666-8404-01e6ad249468',
+  'a28be49f-a195-4c7b-8475-77ead5da88a1',
+  'a28be554-261f-4cb9-a3a1-2593490561fb',
+  'a2a608c9-23ff-4b01-9b29-bb5d2574a1d5',
+  'a2a61273-fb13-42a0-a6f4-683784e2aded',
+  'a2b43dfb-60d3-4383-bd10-fff35b6ef2dd',
+  'a2ce7f4d-e9bf-47ed-a82d-5edc84c68d23',
+  'a2ce8340-2f0b-42fb-96b8-53063fcdf6df',
+  'a2ce8d2d-60b8-47d7-812a-a56160e93687',
+  'a2ce9a47-878b-49dd-969e-21c4dafe4ea2',
+  'a2d80091-855d-4c9e-9f4c-0dcc4be4e6a4'
+);
+
+COMMIT;
