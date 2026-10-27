@@ -1,0 +1,13 @@
+DELIMITER $$
+
+CREATE TRIGGER fix_role_app_id
+AFTER INSERT ON role_has_permissions
+FOR EACH ROW
+BEGIN
+    UPDATE roles r
+    JOIN permissions p ON p.id = NEW.permission_id
+    SET r.app_id = p.app_id
+    WHERE r.id = NEW.role_id AND r.app_id != p.app_id;
+END$$
+
+DELIMITER ;

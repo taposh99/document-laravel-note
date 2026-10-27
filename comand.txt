@@ -148,6 +148,7 @@ rm composer.lock
 composer install
 
 
+php artisan db:seed --class="AppSmartWarehouse\Dashboard\Database\Seeders\DashboardDatabaseSeeder"
 
 
 

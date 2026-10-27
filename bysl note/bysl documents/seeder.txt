@@ -4,6 +4,12 @@ php artisan db:seed --class=AdvanceFilterFieldSeeder
 php artisan db:seed --class="AppSmartWarehouse\Items\Database\Seeders\WarehouseCustomFieldSeeder"
 php artisan permission:seed
 php artisan module:seed Dashboard
+php artisan db:seed --class="AppSmartWarehouse\\Items\\Database\\Seeders\\SkuConfig\\SystemSkuConfigSeeder"
+
+
+php artisan app-module:seed AppSmartOffice Notification
+php artisan queue:clear
+php artisan queue:work
 
 
 php artisan app-module:seed AppSmartOffice Notification
