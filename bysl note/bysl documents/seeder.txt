@@ -15,6 +15,7 @@ php artisan queue:work
 php artisan app-module:seed AppSmartOffice Notification
 php artisan queue:clear
 php artisan queue:work
+php artisan schedule:run
 
 
 
