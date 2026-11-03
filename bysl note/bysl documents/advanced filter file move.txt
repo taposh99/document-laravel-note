@@ -1,0 +1,106 @@
+# Advance Filter: Smart Warehouse module ভাগ (Live steps)
+
+## কী বদলেছে
+
+আগে Smart Warehouse-এর সব advance filter `AppSmartWarehouse/Items/Config/config.php`-এ ছিল। তাই Admin-এর Advance Filter page-এ সব filter Items tab-এ দেখাত, বাকি tab খালি থাকত।
+
+এখন প্রতিটা filter তার নিজের module-এর config-এ আছে:
+
+| Module | Filter (origin) |
+|---|---|
+| Items | wh_settings_item_types, wh_items_items, wh_settings_sku_configs, wh_settings_item_categories, wh_setting_item_tags, wh_settings_item_brands, wh_settings_item_attributes, wh_settings_item_mtd, wh_setting_measurement_types, wh_settings_measurement_unit, wh_settings_unit_of_measurement_conver, wh_settings_currencies |
+| Transaction | wh_settings_vendors, wh_settings_vendor_types, wh_settings_customers, wh_settings_customers_types, wh_transaction_checkins, wh_transaction_checkouts, wh_transaction_internal_transfers, wh_transaction_transfer_orders, wh_settings_item_priority_rules, wh_settings_transaction_types, audit_schedule (আগে থেকেই ছিল) |
+| Warehouse | wh_warehouses_warehouses, wh_warehouses_locations, wh_setting_location_type |
+| Inventory | inventory_adjustments, inventory_adjustment_items, wh_inventory_audits |
+| Report | wh_transaction_report, wh_stock_report, wh_warehouse_report, wh_inventory_audit_report |
+| Dashboard | warehouse_dashboard_module_widget, warehouse_dashboard_featured_widget |
+
+Filter-এর নাম (origin) একটাও বদলায়নি, তাই frontend-এ কিছু বদলাতে হবে না।
+
+## Deploy করার file
+
+- `AppSmartWarehouse/Items/Config/config.php`
+- `AppSmartWarehouse/Transaction/Config/config.php`
+- `AppSmartWarehouse/Warehouse/Config/config.php`
+- `AppSmartWarehouse/Inventory/Config/config.php`
+- `AppSmartWarehouse/Report/Config/config.php`
+- `AppSmartWarehouse/Dashboard/Config/config.php`
+- `app/Console/Commands/MoveWarehouseAdvanceFilterModules.php` (নতুন)
+
+## কেন আগে command, তারপর seeder
+
+`AdvanceFilterFieldSeeder` MongoDB-তে (`advance_filter_fields` collection) module আর origin মিলিয়ে document update করে। পুরোনো document মুছে না।
+
+তাই শুধু config বদলে seeder চালালে প্রতিটা filter দুইবার থাকবে: একবার Items-এ, একবার নতুন module-এ। এজন্য seeder-এর আগে command দিয়ে পুরোনো document-এর `module` বদলে দিতে হবে। Local-এ test করে দেখা হয়েছে।
+
+## Steps
+
+### ১. MongoDB backup
+
+Live `.env`-এর `MONGO_DB_HOST`, `MONGO_DB_PORT`, `MONGO_DB_DATABASE` দেখে নিন। দরকার হলে `--host`, `--port`, `--username`, `--password` দিন।
+
+```bash
+mongodump --db=smartlog --collection=advance_filter_fields --out=/root/backup_aff_2026_11_03
+```
+
+### ২. Code deploy
+
+উপরের "Deploy করার file" list-এর সব file live-এ পাঠান।
+
+### ৩. Config cache পরিষ্কার
+
+```bash
+php artisan config:clear
+```
+
+### ৪. Dry run (কিছু বদলায় না, শুধু দেখায়)
+
+```bash
+php artisan advance-filter:move-warehouse-modules --dry-run
+```
+
+এমন আসার কথা:
+
+```
+Transaction: 10 doc(s) will move
+Warehouse: 3 doc(s) will move
+Inventory: 3 doc(s) will move
+Report: 4 doc(s) will move
+Dashboard: 2 doc(s) will move
+```
+
+সংখ্যা কম আসলে সমস্যা নেই। হয়তো live-এ সব filter আগে seed করা হয়নি, seeder সেগুলো নতুন module-এ বানিয়ে নেবে।
+
+### ৫. Document-এর module বদলানো
+
+```bash
+php artisan advance-filter:move-warehouse-modules
+```
+
+### ৬. Seeder চালানো (অবশ্যই step ৫-এর পরে)
+
+```bash
+php artisan db:seed --class=AdvanceFilterFieldSeeder
+```
+
+### ৭. যাচাই
+
+- Admin > Advance Filter > Smart Warehouse page-এ প্রতিটা tab খুলে দেখুন। উপরের table-এর মতো filter দেখাবে কিনা।
+- Check In, Core, Item, Print, User Management tab খালি থাকবে। এদের নিজের কোনো filter নেই।
+- একই origin দুইবার আসছে কিনা দেখুন।
+- কয়েকটা list page-এ (Vendor, Warehouse, Check Out, Stock Report, Dashboard widget) Advance Filter খুলে চালিয়ে দেখুন।
+
+## সমস্যা হলে ফেরানো
+
+Step ১-এর backup দিয়ে collection আগের অবস্থায় ফেরান:
+
+```bash
+mongorestore --db=smartlog --collection=advance_filter_fields --drop /root/backup_aff_2026_11_03/smartlog/advance_filter_fields.bson
+```
+
+তারপর পুরোনো config file আবার deploy করে `php artisan config:clear` চালান।
+
+## Note
+
+- `wh_item_stocks` নামে একটা পুরোনো document Items-এ আছে, কোনো config-এ নেই। Seeder এটা ছোঁয় না। আপাতত যেমন আছে তেমনই থাকবে।
+- Command আবার চালালেও সমস্যা নেই। যেগুলো আগেই সরানো, সেগুলো আর ধরে না।
